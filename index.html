@@ -145,20 +145,20 @@ body {
 
 // 本当にSupabaseのAI（Edge Function）を呼び出す処理！
 try {
-    const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
-    });
-    const data = await response.json();
-    appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
-} catch (error) {
-    appendMessage("通信エラーが発生したぜ。設定を見直してみよう！", false);
-} finally {
-    userInput.disabled = false;
-    sendBtn.disabled = false;
-    userInput.focus();
-}
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            }); // 👈 ここ！丸カッコと波カッコがちゃんと閉じているか確認！
+            const data = await response.json();
+            appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
+        } catch (error) {
+            appendMessage("通信エラーが発生したぜ。設定を見直してみよう！", false);
+        } finally {
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
 
     sendBtn.addEventListener('click', handleSend);
     userInput.addEventListener('keypress', (e) => {
