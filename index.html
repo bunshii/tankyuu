@@ -1,167 +1,76 @@
-body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCEAN COMPASS</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        #chat-container { flex: 1; border: 1px solid #ccc; background: white; border-radius: 8px; padding: 20px; overflow-y: auto; margin-bottom: 20px; }
+        .message { margin-bottom: 15px; padding: 10px 15px; border-radius: 20px; max-width: 70%; word-wrap: break-word; }
+        .user-message { background: #0084ff; color: white; align-self: flex-end; margin-left: auto; }
+        .ai-message { background: #e4e6eb; color: black; align-self: flex-start; }
+        #input-container { display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 16px; }
+        button { padding: 12px 24px; background: #0084ff; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #ccc; }
+    </style>
+</head>
+<body>
 
-    header {
-        background-color: var(--container-bg);
-        padding: 15px 20px;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    h1 {
-        margin: 0;
-        font-size: 1.2rem;
-        letter-spacing: 1px;
-        color: var(--accent-color);
-    }
-
-    #chat-container {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .message {
-        max-width: 75%;
-        padding: 12px 16px;
-        border-radius: 12px;
-        line-height: 1.5;
-        font-size: 0.95rem;
-    }
-
-    .user-message {
-        background-color: var(--accent-color);
-        color: #0f172a;
-        align-self: flex-end;
-        border-bottom-right-radius: 4px;
-        font-weight: bold;
-    }
-
-    .ai-message {
-        background-color: var(--container-bg);
-        color: var(--text-color);
-        align-self: flex-start;
-        border-bottom-left-radius: 4px;
-        border: 1px solid var(--border-color);
-    }
-
-    #input-container {
-        padding: 20px;
-        background-color: var(--container-bg);
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        gap: 10px;
-    }
-
-    input {
-        flex: 1;
-        background-color: var(--bg-color);
-        border: 1px solid var(--border-color);
-        padding: 12px;
-        border-radius: 8px;
-        color: var(--text-color);
-        font-size: 1rem;
-        outline: none;
-    }
-
-    input:focus {
-        border-color: var(--accent-color);
-    }
-
-    button {
-        background-color: var(--accent-color);
-        color: #0f172a;
-        border: none;
-        padding: 0 20px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: opacity 0.2s;
-    }
-
-    button:hover {
-        opacity: 0.9;
-    }
-
-    button:disabled {
-        background-color: #64748b;
-        cursor: not-allowed;
-    }
-</style>
-<header>
-    <h1>🧭 OCEAN COMPASS</h1>
-    <span style="font-size: 0.8rem; color: #94a3b8;">Production V1.0</span>
-</header>
-
-<div id="chat-container">
-    <div class="message ai-message">
-        おかえり、相棒！「OCEAN COMPASS」のコックピットへようこそ。24時間いつでも、君の探究の航海をサポートするぜ。何から始める？
+    <h2>🧭 OCEAN COMPASS</h2>
+    <div id="chat-container"></div>
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="メッセージを入力...">
+        <button id="send-btn">送信</button>
     </div>
-</div>
 
-<div id="input-container">
-    <input type="text" id="user-input" placeholder="メッセージを入力..." autocomplete="off">
-    <button id="send-btn">送信</button>
-</div>
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
 
-<script>
-    const chatContainer = document.getElementById('chat-container');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-
-    // メッセージを画面に追加する関数
-    function appendMessage(text, isUser) {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message');
-        msgDiv.classList.add(isUser ? 'user-message' : 'ai-message');
-        msgDiv.innerText = text;
-        chatContainer.appendChild(msgDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    // 送信ボタンを押した時の処理
-    async function handleSend() {
-        const text = userInput.value.trim();
-        if (!text) return;
-
-        appendMessage(text, true);
-        userInput.value = '';
-        
-        userInput.disabled = true;
-        sendBtn.disabled = true;
-
-// 本当にSupabaseのAI（Edge Function）を呼び出す処理！
-try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
-            }); // 👈 ここ！丸カッコと波カッコがちゃんと閉じているか確認！
-            const data = await response.json();
-            appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
-        } catch (error) {
-            appendMessage("通信エラーが発生したぜ。設定を見直してみよう！", false);
-        } finally {
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
+        function appendMessage(text, isUser) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+            msgDiv.innerText = text;
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-    sendBtn.addEventListener('click', handleSend);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSend();
-    });
-</script>
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            appendMessage(text, true);
+            userInput.value = '';
+
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await response.json();
+                appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
+            } catch (error) {
+                appendMessage("通信エラーが発生したぜ。設定を見直してみよう！", false);
+            } finally {
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+    </script>
+</body>
+</html>
