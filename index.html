@@ -143,14 +143,22 @@ body {
         userInput.disabled = true;
         sendBtn.disabled = true;
 
-        // ここに後でVercel/SupabaseのAI呼び出しURLをドッキングさせるぞ！
-        setTimeout(() => {
-            appendMessage("（金庫の鍵とドッキング中…URLが完成したらここにAIの返答が爆速で返ってくるぞ！）", false);
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
-        }, 1000);
-    }
+// 本当にSupabaseのAI（Edge Function）を呼び出す処理！
+try {
+    const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+    });
+    const data = await response.json();
+    appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
+} catch (error) {
+    appendMessage("通信エラーが発生したぜ。設定を見直してみよう！", false);
+} finally {
+    userInput.disabled = false;
+    sendBtn.disabled = false;
+    userInput.focus();
+}
 
     sendBtn.addEventListener('click', handleSend);
     userInput.addEventListener('keypress', (e) => {
