@@ -50,17 +50,21 @@
             userInput.disabled = true;
             sendBtn.disabled = true;
 
-            try {
-                // 君のSupabaseのURLへ直接メッセージを投げる！
+try {
+                // VercelからSupabaseへメッセージを投げる
                 const response = await fetch('https://pecjazibatigmadxfnqr.supabase.co/functions/v1/chat', {
                     method: 'POST',
                     headers: { 
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        // ★Vercelがデプロイするときに、この文字列を本物の鍵に自動で置き換えてくれるぜ！
+                        'Authorization': 'Bearer ' + 'VERCEL_REPLACE_ANON_KEY',
+                        'apikey': 'VERCEL_REPLACE_ANON_KEY'
                     },
                     body: JSON.stringify({ message: text })
                 });
                 const data = await response.json();
                 appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
+            }
             } catch (error) {
                 appendMessage("通信エラーが発生したぜ。設定を見直してみよう！", false);
             } finally {
