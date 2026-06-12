@@ -42,6 +42,7 @@
 
         async function handleSend() {
             const text = userInput.value.trim();
+            // ★原因①：ここが空っぽを弾く機能だ！文字を打たないと反応しないぜ！
             if (!text) return;
 
             appendMessage(text, true);
@@ -51,14 +52,13 @@
             sendBtn.disabled = true;
 
             try {
-                // 君のSupabaseのURLへメッセージを投げる！
                 const response = await fetch('https://pecjazibatigmadxfnqr.supabase.co/functions/v1/chat', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        // ★普通のHTMLなので、ここに直接本物のAnon Key（eyJ...）を貼り付けるのが確実で安全だ！
-                        'Authorization': 'Bearer ' + 'ここに君の本物のAnon_Keyを貼り付ける',
-                        'apikey': 'ここに君の本物のAnon_Keyを貼り付ける'
+                        // ★原因②対策： ' と ' の間に鍵を貼り付ける！ ' は絶対に消すなよ！
+                        'Authorization': 'Bearer sb_publishable_47ZOk6_fhNkfp79NmovPSg_bspXEDfy',
+                        'apikey': 'sb_publishable_47ZOk6_fhNkfp79NmovPSg_bspXEDfy'
                     },
                     body: JSON.stringify({ message: text })
                 });
