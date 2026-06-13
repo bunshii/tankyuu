@@ -11,14 +11,14 @@ export default async function handler(req, res) {
     try {
         const { message } = req.body;
         
-        // Vercelに登録する環境変数から、安全にHugging Faceの鍵を読み込む！
+        // Vercelの金庫から、さっき登録した本物のHugging Faceの鍵を読み込む！
         const hfToken = process.env.HF_TOKEN;
 
         if (!hfToken) {
             return res.status(500).json({ reply: "エラー：Vercelに『HF_TOKEN』が登録されてないぜ！" });
         }
 
-        // VercelからHugging Faceへ直接アタック！
+        // VercelのサーバーからHugging Faceへ直接アタック！（制限なし！）
         const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct", {
             method: "POST",
             headers: {
