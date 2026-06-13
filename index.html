@@ -51,19 +51,21 @@
             sendBtn.disabled = true;
 
             try {
-                // ★ここが最大のポイント！自分のVercelの裏の部屋（/api/chat）を呼び出すぜ！
-                // 面倒なAuthorizationヘッダーや、むき出しの鍵はもう一切いらない！
-                const response = await fetch('/api/chat', {
+                // 君のSupabaseのURLへ直撃！
+                const response = await fetch('https://pecjazibatigmadxfnqr.supabase.co/functions/v1/chat', {
                     method: 'POST',
                     headers: { 
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        // ★ここに「SupabaseのAnon Key（eyJ...）」を貼り付ける！
+                        'Authorization': 'Bearer ' + 'sb_publishable_47ZOk6_fhNkfp79NmovPSg_bspXEDfy',
+                        'apikey': 'sb_publishable_47ZOk6_fhNkfp79NmovPSg_bspXEDfy'
                     },
                     body: JSON.stringify({ message: text })
                 });
                 const data = await response.json();
                 appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
             } catch (error) {
-                appendMessage("Vercelとの通信でエラーが発生したぜ。設定を見直してみよう！", false);
+                appendMessage("通信エラーが発生したぜ。設定を見直してみよう！", false);
             } finally {
                 userInput.disabled = false;
                 sendBtn.disabled = false;
