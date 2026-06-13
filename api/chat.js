@@ -1,37 +1,50 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+    // 違うサイトからの怪しいアクセスを弾く設定（CORS）
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    const { message } = req.body;
-    
-    // Vercelに登録したSupabaseの鍵を呼び出す
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-        return res.status(500).json({ reply: "サーバーのエラー：Supabaseの鍵（環境変数）が設定されていないぜ！" });
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
 
     try {
-        // ここでSupabaseのEdge Function（Llama 3が待っている場所）を呼び出す
-        // ※もし事前にSupabase側でURLを作っている場合は、ここのURLをそのエンドポイントに書き換える
-        const response = await fetch(`${supabaseUrl}/functions/v1/chat`, {
-            method: 'POST',
+        const { message } = req.body;
+        
+        // Vercelに登録する環境変数から、安全にHugging Faceの鍵を読み込む！
+        const hfToken = process.env.HF_TOKEN;
+
+        if (!hfToken) {
+            return res.status(500).json({ reply: "エラー：Vercelに『HF_TOKEN』が登録されてないぜ！" });
+        }
+
+        // VercelからHugging Faceへ直接アタック！
+        const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseKey}`
+                "Authorization": `Bearer ${hfToken}`,
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                model: "meta-llama/Meta-Llama-3-8B-Instruct",
-                message: message
-            })
+                inputs: message,
+                parameters: { max_new_tokens: 300, return_full_text: false }
+            }),
         });
 
         const data = await response.json();
-        return res.status(200).json({ reply: data.reply || "Supabaseからの返答が空っぽだったぞ！" });
+        
+        let replyText = "";
+        if (Array.isArray(data) && data[0]?.generated_text) {
+            replyText = data[0].generated_text;
+        } else if (data.generated_text) {
+            replyText = data.generated_text;
+        } else {
+            replyText = "AIからの返答の形がいつもと違うぜ： " + JSON.stringify(data);
+        }
+
+        return res.status(200).json({ reply: replyText });
 
     } catch (error) {
-        return res.status(500).json({ reply: "裏側の通信でエラーが発生したぜ。SupabaseのURLやログを確認してみてくれ！" });
+        return res.status(500).json({ reply: "Vercelの裏の部屋でのエラーだぜ: " + error.message });
     }
 }
