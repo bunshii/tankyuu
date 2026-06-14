@@ -8,9 +8,8 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: sans-serif; box-sizing: border-box; background: #4361ee; }
         input:focus, select:focus, textarea:focus { outline: none; }
-        /* スクロールバーを非表示にしてアプリ感をアップ */
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -19,11 +18,12 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        // Reactの機能をブラウザ用に取り出す
         const { useState, useEffect, useRef } = React;
 
         const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
 
-        // スタイル定数
+        // 深海テーマのスタイル設定
         const theme = {
             bg: 'linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%)',
             glass: 'rgba(255, 255, 255, 0.2)',
@@ -45,14 +45,10 @@
         };
 
         function App() {
-            // --- 1. 状態管理（TypeScriptの型を排除し、安全にLocalStorage連動） ---
+            // --- 1. 状態管理（LocalStorageを使ってパソコン内にデータを自動保存） ---
             const [profile, setProfile] = useState(() => {
                 const saved = localStorage.getItem('ocean_profile');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (!parsed.id) parsed.id = `D-${Math.floor(1000 + Math.random() * 9000)}`;
-                    return parsed;
-                }
+                if (saved) return JSON.parse(saved);
                 return { 
                     id: `D-${Math.floor(1000 + Math.random() * 9000)}`, 
                     name: "DIVER_01", 
@@ -61,7 +57,13 @@
                 };
             });
 
-            const [todos, setTodos] = useState([]);
+            const [todos, setTodos] = useState(() => {
+                const saved = localStorage.getItem('ocean_todos');
+                return saved ? JSON.parse(saved) : [
+                    { id: "1", text: "クジラの生態を調べる", done: false },
+                    { id: "2", text: "単語帳を5個進める", done: true }
+                ];
+            });
 
             const [regularTimetable, setRegularTimetable] = useState(() => {
                 const saved = localStorage.getItem('ocean_regular_table');
@@ -86,7 +88,7 @@
                 return saved ? JSON.parse(saved) : [10, 20, 15, 45, 30, 0, 0];
             });
 
-            // 一時的な状態
+            // 画面切り替え用の状態
             const [activeTab, setActiveTab] = useState('home');
             const [isDiving, setIsDiving] = useState(false);
             const [diveMode, setDiveMode] = useState('countdown');
@@ -95,9 +97,8 @@
             const [timeElapsed, setTimeElapsed] = useState(0);
             const [pressureWarning, setPressureWarning] = useState(false);
             const [isHolidayMode, setIsHolidayMode] = useState(false);
-            const [bubbleNotification, setBubbleNotification] = useState("");
 
-            // モーダル・入力関連
+            // モーダル・入力用
             const [showTodoInput, setShowTodoInput] = useState(false);
             const [showReviewModal, setShowReviewModal] = useState(false);
             const [newTodoText, setNewTodoText] = useState("");
@@ -108,37 +109,24 @@
             const [inputJa, setInputJa] = useState("");
             const [isGlobalBlur, setIsGlobalBlur] = useState(true);
 
-            const fileInputRef = useRef(null);
-
-            // フレンド機能用の状態（スタンドアロンで動くようにモックデータを初期値に設定）
-            const [friends, setFriends] = useState([
+            // チーム機能（サーバーなしで動くようにモックデータ化）
+            const [friends] = useState([
                 { id: "D-4432", name: "TAKUYA", depth: 45, status: 'diving', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Takuya" },
                 { id: "D-8821", name: "YUKA", depth: 0, status: 'resting', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Yuka" }
             ]);
-            const [friendIdInput, setFriendIdInput] = useState("");
-            const [friendMessage, setFriendMessage] = useState("");
 
+            const fileInputRef = useRef(null);
             const currentTimetable = isHolidayMode ? holidayTimetable : regularTimetable;
 
-            // --- 2. データ自動保存 (LocalStorage) ---
+            // --- 2. 自動保存エフェクト ---
             useEffect(() => { localStorage.setItem('ocean_profile', JSON.stringify(profile)); }, [profile]);
+            useEffect(() => { localStorage.setItem('ocean_todos', JSON.stringify(todos)); }, [todos]);
             useEffect(() => { localStorage.setItem('ocean_regular_table', JSON.stringify(regularTimetable)); }, [regularTimetable]);
             useEffect(() => { localStorage.setItem('ocean_holiday_table', JSON.stringify(holidayTimetable)); }, [holidayTimetable]);
             useEffect(() => { localStorage.setItem('ocean_words', JSON.stringify(words)); }, [words]);
             useEffect(() => { localStorage.setItem('ocean_history', JSON.stringify(history)); }, [history]);
 
-            // アプリ起動時にローカルサーバー（3000番）があればデータを取りにいく（落ちていても動くフォールバック付き）
-            useEffect(() => {
-                fetch("http://localhost:3000/api/todos")
-                    .then((res) => res.json())
-                    .then((data) => {
-                        const mappedTodos = data.map(t => ({ id: t.id, text: t.text, done: t.completed || t.done || false }));
-                        setTodos(mappedTodos);
-                    })
-                    .catch((err) => console.log("ローカルサーバー未接続です。スタンドアロンで動作します。"));
-            }, []);
-
-            // --- 3. グラフ自動記録ロジック ---
+            // --- 3. タイマーロジック ---
             const recordLearningTime = (minutes) => {
                 if (minutes <= 0) return;
                 const rawDay = new Date().getDay();
@@ -157,7 +145,7 @@
                     recordLearningTime(diveMinutes);
                     setTimeout(() => alert(`🎉 ミッション完了！${diveMinutes}分間の潜水に成功しました。`), 100);
                 }
-            }, [timeLeft, isDiving, diveMode]);
+            }, [timeLeft, isDiving, diveMode, diveMinutes]);
 
             useEffect(() => {
                 let timer;
@@ -200,36 +188,33 @@
                     recordLearningTime(finalMinutes);
                     setTimeout(() => alert(`急浮上しました。今回は ${finalMinutes}分間 潜水しました！`), 100);
                 } else {
-                    setTimeout(() => alert(`急浮上しました。1分未満の潜水のためログには記録されませんでした。`), 100);
+                    setTimeout(() => alert(`急浮上しました。1分未満のログは記録されませんでした。`), 100);
                 }
             };
 
-            const handleToggleTodo = (id, currentDone) => {
-                const nextStatus = !currentDone;
-                setTodos(todos.map(t => t.id === id ? { ...t, done: nextStatus } : t));
+            // --- 4. 各種アクション ---
+            const handleToggleTodo = (id) => {
+                setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
             };
 
             const addQuickTodo = () => {
                 if (!newTodoText.trim()) return;
-                const fallbackTodo = { id: String(Date.now()), text: newTodoText.trim(), done: false };
-                setTodos([fallbackTodo, ...todos]);
+                setTodos([{ id: String(Date.now()), text: newTodoText.trim(), done: false }, ...todos]);
                 setNewTodoText("");
                 setShowTodoInput(false);
             };
 
-            const handleAiReview = async () => {
+            const handleAiReview = () => {
                 if (!reviewInput.trim()) return;
                 setIsAiLoading(true);
                 setAiResponse("");
-
-                // スタンドアロン環境用のモック返答（即時モチベーションアップ！）
+                // 船長からの自動返信メッセージ（1秒後に返ってくる演出）
                 setTimeout(() => {
-                    const mockReplies = [
-                        `船長より：『${reviewInput}』か！素晴らしい潜水だったな。今日の水圧を耐え抜いた君の身体には、確実に深海の知恵が刻まれている。明日の海流も味方にしていこう！`,
-                        `船長より：なるほど、今日の海は少し荒れていたようだな。だが航海日誌に『${reviewInput}』と刻んだその一歩が偉大だ。焦るな、深海の財宝は逃げやしないさ。ゆっくり休めよ！`,
-                        `船長より：素晴らしい！君の集中力はダイオウイカをも圧倒するレベルだ。『${reviewInput}』という最高の成果を抱えて、明日はさらに深い未知の領域へ潜水開始だ！`
+                    const replies = [
+                        `船長より：『${reviewInput}』か！素晴らしい潜水だった。今日の水圧を耐え抜いた君には、確実に深海の知恵が刻まれている。明日の海流も味方にしていこう！`,
+                        `船長より：なるほどな。だが航海日誌に『${reviewInput}』と刻んだその一歩が偉大だ。焦るな、深海の財宝は逃げやしない。ゆっくり休めよ！`
                     ];
-                    setAiResponse(mockReplies[Math.floor(Math.random() * mockReplies.length)]);
+                    setAiResponse(replies[Math.floor(Math.random() * replies.length)]);
                     setIsAiLoading(false);
                 }, 1000);
             };
@@ -238,15 +223,6 @@
                 const m = Math.floor(seconds / 60);
                 const s = seconds % 60;
                 return `${m}:${s < 10 ? '0' : ''}${s}`;
-            };
-
-            const handleImageChange = (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => setProfile({ ...profile, avatar: reader.result });
-                    reader.readAsDataURL(file);
-                }
             };
 
             const toggleGlobalBlur = () => {
@@ -260,16 +236,16 @@
                 if (isHolidayMode) { setHolidayTimetable(updateTable); } else { setRegularTimetable(updateTable); }
             };
 
-            // --- 潜水モード画面 ---
+            // --- 🌊 潜水モード画面 ---
             if (isDiving) {
                 const totalInitialSeconds = diveMinutes * 60;
                 const oxygenRate = diveMode === 'countdown' ? (timeLeft / totalInitialSeconds) * 100 : 100;
                 const currentDepth = Math.floor(timeElapsed * 0.5);
                 return (
-                    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #001d3d 0%, #000814 100%)', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-                        <div style={{ fontSize: '80px', fontWeight: '100', zIndex: 10 }}>{diveMode === 'countdown' ? formatTime(timeLeft) : formatTime(timeElapsed)}</div>
+                    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #001d3d 0%, #000814 100%)', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                        <div style={{ fontSize: '80px', fontWeight: '100' }}>{diveMode === 'countdown' ? formatTime(timeLeft) : formatTime(timeElapsed)}</div>
                         <div style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '20px' }}>{diveMode === 'countdown' ? 'TIME REMAINING' : 'TIME ELAPSED'}</div>
-                        <div style={{ width: '250px', zIndex: 10 }}>
+                        <div style={{ width: '250px' }}>
                             {diveMode === 'countdown' ? (
                                 <>
                                     <div style={{ fontSize: '0.7rem', marginBottom: '5px' }}>OXYGEN LEVEL</div>
@@ -284,228 +260,202 @@
                                 </div>
                             )}
                         </div>
-                        {pressureWarning && <div style={{ position: 'absolute', top: '25%', background: 'rgba(255, 77, 77, 0.2)', padding: '12px 24px', borderRadius: '15px', border: '1px solid #ff4d4d', color: '#ff4d4d', fontWeight: 'bold', zIndex: 10 }}>⚠️ 水圧上昇：集中が乱れています！</div>}
-                        <button onClick={handleSurfacing} style={{ marginTop: '60px', background: 'none', border: '1px solid #fff', color: '#fff', padding: '12px 40px', borderRadius: '30px', cursor: 'pointer', zIndex: 10 }}>浮上する</button>
+                        {pressureWarning && <div style={{ position: 'absolute', top: '25%', background: 'rgba(255, 77, 77, 0.2)', padding: '12px 24px', borderRadius: '15px', border: '1px solid #ff4d4d', color: '#ff4d4d', fontWeight: 'bold' }}>⚠️ 水圧上昇：集中が乱れています！</div>}
+                        <button onClick={handleSurfacing} style={{ marginTop: '60px', background: 'none', border: '1px solid #fff', color: '#fff', padding: '12px 40px', borderRadius: '30px', cursor: 'pointer' }}>浮上する</button>
                     </div>
                 );
             }
 
-            // --- メイン画面 ---
+            // --- ⛵ メイン画面 ---
             return (
-                <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, fontFamily: 'sans-serif', paddingBottom: '110px', boxSizing: 'border-box', overflowX: 'hidden' }}>
-                    
-                    {bubbleNotification && (
-                        <div style={{ position: 'fixed', top: '20px', left: '20px', right: '20px', background: 'rgba(0, 26, 51, 0.9)', color: '#4cc9f0', padding: '15px 20px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', border: '2px solid #4cc9f0', zIndex: 2000, fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
-                            {bubbleNotification}
-                        </div>
-                    )}
-
-                    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px', position: 'relative', zIndex: 1, boxSizing: 'border-box' }}>
+                <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, paddingBottom: '110px', boxSizing: 'border-box' }}>
+                    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px' }}>
                         
                         {/* ヘッダー */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                             <img src={profile.avatar} style={{ width: '45px', height: '45px', borderRadius: '50%', border: '2px solid #fff', objectFit: 'cover', cursor: 'pointer' }} onClick={() => setActiveTab('settings')} />
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <span style={{ fontWeight: '900', letterSpacing: '3px' }}>OCEAN COMPASS</span>
-                                <span style={{ fontSize: '0.65rem', opacity: 0.8, letterSpacing: '1px', background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginTop: '3px' }}>
+                                <span style={{ fontSize: '0.65rem', opacity: 0.8, background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginTop: '3px' }}>
                                     ID: {profile.id} ⚓️ {profile.name}
                                 </span>
                             </div>
                             <span style={{ fontSize: '1.2rem' }}>🐠</span>
                         </div>
 
-                        {/* 🏠 ホーム */}
+                        {/* 🏠 ホームタブ */}
                         {activeTab === 'home' && (
-                            <div>
-                                <div style={cardStyle}>
-                                    <div style={{ fontSize: '0.8rem', marginBottom: '8px', opacity: 0.8 }}>今週の潜水記録（分）</div>
-                                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '100px', gap: '8px' }}>
-                                        {history.map((h, i) => {
-                                            const heightPercent = Math.min((h / 120) * 100, 100);
-                                            const isToday = (new Date().getDay() === 0 ? 6 : new Date().getDay() - 1) === i;
-                                            return (
-                                                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                    <div style={{ background: isToday ? theme.accent : '#fff', height: `${Math.max(heightPercent, 5)}px`, width: '100%', borderRadius: '4px', opacity: isToday ? 1 : 0.6 }} />
-                                                    <span style={{ fontSize: '0.6rem', marginTop: '4px', opacity: 0.7 }}>{DAYS[i]}</span>
-                                                    <span style={{ fontSize: '0.5rem', opacity: 0.5 }}>{h}m</span>
-                                                </div>
-                                            );
-                                        })}
+                          <div>
+                            <div style={cardStyle}>
+                              <div style={{ fontSize: '0.8rem', marginBottom: '8px', opacity: 0.8 }}>今週の潜水記録（分）</div>
+                              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '100px', gap: '8px' }}>
+                                {history.map((h, i) => {
+                                  const heightPercent = Math.min((h / 120) * 100, 100);
+                                  const isToday = (new Date().getDay() === 0 ? 6 : new Date().getDay() - 1) === i;
+                                  return (
+                                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                      <div style={{ background: isToday ? theme.accent : '#fff', height: `${Math.max(heightPercent, 5)}px`, width: '100%', borderRadius: '4px', opacity: isToday ? 1 : 0.6 }} />
+                                      <span style={{ fontSize: '0.6rem', marginTop: '4px', opacity: 0.7 }}>{DAYS[i]}</span>
                                     </div>
-                                </div>
-
-                                <div style={{ ...cardStyle, background: 'rgba(0,0,0,0.1)' }}>
-                                    <div style={{ fontSize: '0.8rem', marginBottom: '10px', opacity: 0.8 }}>潜水設定</div>
-                                    <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                                        <select value={diveMode} onChange={e => setDiveMode(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)' }}>
-                                            <option value="countdown" style={{color: '#333'}}>カウントダウン</option>
-                                            <option value="countup" style={{color: '#333'}}>カウントアップ</option>
-                                        </select>
-                                        {diveMode === 'countdown' && (
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                <input type="number" value={diveMinutes} onChange={e => setDiveMinutes(Number(e.target.value))} style={{ width: '60px', padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', textAlign: 'center' }} min="1" />
-                                                <span>分</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <button onClick={startDive} style={{ width: '100%', background: theme.accent, border: 'none', color: '#fff', borderRadius: '18px', fontWeight: 'bold', height: '60px', fontSize: '1.1rem', boxShadow: '0 6px 0 #cc7e00', cursor: 'pointer' }}>潜水開始</button>
-                                </div>
-
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button onClick={() => setShowTodoInput(true)} style={{ flex: 1, background: theme.glassStrong, border: 'none', color: '#fff', borderRadius: '15px', padding: '15px', cursor: 'pointer' }}>+ クイックToDo</button>
-                                    <button onClick={() => { setShowReviewModal(true); setAiResponse(""); setReviewInput(""); }} style={{ flex: 1, background: '#fff', border: 'none', color: '#4361ee', borderRadius: '15px', padding: '15px', fontWeight: 'bold', cursor: 'pointer' }}>🧠 AI振り返り</button>
-                                </div>
+                                  );
+                                })}
+                              </div>
                             </div>
+
+                            <div style={{ ...cardStyle, background: 'rgba(0,0,0,0.1)' }}>
+                              <div style={{ fontSize: '0.8rem', marginBottom: '10px', opacity: 0.8 }}>潜水設定</div>
+                              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                                <select value={diveMode} onChange={e => setDiveMode(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)' }}>
+                                  <option value="countdown" style={{color: '#333'}}>カウントダウン</option>
+                                  <option value="countup" style={{color: '#333'}}>カウントアップ</option>
+                                </select>
+                                {diveMode === 'countdown' && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <input type="number" value={diveMinutes} onChange={e => setDiveMinutes(Number(e.target.value))} style={{ width: '60px', padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', textAlign: 'center' }} />
+                                    <span>分</span>
+                                  </div>
+                                )}
+                              </div>
+                              <button onClick={startDive} style={{ width: '100%', background: theme.accent, border: 'none', color: '#fff', borderRadius: '18px', fontWeight: 'bold', height: '60px', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 4px 0 #cc7e00' }}>潜水開始</button>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                              <button onClick={() => setShowTodoInput(true)} style={{ flex: 1, background: theme.glassStrong, border: 'none', color: '#fff', borderRadius: '15px', padding: '15px', cursor: 'pointer' }}>+ クイックToDo</button>
+                              <button onClick={() => { setShowReviewModal(true); setAiResponse(""); setReviewInput(""); }} style={{ flex: 1, background: '#fff', border: 'none', color: '#4361ee', borderRadius: '15px', padding: '15px', fontWeight: 'bold', cursor: 'pointer' }}>🧠 AI振り返り</button>
+                            </div>
+                          </div>
                         )}
 
-                        {/* 📅 スケジュール */}
+                        {/* 📅 スケジュールタブ */}
                         {activeTab === 'schedule' && (
-                            <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
-                                    <h2 style={{ fontSize: '1.2rem', margin: 0 }}>予定リスト</h2>
-                                    <button onClick={() => setIsHolidayMode(!isHolidayMode)} style={{ background: isHolidayMode ? theme.accent : '#fff', color: isHolidayMode ? '#fff' : theme.accent, border: 'none', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}>
-                                        {isHolidayMode ? "🏖 長期休みモード中" : "通常モード"}
-                                    </button>
-                                </div>
-                                <div style={cardStyle}>
-                                    {todos.length === 0 ? (
-                                        <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>タスクはありません。クイックToDoから追加しましょう！</p>
-                                    ) : (
-                                        todos.map(t => (
-                                            <div key={t.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                                                <input type="checkbox" checked={t.done} onChange={() => handleToggleTodo(t.id, t.done)} />
-                                                <span style={{ textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</span>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                                <div style={{ ...cardStyle, overflowX: 'auto', position: 'relative' }}>
-                                    {isHolidayMode && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-15deg)', fontSize: '3rem', opacity: 0.1, pointerEvents: 'none', whiteSpace: 'nowrap', fontWeight: 'bold' }}>HOLIDAY</div>}
-                                    <table style={{ width: '100%', fontSize: '0.7rem', borderCollapse: 'collapse' }}>
-                                        <thead><tr>{DAYS.map(d => <th key={d} style={{ padding: '5px' }}>{d}</th>)}</tr></thead>
-                                        <tbody>
-                                            {currentTimetable.map((row, i) => (
-                                                <tr key={i}>{row.map((cell, j) => <td key={j} style={{ border: '1px solid rgba(255,255,255,0.2)', padding: '8px', textAlign: 'center', minWidth: '40px', height: '35px' }}>{cell}</td>)}</tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+                              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>予定リスト</h2>
+                              <button onClick={() => setIsHolidayMode(!isHolidayMode)} style={{ background: isHolidayMode ? theme.accent : '#fff', color: isHolidayMode ? '#fff' : theme.accent, border: 'none', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                                {isHolidayMode ? "🏖 長期休みモード中" : "通常モード"}
+                              </button>
                             </div>
+                            <div style={cardStyle}>
+                              {todos.map(t => (
+                                <div key={t.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                                  <input type="checkbox" checked={t.done} onChange={() => handleToggleTodo(t.id)} />
+                                  <span style={{ textDecoration: t.done ? 'line-through' : 'none', opacity: t.done ? 0.6 : 1 }}>{t.text}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <div style={{ ...cardStyle, overflowX: 'auto' }}>
+                              <table style={{ width: '100%', fontSize: '0.7rem', borderCollapse: 'collapse' }}>
+                                <thead><tr>{DAYS.map(d => <th key={d} style={{ padding: '5px' }}>{d}</th>)}</tr></thead>
+                                <tbody>
+                                  {currentTimetable.map((row, i) => (
+                                    <tr key={i}>{row.map((cell, j) => <td key={j} style={{ border: '1px solid rgba(255,255,255,0.2)', padding: '8px', textAlign: 'center', minWidth: '40px', height: '35px' }}>{cell}</td>)}</tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
                         )}
 
-                        {/* 🎴 単語帳 */}
+                        {/* 🎴 単語帳タブ */}
                         {activeTab === 'word' && (
-                            <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
-                                    <h2 style={{ fontSize: '1.2rem', margin: 0 }}>単語帳</h2>
-                                    <button onClick={toggleGlobalBlur} style={{ background: '#fff', color: '#444', border: 'none', borderRadius: '20px', padding: '4px 12px', fontSize: '0.7rem', cursor: 'pointer' }}>{isGlobalBlur ? "全部見る" : "全部隠す"}</button>
-                                </div>
-                                <div style={cardStyle}>
-                                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                                        <input placeholder="En" value={inputEn} onChange={e => setInputEn(e.target.value)} style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
-                                        <input placeholder="Ja" value={inputJa} onChange={e => setInputJa(e.target.value)} style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
-                                        <button onClick={() => { if(inputEn && inputJa){ setWords([{id:Date.now(), en:inputEn, ja:inputJa, revealed:!isGlobalBlur}, ...words]); setInputEn(""); setInputJa(""); }}} style={{ background: theme.accent, border: 'none', borderRadius: '8px', color: '#fff', width: '40px', height: '38px', flexShrink: 0, cursor: 'pointer' }}>+</button>
-                                    </div>
-                                </div>
-                                {words.map(w => (
-                                    <div key={w.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', gap: '10px' }}>
-                                        <span style={{ wordBreak: 'break-word', flex: 1 }}>{w.en}</span>
-                                        <span onClick={() => setWords(words.map(x => x.id === w.id ? {...x, revealed: !x.revealed} : x))} style={{ filter: w.revealed ? 'none' : 'blur(8px)', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px', wordBreak: 'break-word', maxWidth: '50%', textAlign: 'right' }}>{w.ja}</span>
-                                    </div>
-                                ))}
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+                              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>単語帳</h2>
+                              <button onClick={toggleGlobalBlur} style={{ background: '#fff', color: '#444', border: 'none', borderRadius: '20px', padding: '4px 12px', fontSize: '0.7rem', cursor: 'pointer' }}>{isGlobalBlur ? "全部見る" : "全部隠す"}</button>
                             </div>
+                            <div style={cardStyle}>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <input placeholder="En" value={inputEn} onChange={e => setInputEn(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
+                                <input placeholder="Ja" value={inputJa} onChange={e => setInputJa(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
+                                <button onClick={() => { if(inputEn && inputJa){ setWords([{id:Date.now(), en:inputEn, ja:inputJa, revealed:!isGlobalBlur}, ...words]); setInputEn(""); setInputJa(""); }}} style={{ background: theme.accent, border: 'none', borderRadius: '8px', color: '#fff', width: '40px', cursor: 'pointer' }}>+</button>
+                              </div>
+                            </div>
+                            {words.map(w => (
+                              <div key={w.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>{w.en}</span>
+                                <span onClick={() => setWords(words.map(x => x.id === w.id ? {...x, revealed: !x.revealed} : x))} style={{ filter: w.revealed ? 'none' : 'blur(8px)', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px' }}>{w.ja}</span>
+                              </div>
+                            ))}
+                          </div>
                         )}
 
-                        {/* 👥 フレンド */}
+                        {/* 👥 フレンドタブ */}
                         {activeTab === 'friends' && (
-                            <div>
-                                <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>探索チーム</h2>
-                                <p style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '15px', background: 'rgba(0,0,0,0.1)', padding: '8px 12px', borderRadius: '8px' }}>
-                                    🚀 あなたのダイバーID: <strong style={{ color: theme.accent, fontSize: '0.9rem' }}>{profile.id}</strong><br/>
-                                    チームに誘ってもらう時は、このIDを友達に教えてください。
-                                </p>
-                                {friends.map(f => (
-                                    <div key={f.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                        <div style={{ position: 'relative' }}>
-                                            <img src={f.avatar} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
-                                            <div style={{ position: 'absolute', bottom: 0, right: 0, width: '12px', height: '12px', borderRadius: '50%', background: f.status === 'diving' ? '#4ade80' : '#ccc', border: '2px solid #fff' }} />
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ fontWeight: 'bold' }}>{f.name}</div>
-                                            <div style={{ fontSize: '0.7rem' }}>ID: {f.id} | 深度: {f.depth}m</div>
-                                        </div>
-                                        <span style={{ padding: "4px 8px", borderRadius: "8px", fontSize: "0.7rem", background: f.status === "diving" ? "rgba(74, 222, 128, 0.2)" : "rgba(255,255,255,0.1)", color: f.status === "diving" ? "#4ade80" : "#fff" }}>
-                                            {f.status === "diving" ? "潜水中" : "待機中"}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
+                          <div>
+                            <h2 style={{ fontSize: '1.2rem', margin: '0 0 15px 0' }}>探索チーム</h2>
+                            {friends.map(f => (
+                              <div key={f.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <img src={f.avatar} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: 'bold' }}>{f.name}</div>
+                                  <div style={{ fontSize: '0.7rem' }}>ID: {f.id} | 深度: {f.depth}m</div>
+                                </div>
+                                <span style={{ fontSize: "0.7rem", color: f.status === "diving" ? "#4ade80" : "#fff" }}>
+                                  {f.status === "diving" ? "● 潜水中" : "待機中"}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         )}
 
-                        {/* ⚙️ 設定 */}
+                        {/* ⚙️ 設定タブ */}
                         {activeTab === 'settings' && (
-                            <div>
-                                <h2 style={{ fontSize: '1.2rem' }}>システム設定</h2>
-                                <div style={cardStyle}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
-                                        <div style={{ position: 'relative' }}>
-                                            <img src={profile.avatar} style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover' }} />
-                                            <button onClick={() => fileInputRef.current?.click()} style={{ position: 'absolute', bottom: 0, right: 0, background: theme.accent, border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer', width: '24px', height: '24px' }}>✎</button>
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                            <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>ダイバーネーム（変更可能）</span>
-                                            <input value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', padding: '5px 10px', borderRadius: '6px', width: '100%', boxSizing: 'border-box' }} />
-                                        </div>
-                                    </div>
-                                    <div style={{ fontSize: '0.75rem', opacity: 0.8, paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                                        🔒 固定ダイバーID: <strong style={{ color: theme.accent }}>{profile.id}</strong> (システムにより保護されています)
-                                    </div>
-                                    <input type="file" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
+                          <div>
+                            <h2 style={{ fontSize: '1.2rem' }}>システム設定</h2>
+                            <div style={cardStyle}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <img src={profile.avatar} style={{ width: '70px', height: '70px', borderRadius: '50%' }} />
+                                <div style={{ flex: 1 }}>
+                                  <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>ダイバーネーム</span>
+                                  <input value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', padding: '5px 10px', borderRadius: '6px', width: '100%', boxSizing: 'border-box' }} />
                                 </div>
-                                <div style={{ ...cardStyle, overflowX: 'auto' }}>
-                                    <table style={{ borderCollapse: 'collapse', margin: '0 auto' }}><tbody>
-                                        {currentTimetable.map((row, i) => (
-                                            <tr key={i}>{row.map((cell, j) => (
-                                                <td key={j} style={{ border: '1px solid rgba(255,255,255,0.1)', padding: '2px' }}>
-                                                    <input value={cell} onChange={e => handleTimetableChange(i, j, e.target.value)} style={{ width: '45px', height: '35px', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', textAlign: 'center', borderRadius: '4px' }} />
-                                                </td>
-                                            ))}</tr>
-                                        ))}
-                                    </tbody></table>
-                                </div>
+                              </div>
                             </div>
+                            <div style={cardStyle}>
+                              <div style={{ fontSize: '0.8rem', marginBottom: '10px' }}>時間割の編集</div>
+                              <table style={{ margin: '0 auto' }}><tbody>
+                                {currentTimetable.map((row, i) => (
+                                  <tr key={i}>{row.map((cell, j) => (
+                                    <td key={j} style={{ padding: '2px' }}>
+                                      <input value={cell} onChange={e => handleTimetableChange(i, j, e.target.value)} style={{ width: '45px', height: '35px', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', textAlign: 'center', borderRadius: '4px' }} />
+                                    </td>
+                                  ))}</tr>
+                                ))}
+                              </tbody></table>
+                            </div>
+                          </div>
                         )}
+
                     </div>
 
-                    {/* クイックToDo モーダル */}
+                    {/* クイックToDoモーダル */}
                     {showTodoInput && (
-                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
                             <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px' }}>
                                 <h3 style={{ marginTop: 0 }}>ToDoを追加</h3>
                                 <input autoFocus value={newTodoText} onChange={e => setNewTodoText(e.target.value)} onKeyDown={e => { if(e.key === 'Enter') addQuickTodo(); }} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff', color: '#333' }} />
                                 <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button onClick={() => setShowTodoInput(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', color: '#333', cursor: 'pointer' }}>戻る</button>
+                                    <button onClick={() => setShowTodoInput(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>戻る</button>
                                     <button onClick={addQuickTodo} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>追加</button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* AI振り返り モーダル */}
+                    {/* AI振り返りモーダル */}
                     {showReviewModal && (
-                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
                             <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px', maxHeight: '80vh', overflowY: 'auto' }}>
                                 <h3 style={{ marginTop: 0, color: '#4361ee' }}>⚓ AI深海メンターへの報告</h3>
-                                <p style={{ fontSize: '0.8rem', color: '#666' }}>今日の勉強の感想、難しかったこと、自分の頑張りを船長に報告しよう！</p>
-                                <textarea rows={3} placeholder="例: 今日は英語の単語を30個覚えた！後半ちょっと集中が切れちゃった。" value={reviewInput} onChange={e => setReviewInput(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', fontFamily: 'sans-serif', boxSizing: 'border-box', background: '#fff', color: '#333' }} />
+                                <textarea rows={3} placeholder="例: 今日は英単語を30個覚えた！" value={reviewInput} onChange={e => setReviewInput(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff', color: '#333' }} />
                                 <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                                    <button onClick={() => setShowReviewModal(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', color: '#333', cursor: 'pointer' }}>閉じる</button>
+                                    <button onClick={() => setShowReviewModal(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>閉じる</button>
                                     <button onClick={handleAiReview} disabled={isAiLoading || !reviewInput.trim()} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', opacity: (!reviewInput.trim() || isAiLoading) ? 0.5 : 1 }}>
                                         {isAiLoading ? "通信中...📡" : "船長に送信 🫧"}
                                     </button>
                                 </div>
                                 {aiResponse && (
-                                    <div style={{ background: '#edf2f7', padding: '15px', borderRadius: '12px', borderLeft: '5px solid #ff9e00', fontSize: '0.9rem', lineHeight: '1.4', color: '#2d3748' }}>
+                                    <div style={{ background: '#edf2f7', padding: '15px', borderRadius: '12px', borderLeft: '5px solid #ff9e00', fontSize: '0.9rem', lineHeight: '1.4' }}>
                                         {aiResponse}
                                     </div>
                                 )}
@@ -525,7 +475,7 @@
             );
         }
 
-        // --- アプリの起動スイッチ ---
+        // アプリ起動
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
