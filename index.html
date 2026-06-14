@@ -1,79 +1,36 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCEAN COMPASS</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
-        #chat-container { flex: 1; border: 1px solid #ccc; background: white; border-radius: 8px; padding: 20px; overflow-y: auto; margin-bottom: 20px; }
-        .message { margin-bottom: 15px; padding: 10px 15px; border-radius: 20px; max-width: 70%; word-wrap: break-word; }
-        .user-message { background: #0084ff; color: white; align-self: flex-end; margin-left: auto; }
-        .ai-message { background: #e4e6eb; color: black; align-self: flex-start; }
-        #input-container { display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 16px; }
-        button { padding: 12px 24px; background: #0084ff; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        button:hover { opacity: 0.9; }
-        button:disabled { background: #ccc; }
-    </style>
-</head>
-<body>
+import { useState } from "react";
 
-    <h2>🧭 OCEAN COMPASS</h2>
-    <div id="chat-container"></div>
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="メッセージを入力...">
-        <button id="send-btn">送信</button>
+export default function Home() {
+  const [input, setInput] = useState("");
+  const [reply, setReply] = useState("");
+
+  const sendMessage = async () => {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: input }),
+    });
+
+    const data = await res.json();
+
+    setReply(JSON.stringify(data));
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>AIチャット</h1>
+
+      <input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        style={{ border: "1px solid black" }}
+      />
+
+      <button onClick={sendMessage}>送信</button>
+
+      <pre>{reply}</pre>
     </div>
-
-    <script>
-        const chatContainer = document.getElementById('chat-container');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-
-        function appendMessage(text, isUser) {
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message');
-            msgDiv.classList.add(isUser ? 'user-message' : 'ai-message');
-            msgDiv.innerText = text;
-            chatContainer.appendChild(msgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            appendMessage(text, true);
-            userInput.value = '';
-
-            userInput.disabled = true;
-            sendBtn.disabled = true;
-
-            try {
-                // ★自分のVercelの裏の部屋（/api/chat）を直接呼び出す！
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message: text })
-                });
-                const data = await response.json();
-                appendMessage(data.reply || "AIからの返答が空っぽだったぞ！", false);
-            } catch (error) {
-                appendMessage("Vercelとの通信でエラーが発生したぜ。設定を見直してみよう！", false);
-            } finally {
-                userInput.disabled = false;
-                sendBtn.disabled = false;
-                userInput.focus();
-            }
-        }
-
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
-        });
-    </script>
-</body>
-</html>
+  );
+}
