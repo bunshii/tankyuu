@@ -1,8 +1,0 @@
-{
-  "name": "tankyuu-chat",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "@huggingface/inference": "^3.0.0"
-  }
-}
