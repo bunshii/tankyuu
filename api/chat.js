@@ -26,7 +26,7 @@ export default async function handler(req) {
         }
 
         // 💡 Edge環境で確実に外に飛び出すシンプルなfetch
-        const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen1.5-1.8B-Chat", {
+        const response = await fetch("https://api-inference.huggingface.co/models/gpt2", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${hfToken}`,
