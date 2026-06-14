@@ -1,36 +1,65 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCEAN COMPASS</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; display: flex; flex-direction: column; height: 90vh; }
+        #chat { flex: 1; border: 1px solid #ccc; background: white; border-radius: 8px; padding: 20px; overflow-y: auto; margin-bottom: 20px; }
+        .msg { margin-bottom: 10px; padding: 10px; border-radius: 10px; max-width: 70%; }
+        .user { background: #0084ff; color: white; margin-left: auto; text-align: right; }
+        .ai { background: #e4e6eb; color: black; }
+        #input-area { display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; background: #0084ff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-export default function Home() {
-  const [input, setInput] = useState("");
-  const [reply, setReply] = useState("");
-
-  const sendMessage = async () => {
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message: input }),
-    });
-
-    const data = await res.json();
-
-    setReply(JSON.stringify(data));
-  };
-
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>AIチャット</h1>
-
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        style={{ border: "1px solid black" }}
-      />
-
-      <button onClick={sendMessage}>送信</button>
-
-      <pre>{reply}</pre>
+    <h2>🧭 OCEAN COMPASS</h2>
+    <div id="chat"></div>
+    <div id="input-area">
+        <input type="text" id="text-input" placeholder="メッセージを入力...">
+        <button id="send-btn">送信</button>
     </div>
-  );
-}
+
+    <script>
+        const chat = document.getElementById('chat');
+        const input = document.getElementById('text-input');
+        const btn = document.getElementById('send-btn');
+
+        function addMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = `msg ${isUser ? 'user' : 'ai'}`;
+            div.innerText = text;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function send() {
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            addMessage(msg, true);
+            input.value = '';
+
+            try {
+                // Vercelの裏の部屋（api/chat）にデータを送る
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                addMessage(data.reply, false);
+            } catch (err) {
+                addMessage("通信エラーが発生したぜ…", false);
+            }
+        }
+
+        btn.addEventListener('click', send);
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') send(); });
+    </script>
+</body>
+</html>
