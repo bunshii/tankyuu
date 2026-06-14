@@ -1,76 +1,109 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tankyuu AI Chat</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        #chat-container { width: 100%; max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        #messages { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; background: #fafafa; }
-        .message { margin-bottom: 10px; padding: 8px 12px; border-radius: 4px; max-width: 80%; }
-        .user { background: #007bff; color: white; margin-left: auto; text-align: right; width: fit-content; }
-        .ai { background: #e9ecef; color: #333; margin-right: auto; text-align: left; width: fit-content; white-space: pre-wrap; }
-        #input-container { display: flex; gap: 10px; }
-        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #218838; }
-    </style>
-</head>
-<body>
+import React, { useState, useEffect } from "react";
 
-<div id="chat-container">
-    <h2>🤖 tankyuu AI Chat Room</h2>
-    <div id="messages"></div>
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="メッセージを入力してくれ！" onkeypress="if(event.key==='Enter')sendMessage()">
-        <button onclick="sendMessage()">送信</button>
+// 型定義（エラーを防ぐためのお守り）
+interface Todo { id: number; text: string; completed: boolean; }
+interface Friend { id: number; name: string; isDiving: boolean; }
+
+export default function App() {
+  // --- 状態管理（ステート） ---
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [newTodo, setNewTodo] = useState("");
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [newFriend, setNewFriend] = useState("");
+  const [chatMessage, setChatMessage] = useState("");
+  const [chatLog, setChatLog] = useState<{ sender: string; text: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // --- 1. 目的地（Todo）の機能 ---
+  const addTodo = () => {
+    if (!newTodo.trim()) return;
+    setTodos([...todos, { id: Date.now(), text: newTodo, completed: false }]);
+    setNewTodo("");
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos(todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  };
+
+  // --- 2. 仲間（Friends）の機能 ---
+  const addFriend = () => {
+    if (!newFriend.trim()) return;
+    setFriends([...friends, { id: Date.now(), name: newFriend, isDiving: false }]);
+    newFriend && setFriends([...friends, { id: Date.now(), name: newFriend, isDiving: false }]);
+    setNewFriend("");
+  };
+
+  // --- 3. 羅針盤（Cloudflare AIチャット）の機能 ---
+  const sendToAI = async () => {
+    if (!chatMessage.trim() || isLoading) return;
+
+    const userMsg = chatMessage;
+    setChatLog(prev => [...prev, { sender: "あなた", text: userMsg }]);
+    setChatMessage("");
+    setIsLoading(true);
+
+    try {
+      // 💡 さっき開通させた自前のVercel API（/api/chat）に通信を飛ばすぜ！
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMsg }),
+      });
+
+      const data = await response.json();
+      
+      setChatLog(prev => [...prev, { sender: "OCEANCOMPASS", text: data.reply }]);
+    } catch (error) {
+      setChatLog(prev => [...prev, { sender: "システム", text: "通信に失敗したぜ…" }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "600px", margin: "0 auto" }}>
+      <h1 style={{ color: "#0070f3", borderBottom: "2px solid #0070f3", paddingBottom: "10px" }}>
+        🧭 OCEANCOMPASS (試作版)
+      </h1>
+
+      {/* --- Todoエリア --- */}
+      <section style={{ marginBottom: "30px" }}>
+        <h3>📍 目的地の管理 (Todos)</h3>
+        <input value={newTodo} onChange={(e) => setNewTodo(e.target.value)} placeholder="新しい目的地を入力..." />
+        <button onClick={addTodo}>追加</button>
+        <ul>
+          {todos.map(t => (
+            <li key={t.id} onClick={() => toggleTodo(t.id)} style={{ textDecoration: t.completed ? "line-through" : "none", cursor: "pointer" }}>
+              {t.text} {t.completed ? "✅" : "⏳"}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* --- Friendsエリア --- */}
+      <section style={{ marginBottom: "30px" }}>
+        <h3>🏴‍☠️ 旅の仲間 (Friends)</h3>
+        <input value={newFriend} onChange={(e) => setNewFriend(e.target.value)} placeholder="仲間の名前を入力..." />
+        <button onClick={addFriend}>合流</button>
+        <ul>
+          {friends.map(f => (
+            <li key={f.id}>{f.name} {f.isDiving ? "🤿 (潜水中)" : "⛵ (待機中)"}</li>
+          ))}
+        </ul>
+      </section>
+
+      {/* --- AIチャットエリア --- */}
+      <section style={{ border: "1px solid #ccc", padding: "15px", borderRadius: "8px" }}>
+        <h3>🔮 羅針盤のささやき (AI Chat)</h3>
+        <div style={{ height: "20px", overflowY: "auto", border: "1px solid #eee", padding: "10px", marginBottom: "10px", background: "#f9f9f9" }}>
+          {chatLog.map((log, index) => (
+            <p key={index}><strong>{log.sender}:</strong> {log.text}</p>
+          ))}
+          {isLoading && <p style={{ color: "gray" }}>羅針盤が思考中...</p>}
+        </div>
+        <input value={chatMessage} onChange={(e) => setChatMessage(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendToAI()} placeholder="羅針盤に問いかける..." style={{ width: "70%", marginRight: "5px" }} />
+        <button onClick={sendToAI} disabled={isLoading}>送信</button>
+      </section>
     </div>
-</div>
-
-<script>
-    async function sendMessage() {
-        const input = document.getElementById('user-input');
-        const message = input.value.trim();
-        if (!message) return;
-
-        appendMessage(message, 'user');
-        input.value = '';
-
-        appendMessage("考え中だぜ...", 'ai', true);
-
-        try {
-            // Vercelの自分のバックエンドAPI（/api/chat）を呼び出す
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message })
-            });
-
-            const data = await response.json();
-            removeLoadingMessage();
-            appendMessage(data.reply, 'ai');
-        } catch (error) {
-            removeLoadingMessage();
-            appendMessage("通信エラーが起きちまったぜ： " + error.message, 'ai');
-        }
-    }
-
-    function appendMessage(text, sender, isLoading = false) {
-        const messagesDiv = document.getElementById('messages');
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message', sender);
-        if (isLoading) msgDiv.id = 'loading-msg';
-        msgDiv.innerText = text;
-        messagesDiv.appendChild(msgDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    function removeLoadingMessage() {
-        const loadingMsg = document.getElementById('loading-msg');
-        if (loadingMsg) loadingMsg.remove();
-    }
-</script>
-
-</body>
-</html>
+  );
+}
