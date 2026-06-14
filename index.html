@@ -1,109 +1,542 @@
-import React, { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCEAN COMPASS</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { outline: none; }
+    </style>
+</head>
+<body>
 
-// 型定義（エラーを防ぐためのお守り）
-interface Todo { id: number; text: string; completed: boolean; }
-interface Friend { id: number; name: string; isDiving: boolean; }
+    <div id="root"></div>
 
-export default function App() {
-  // --- 状態管理（ステート） ---
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState("");
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [newFriend, setNewFriend] = useState("");
-  const [chatMessage, setChatMessage] = useState("");
-  const [chatLog, setChatLog] = useState<{ sender: string; text: string }[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-  // --- 1. 目的地（Todo）の機能 ---
-  const addTodo = () => {
-    if (!newTodo.trim()) return;
-    setTodos([...todos, { id: Date.now(), text: newTodo, completed: false }]);
-    setNewTodo("");
-  };
+        // 定数
+        const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
 
-  const toggleTodo = (id: number) => {
-    setTodos(todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-  };
+        // スタイルテーマ (元のコードを完全移植)
+        const theme = {
+            bg: 'linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%)',
+            glass: 'rgba(255, 255, 255, 0.2)',
+            glassStrong: 'rgba(255, 255, 255, 0.4)',
+            accent: '#ff9e00',
+            text: '#ffffff',
+            navIcon: 'grayscale(100%) opacity(0.6)',
+            navActive: 'grayscale(0%) opacity(1)'
+        };
 
-  // --- 2. 仲間（Friends）の機能 ---
-  const addFriend = () => {
-    if (!newFriend.trim()) return;
-    setFriends([...friends, { id: Date.now(), name: newFriend, isDiving: false }]);
-    newFriend && setFriends([...friends, { id: Date.now(), name: newFriend, isDiving: false }]);
-    setNewFriend("");
-  };
+        const cardStyle = {
+            background: theme.glass,
+            backdropFilter: 'blur(15px)',
+            borderRadius: '28px',
+            padding: '20px',
+            marginBottom: '15px',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        };
 
-  // --- 3. 羅針盤（Cloudflare AIチャット）の機能 ---
-  const sendToAI = async () => {
-    if (!chatMessage.trim() || isLoading) return;
+        function App() {
+            // --- 1. 状態管理（元のロジックを完全再現） ---
+            const [profile, setProfile] = useState(() => {
+                const saved = localStorage.getItem('ocean_profile');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (!parsed.id) parsed.id = `D-${Math.floor(1000 + Math.random() * 9000)}`;
+                    return parsed;
+                }
+                return { 
+                    id: `D-${Math.floor(1000 + Math.random() * 9000)}`, 
+                    name: "DIVER_01", 
+                    bio: "サンゴ礁で学習中...", 
+                    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diver" 
+                };
+            });
 
-    const userMsg = chatMessage;
-    setChatLog(prev => [...prev, { sender: "あなた", text: userMsg }]);
-    setChatMessage("");
-    setIsLoading(true);
+            const [todos, setTodos] = useState(() => {
+                const saved = localStorage.getItem('ocean_todos');
+                return saved ? JSON.parse(saved) : [];
+            });
 
-    try {
-      // 💡 さっき開通させた自前のVercel API（/api/chat）に通信を飛ばすぜ！
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMsg }),
-      });
+            const [regularTimetable, setRegularTimetable] = useState(() => {
+                const saved = localStorage.getItem('ocean_regular_table');
+                return saved ? JSON.parse(saved) : Array(7).fill(null).map(() => Array(7).fill(""));
+            });
 
-      const data = await response.json();
-      
-      setChatLog(prev => [...prev, { sender: "OCEANCOMPASS", text: data.reply }]);
-    } catch (error) {
-      setChatLog(prev => [...prev, { sender: "システム", text: "通信に失敗したぜ…" }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+            const [holidayTimetable, setHolidayTimetable] = useState(() => {
+                const saved = localStorage.getItem('ocean_holiday_table');
+                return saved ? JSON.parse(saved) : Array(7).fill(null).map(() => Array(7).fill(""));
+            });
 
-  return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "600px", margin: "0 auto" }}>
-      <h1 style={{ color: "#0070f3", borderBottom: "2px solid #0070f3", paddingBottom: "10px" }}>
-        🧭 OCEANCOMPASS (試作版)
-      </h1>
+            const [words, setWords] = useState(() => {
+                const saved = localStorage.getItem('ocean_words');
+                return saved ? JSON.parse(saved) : [
+                    { id: 1, en: "Coral", ja: "珊瑚", revealed: false },
+                    { id: 2, en: "Current", ja: "海流", revealed: false }
+                ];
+            });
 
-      {/* --- Todoエリア --- */}
-      <section style={{ marginBottom: "30px" }}>
-        <h3>📍 目的地の管理 (Todos)</h3>
-        <input value={newTodo} onChange={(e) => setNewTodo(e.target.value)} placeholder="新しい目的地を入力..." />
-        <button onClick={addTodo}>追加</button>
-        <ul>
-          {todos.map(t => (
-            <li key={t.id} onClick={() => toggleTodo(t.id)} style={{ textDecoration: t.completed ? "line-through" : "none", cursor: "pointer" }}>
-              {t.text} {t.completed ? "✅" : "⏳"}
-            </li>
-          ))}
-        </ul>
-      </section>
+            const [history, setHistory] = useState(() => {
+                const saved = localStorage.getItem('ocean_history');
+                return saved ? JSON.parse(saved) : [10, 20, 15, 45, 30, 0, 0];
+            });
 
-      {/* --- Friendsエリア --- */}
-      <section style={{ marginBottom: "30px" }}>
-        <h3>🏴‍☠️ 旅の仲間 (Friends)</h3>
-        <input value={newFriend} onChange={(e) => setNewFriend(e.target.value)} placeholder="仲間の名前を入力..." />
-        <button onClick={addFriend}>合流</button>
-        <ul>
-          {friends.map(f => (
-            <li key={f.id}>{f.name} {f.isDiving ? "🤿 (潜水中)" : "⛵ (待機中)"}</li>
-          ))}
-        </ul>
-      </section>
+            // 画面表示用の一時ステート
+            const [activeTab, setActiveTab] = useState('home');
+            const [isDiving, setIsDiving] = useState(false);
+            const [diveMode, setDiveMode] = useState('countdown');
+            const [diveMinutes, setDiveMinutes] = useState(25);
+            const [timeLeft, setTimeLeft] = useState(1500);
+            const [timeElapsed, setTimeElapsed] = useState(0);
+            const [pressureWarning, setPressureWarning] = useState(false);
+            const [isHolidayMode, setIsHolidayMode] = useState(false);
+            const [bubbleNotification, setBubbleNotification] = useState("");
 
-      {/* --- AIチャットエリア --- */}
-      <section style={{ border: "1px solid #ccc", padding: "15px", borderRadius: "8px" }}>
-        <h3>🔮 羅針盤のささやき (AI Chat)</h3>
-        <div style={{ height: "20px", overflowY: "auto", border: "1px solid #eee", padding: "10px", marginBottom: "10px", background: "#f9f9f9" }}>
-          {chatLog.map((log, index) => (
-            <p key={index}><strong>{log.sender}:</strong> {log.text}</p>
-          ))}
-          {isLoading && <p style={{ color: "gray" }}>羅針盤が思考中...</p>}
-        </div>
-        <input value={chatMessage} onChange={(e) => setChatMessage(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendToAI()} placeholder="羅針盤に問いかける..." style={{ width: "70%", marginRight: "5px" }} />
-        <button onClick={sendToAI} disabled={isLoading}>送信</button>
-      </section>
-    </div>
-  );
-}
+            // モーダル・入力関連
+            const [showTodoInput, setShowTodoInput] = useState(false);
+            const [showReviewModal, setShowReviewModal] = useState(false);
+            const [newTodoText, setNewTodoText] = useState("");
+            const [reviewInput, setReviewInput] = useState("");
+            const [aiResponse, setAiResponse] = useState("");
+            const [isAiLoading, setIsAiLoading] = useState(false);
+            const [inputEn, setInputEn] = useState("");
+            const [inputJa, setInputJa] = useState("");
+            const [isGlobalBlur, setIsGlobalBlur] = useState(true);
+
+            // フレンド機能用のダミーステート（スタンドアロン動作用）
+            const [friends, setFriends] = useState([
+                { id: "D-4432", name: "TAKUYA", depth: 45, status: 'diving', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Takuya" },
+                { id: "D-8821", name: "YUKA", depth: 0, status: 'resting', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Yuka" }
+            ]);
+            const [friendIdInput, setFriendIdInput] = useState("");
+            const [friendMessage, setFriendMessage] = useState("");
+
+            const fileInputRef = useRef(null);
+            const currentTimetable = isHolidayMode ? holidayTimetable : regularTimetable;
+
+            // --- 2. データ自動保存 (LocalStorage) ---
+            useEffect(() => { localStorage.setItem('ocean_profile', JSON.stringify(profile)); }, [profile]);
+            useEffect(() => { localStorage.setItem('ocean_todos', JSON.stringify(todos)); }, [todos]);
+            useEffect(() => { localStorage.setItem('ocean_regular_table', JSON.stringify(regularTimetable)); }, [regularTimetable]);
+            useEffect(() => { localStorage.setItem('ocean_holiday_table', JSON.stringify(holidayTimetable)); }, [holidayTimetable]);
+            useEffect(() => { localStorage.setItem('ocean_words', JSON.stringify(words)); }, [words]);
+            useEffect(() => { localStorage.setItem('ocean_history', JSON.stringify(history)); }, [history]);
+
+            // --- 3. タイマー・潜水ロジック ---
+            const recordLearningTime = (minutes) => {
+                if (minutes <= 0) return;
+                const rawDay = new Date().getDay();
+                const dayIndex = rawDay === 0 ? 6 : rawDay - 1;
+                setHistory(prev => {
+                    const newHistory = [...prev];
+                    newHistory[dayIndex] = (newHistory[dayIndex] || 0) + minutes;
+                    return newHistory;
+                });
+            };
+
+            useEffect(() => {
+                if (isDiving && diveMode === 'countdown' && timeLeft === 0) {
+                    setIsDiving(false);
+                    setPressureWarning(false);
+                    recordLearningTime(diveMinutes);
+                    setTimeout(() => alert(`🎉 ミッション完了！${diveMinutes}分間の潜水に成功しました。`), 100);
+                }
+            }, [timeLeft, isDiving, diveMode]);
+
+            useEffect(() => {
+                let timer;
+                if (isDiving) {
+                    timer = setInterval(() => {
+                        if (diveMode === 'countdown') {
+                            setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
+                        } else {
+                            setTimeElapsed(prev => prev + 1);
+                        }
+                    }, 1000);
+                }
+
+                const handleVisibilityChange = () => {
+                    if (document.hidden && isDiving) {
+                        setPressureWarning(true);
+                    }
+                };
+
+                document.addEventListener("visibilitychange", handleVisibilityChange);
+                return () => {
+                    clearInterval(timer);
+                    document.removeEventListener("visibilitychange", handleVisibilityChange);
+                };
+            }, [isDiving, diveMode]);
+
+            const startDive = () => {
+                setTimeLeft(diveMinutes * 60);
+                setTimeElapsed(0);
+                setIsDiving(true);
+                setPressureWarning(false);
+            };
+
+            const handleSurfacing = () => {
+                setIsDiving(false);
+                setPressureWarning(false);
+                const finalSeconds = diveMode === 'countdown' ? (diveMinutes * 60 - timeLeft) : timeElapsed;
+                const finalMinutes = Math.floor(finalSeconds / 60);
+                if (finalMinutes > 0) {
+                    recordLearningTime(finalMinutes);
+                    setTimeout(() => alert(`急浮上しました。今回は ${finalMinutes}分間 潜水しました！`), 100);
+                } else {
+                    setTimeout(() => alert(`急浮上しました。1分未満の潜水のためログには記録されませんでした。`), 100);
+                }
+            };
+
+            // --- 4. ToDo操作 ---
+            const handleToggleTodo = (id) => {
+                setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
+            };
+
+            const addQuickTodo = () => {
+                if (!newTodoText.trim()) return;
+                const newTodoItem = { id: String(Date.now()), text: newTodoText.trim(), done: false };
+                setTodos([newTodoItem, ...todos]);
+                setNewTodoText("");
+                setShowTodoInput(false);
+            };
+
+            // --- 5. 🧠 AI深海メンターへの報告（さっき開通した自前Cloudflare APIと完全接続！） ---
+            const handleAiReview = async () => {
+                if (!reviewInput.trim()) return;
+                setIsAiLoading(true);
+                setAiResponse("");
+
+                const prompt = `あなたは学習支援アプリ「OCEAN COMPASS」のAI深海メンター（潜水クルーの船長）です。ユーザーが今日の学習の振り返りを入力しました。【ユーザーの振り返り】: "${reviewInput}" この内容に対して、海や潜水、冒険の比喩をうまく交えながら、温かく、モチベーションが爆上がりするフィードバックを150文字程度で返してください。`;
+
+                try {
+                    // 💡 開通させた `/api/chat` へ安全にfetchを飛ばす！
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: prompt })
+                    });
+                    const data = await response.json();
+                    setAiResponse(data.reply || "船長への無線が途切れたようだ。もう一度送ってみてくれ！");
+                } catch (error) {
+                    setAiResponse("通信エラーが発生したようだ！船長への無線が届かないぜ。");
+                } finally {
+                    setIsAiLoading(false);
+                }
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m}:${s < 10 ? '0' : ''}${s}`;
+            };
+
+            const handleImageChange = (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => setProfile({ ...profile, avatar: reader.result });
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const toggleGlobalBlur = () => {
+                const newState = !isGlobalBlur;
+                setIsGlobalBlur(newState);
+                setWords(words.map(w => ({ ...w, revealed: !newState })));
+            };
+
+            const handleTimetableChange = (i, j, value) => {
+                const updateTable = (prevTable) => prevTable.map((row, rIdx) => rIdx === i ? row.map((cell, cIdx) => cIdx === j ? value : cell) : row);
+                if (isHolidayMode) { setHolidayTimetable(updateTable); } else { setRegularTimetable(updateTable); }
+            };
+
+            const handleAddFriendSubmit = (e) => {
+                e.preventDefault();
+                if (!friendIdInput.trim()) return;
+                setFriendMessage(`🟢 ${friendIdInput.trim()} を探索チームに勧誘しました！(通信モック)`);
+                setFriendIdInput("");
+            };
+
+            // --- 🌊 A. 潜水中の画面（ダーク深海モード） ---
+            if (isDiving) {
+                const totalInitialSeconds = diveMinutes * 60;
+                const oxygenRate = diveMode === 'countdown' ? (timeLeft / totalInitialSeconds) * 100 : 100;
+                const currentDepth = Math.floor(timeElapsed * 0.5);
+                return (
+                    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #001d3d 0%, #000814 100%)', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ fontSize: '80px', fontWeight: '100', zIndex: 10 }}>{diveMode === 'countdown' ? formatTime(timeLeft) : formatTime(timeElapsed)}</div>
+                        <div style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '20px' }}>{diveMode === 'countdown' ? 'TIME REMAINING' : 'TIME ELAPSED'}</div>
+                        <div style={{ width: '250px', zIndex: 10 }}>
+                            {diveMode === 'countdown' ? (
+                                React.createElement(React.Fragment, null, 
+                                    <div style={{ fontSize: '0.7rem', marginBottom: '5px' }}>OXYGEN LEVEL</div>,
+                                    <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${oxygenRate}%`, height: '100%', background: oxygenRate < 20 ? '#ff4d4d' : '#4cc9f0' }} />
+                                    </div>
+                                )
+                            ) : (
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.7rem' }}>CURRENT DEPTH</div>
+                                    <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4cc9f0' }}>{currentDepth}m</div>
+                                </div>
+                            )}
+                        </div>
+                        {pressureWarning && <div style={{ position: 'absolute', top: '25%', background: 'rgba(255, 77, 77, 0.2)', padding: '12px 24px', borderRadius: '15px', border: '1px solid #ff4d4d', color: '#ff4d4d', fontWeight: 'bold', zIndex: 10 }}>⚠️ 水圧上昇：集中が乱れています！</div>}
+                        <button onClick={handleSurfacing} style={{ marginTop: '60px', background: 'none', border: '1px solid #fff', color: '#fff', padding: '12px 40px', borderRadius: '30px', cursor: 'pointer', zIndex: 10 }}>浮上する</button>
+                    </div>
+                );
+            }
+
+            // --- ⛵ B. 通常のメイン画面（グラデーション海流モード） ---
+            return (
+                <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, fontFamily: 'sans-serif', paddingBottom: '110px', boxSizing: 'border-box', overflowX: 'hidden' }}>
+                    
+                    {bubbleNotification && (
+                        <div style={{ position: 'fixed', top: '20px', left: '20px', right: '20px', background: 'rgba(0, 26, 51, 0.9)', color: '#4cc9f0', padding: '15px 20px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', border: '2px solid #4cc9f0', zIndex: 2000, fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+                            {bubbleNotification}
+                        </div>
+                    )}
+
+                    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px', position: 'relative', zIndex: 1, boxSizing: 'border-box' }}>
+                        
+                        {/* ヘッダーエリア */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                            <img src={profile.avatar} style={{ width: '45px', height: '45px', borderRadius: '50%', border: '2px solid #fff', objectFit: 'cover', cursor: 'pointer' }} onClick={() => setActiveTab('settings')} />
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <span style={{ fontWeight: '900', letterSpacing: '3px' }}>OCEAN COMPASS</span>
+                                <span style={{ fontSize: '0.65rem', opacity: 0.8, letterSpacing: '1px', background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginTop: '3px' }}>
+                                    ID: {profile.id} ⚓️ {profile.name}
+                                </span>
+                            </div>
+                            <span style={{ fontSize: '1.2rem' }}>🐠</span>
+                        </div>
+
+                        {/* 🏠 ホームタブ（タイマー・グラフ） */}
+                        {activeTab === 'home' && (
+                            <div>
+                                <div style={cardStyle}>
+                                    <div style={{ fontSize: '0.8rem', marginBottom: '8px', opacity: 0.8 }}>今週の潜水記録（分）</div>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '100px', gap: '8px' }}>
+                                        {history.map((h, i) => {
+                                            const heightPercent = Math.min((h / 120) * 100, 100);
+                                            const isToday = (new Date().getDay() === 0 ? 6 : new Date().getDay() - 1) === i;
+                                            return (
+                                                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <div style={{ background: isToday ? theme.accent : '#fff', height: `${Math.max(heightPercent, 5)}px`, width: '100%', borderRadius: '4px', opacity: isToday ? 1 : 0.6 }} />
+                                                    <span style={{ fontSize: '0.6rem', marginTop: '4px', opacity: 0.7 }}>{DAYS[i]}</span>
+                                                    <span style={{ fontSize: '0.5rem', opacity: 0.5 }}>{h}m</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div style={{ ...cardStyle, background: 'rgba(0,0,0,0.1)' }}>
+                                    <div style={{ fontSize: '0.8rem', marginBottom: '10px', opacity: 0.8 }}>潜水設定</div>
+                                    <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                                        <select value={diveMode} onChange={e => setDiveMode(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)' }}>
+                                            <option value="countdown" style={{color: '#333'}}>カウントダウン</option>
+                                            <option value="countup" style={{color: '#333'}}>カウントアップ</option>
+                                        </select>
+                                        {diveMode === 'countdown' && (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <input type="number" value={diveMinutes} onChange={e => setDiveMinutes(Number(e.target.value))} style={{ width: '60px', padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', textAlign: 'center' }} min="1" />
+                                                <span>分</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button onClick={startDive} style={{ width: '100%', background: theme.accent, border: 'none', color: '#fff', borderRadius: '18px', fontWeight: 'bold', height: '60px', fontSize: '1.1rem', boxShadow: '0 6px 0 #cc7e00', cursor: 'pointer' }}>潜水開始</button>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button onClick={() => setShowTodoInput(true)} style={{ flex: 1, background: theme.glassStrong, border: 'none', color: '#fff', borderRadius: '15px', padding: '15px', cursor: 'pointer' }}>+ クイックToDo</button>
+                                    <button onClick={() => { setShowReviewModal(true); setAiResponse(""); setReviewInput(""); }} style={{ flex: 1, background: '#fff', border: 'none', color: '#4361ee', borderRadius: '15px', padding: '15px', fontWeight: 'bold', cursor: 'pointer' }}>🧠 AI振り返り</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 📅 スケジュールタブ */}
+                        {activeTab === 'schedule' && (
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+                                    <h2 style={{ fontSize: '1.2rem', margin: 0 }}>予定リスト</h2>
+                                    <button onClick={() => setIsHolidayMode(!isHolidayMode)} style={{ background: isHolidayMode ? theme.accent : '#fff', color: isHolidayMode ? '#fff' : theme.accent, border: 'none', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                                        {isHolidayMode ? "🏖 長期休みモード中" : "通常モード"}
+                                    </button>
+                                </div>
+                                <div style={cardStyle}>
+                                    {todos.length === 0 ? (
+                                        <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>タスクはありません。クイックToDoから追加しましょう！</p>
+                                    ) : (
+                                        todos.map(t => (
+                                            <div key={t.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                                                <input type="checkbox" checked={t.done} onChange={() => handleToggleTodo(t.id)} style={{cursor: 'pointer'}} />
+                                                <span style={{ textDecoration: t.done ? 'line-through' : 'none', opacity: t.done ? 0.6 : 1 }}>{t.text}</span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                                <div style={{ ...cardStyle, overflowX: 'auto', position: 'relative' }}>
+                                    {isHolidayMode && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-15deg)', fontSize: '3rem', opacity: 0.1, pointerEvents: 'none', whiteSpace: 'nowrap', fontWeight: 'bold' }}>HOLIDAY</div>}
+                                    <table style={{ width: '100%', fontSize: '0.7rem', borderCollapse: 'collapse' }}>
+                                        <thead><tr>{DAYS.map(d => <th key={d} style={{ padding: '5px' }}>{d}</th>)}</tr></thead>
+                                        <tbody>
+                                            {currentTimetable.map((row, i) => (
+                                                <tr key={i}>{row.map((cell, j) => <td key={j} style={{ border: '1px solid rgba(255,255,255,0.2)', padding: '8px', textAlign: 'center', minWidth: '40px', height: '35px' }}>{cell}</td>)}</tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 🎴 単語帳タブ */}
+                        {activeTab === 'word' && (
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+                                    <h2 style={{ fontSize: '1.2rem', margin: 0 }}>単語帳</h2>
+                                    <button onClick={toggleGlobalBlur} style={{ background: '#fff', color: '#444', border: 'none', borderRadius: '20px', padding: '4px 12px', fontSize: '0.7rem', cursor: 'pointer' }}>{isGlobalBlur ? "全部見る" : "全部隠す"}</button>
+                                </div>
+                                <div style={cardStyle}>
+                                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                                        <input placeholder="En" value={inputEn} onChange={e => setInputEn(e.target.value)} style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
+                                        <input placeholder="Ja" value={inputJa} onChange={e => setInputJa(e.target.value)} style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
+                                        <button onClick={() => { if(inputEn && inputJa){ setWords([{id:Date.now(), en:inputEn, ja:inputJa, revealed:!isGlobalBlur}, ...words]); setInputEn(""); setInputJa(""); }}} style={{ background: theme.accent, border: 'none', borderRadius: '8px', color: '#fff', width: '40px', height: '38px', flexShrink: 0, cursor: 'pointer' }}>+</button>
+                                    </div>
+                                </div>
+                                {words.map(w => (
+                                    <div key={w.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', gap: '10px' }}>
+                                        <span style={{ wordBreak: 'break-word', flex: 1 }}>{w.en}</span>
+                                        <span onClick={() => setWords(words.map(x => x.id === w.id ? {...x, revealed: !x.revealed} : x))} style={{ filter: w.revealed ? 'none' : 'blur(8px)', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px', wordBreak: 'break-word', maxWidth: '50%', textAlign: 'right', transition: 'filter 0.3s' }}>{w.ja}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 👥 フレンドタブ */}
+                        {activeTab === 'friends' && (
+                            <div>
+                                <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>探索チーム</h2>
+                                <p style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '15px', background: 'rgba(0,0,0,0.1)', padding: '8px 12px', borderRadius: '8px' }}>
+                                    🚀 あなたのダイバーID: <strong style={{ color: theme.accent, fontSize: '0.9rem' }}>{profile.id}</strong><br/>
+                                    チームに誘ってもらう時は、このIDを友達に教えてください。
+                                </p>
+                                <form onSubmit={handleAddFriendSubmit} style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+                                    <input type="text" placeholder="友達のダイバーIDを入力 (例: D-999)" value={friendIdInput} onChange={(e) => setFriendIdInput(e.target.value)} style={{ flex: 1, padding: "10px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.2)", color: "#fff" }} />
+                                    <button type="submit" style={{ padding: "10px 16px", background: theme.accent, color: "#fff", border: "none", borderRadius: "12px", fontWeight: "bold", cursor: "pointer" }}>勧誘 🫧</button>
+                                </form>
+                                {friendMessage && <p style={{ fontSize: "0.8rem", marginBottom: "15px", textAlign: "center", fontWeight: 'bold' }}>{friendMessage}</p>}
+                                {friends.map(f => (
+                                    <div key={f.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                        <div style={{ position: 'relative' }}>
+                                            <img src={f.avatar} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+                                            <div style={{ position: 'absolute', bottom: 0, right: 0, width: '12px', height: '12px', borderRadius: '50%', background: f.status === 'diving' ? '#4ade80' : '#ccc', border: '2px solid #fff' }} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 'bold' }}>{f.name}</div>
+                                            <div style={{ fontSize: '0.7rem' }}>ID: {f.id} | 深度: {f.depth}m</div>
+                                        </div>
+                                        <span style={{ padding: "4px 8px", borderRadius: "8px", fontSize: "0.7rem", background: f.status === "diving" ? "rgba(74, 222, 128, 0.2)" : "rgba(255,255,255,0.1)", color: f.status === "diving" ? "#4ade80" : "#fff" }}>
+                                            {f.status === "diving" ? "潜水中" : "待機中"}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* ⚙️ 設定タブ */}
+                        {activeTab === 'settings' && (
+                            <div>
+                                <h2 style={{ fontSize: '1.2rem' }}>システム設定</h2>
+                                <div style={cardStyle}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
+                                        <div style={{ position: 'relative' }}>
+                                            <img src={profile.avatar} style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover' }} />
+                                            <button onClick={() => fileInputRef.current?.click()} style={{ position: 'absolute', bottom: 0, right: 0, background: theme.accent, border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✎</button>
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>ダイバーネーム（変更可能）</span>
+                                            <input value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', padding: '5px 10px', borderRadius: '6px', width: '100%', boxSizing: 'border-box' }} />
+                                        </div>
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', opacity: 0.8, paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                        🔒 固定ダイバーID: <strong style={{ color: theme.accent }}>{profile.id}</strong> (システムにより保護されています)
+                                    </div>
+                                    <input type="file" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
+                                </div>
+                                <div style={{ ...cardStyle, overflowX: 'auto' }}>
+                                    <table style={{ borderCollapse: 'collapse', margin: '0 auto' }}><tbody>
+                                        {currentTimetable.map((row, i) => (
+                                            <tr key={i}>{row.map((cell, j) => (
+                                                <td key={j} style={{ border: '1px solid rgba(255,255,255,0.1)', padding: '2px' }}>
+                                                    <input value={cell} onChange={e => handleTimetableChange(i, j, e.target.value)} style={{ width: '45px', height: '35px', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', textAlign: 'center', borderRadius: '4px' }} />
+                                                </td>
+                                            ))}</tr>
+                                        ))}
+                                    </tbody></table>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 🛠️ クイックToDo追加 モーダル */}
+                    {showTodoInput && (
+                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                            <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px' }}>
+                                <h3 style={{ marginTop: 0 }}>ToDoを追加</h3>
+                                <input autoFocus value={newTodoText} onChange={e => setNewTodoText(e.target.value)} onKeyDown={e => { if(e.key === 'Enter') addQuickTodo(); }} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box', color: '#333', background: '#fff' }} />
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button onClick={() => setShowTodoInput(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', color: '#333', cursor: 'pointer', boxShadow: 'none' }}>戻る</button>
+                                    <button onClick={addQuickTodo} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>追加</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🧠 AI振り返り モーダル */}
+                    {showReviewModal && (
+                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                            <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px', maxHeight: '80vh', overflowY: 'auto' }}>
+                                <h3 style={{ marginTop: 0, color: '#4361ee' }}>⚓ AI深海メンターへの報告</h3>
+                                <p style={{ fontSize: '0.8rem', color: '#666' }}>今日の勉強や感想、難しかったこと、自分の頑張りを船長に報告しよう！</p>
+                                <textarea rows={3} placeholder="例: 今日は英語の単語を30個覚えた！" value={reviewInput} onChange={e => setReviewInput(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', fontFamily: 'sans-serif', boxSizing: 'border-box', color: '#333', background: '#fff' }} />
+                                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                                    <button onClick={() => setShowReviewModal(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', color: '#333', cursor: 'pointer', boxShadow: 'none' }}>閉じる</button>
+                                    <button onClick={handleAiReview} disabled={isAiLoading || !reviewInput.trim()} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', opacity: (!reviewInput.trim() || isAiLoading) ? 0.5 : 1 }}>
+                                        {isAiLoading ? "通信中...📡" : "船長に送信 🫧"}
+                                    </button>
+                                </div>
+                                {aiResponse && (
+                                    <div style={{ background: '#edf2f7', padding: '15px', borderRadius: '12px', borderLeft: '5px solid #ff9e00', fontSize: '0.9rem', lineHeight: '1.4', color: '#2d3748' }}>
+                                        {aiResponse}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🗺️ フッターナビゲーション */}
+                    <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '85px', background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', zIndex: 90 }}>
+                        {[ { id: 'word', icon: '🎴' }, { id: 'schedule', icon: '📅' }, { id: 'home', icon: '⚓' }, { id: 'friends', icon: '👥' }, { id: 'settings', icon: '⚙️' } ].map(tab => (
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, background: 'none', border: 'none', fontSize: tab.id === 'home' ? '2.2rem' : '1.8rem', filter: activeTab === tab.id ? theme.navActive : theme.navIcon, cursor: 'pointer', padding: 0, transition: 'filter 0.2s' }}>
+                                {tab.icon}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+            );
+        }
+
+        const root = banknotes = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
