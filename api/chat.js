@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
         // 💡 Cloudflare Workers AI の Llama-3 モデルを叩く！
         const response = await fetch(
-            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/meta/llama-3.1-8b-instruct`,
+            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
             {
                 method: "POST",
                 headers: {
