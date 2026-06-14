@@ -1,10 +1,8 @@
-// 🔥 Vercelに「Node.jsじゃなくて、ネットワーク最強のEdge環境で動かせ」と命令する
 export const config = {
     runtime: 'edge',
 };
 
 export default async function handler(req) {
-    // 1. CORS設定
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -16,7 +14,6 @@ export default async function handler(req) {
     }
 
     try {
-        // Edge Runtimeでは req.body ではなく req.json() でデータを取るぜ
         const { message } = await req.json();
         const hfToken = process.env.HF_TOKEN;
 
@@ -27,17 +24,18 @@ export default async function handler(req) {
             });
         }
 
-        // 2. Qwen直通の通信（Edge環境なら迷子にならない！）
-        const response = await fetch("https://api.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct/v1/chat/completions", {
+        // 💡 Edge環境からHugging FaceのQwenへ、最もエラーが起きにくい標準形式で通信！
+        const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${hfToken}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "Qwen/Qwen2.5-7B-Instruct",
-                messages: [{ "role": "user", "content": message }],
-                max_tokens: 300
+                inputs: message, // 最もシンプルな入力形式に変更
+                options: {
+                    wait_for_model: true // 💡 相手のサーバーが混んでいたら、起動するまで少し待つ魔法のオプション
+                }
             })
         });
 
@@ -50,7 +48,21 @@ export default async function handler(req) {
         }
 
         const data = await response.json();
-        const replyText = data.choices?.[0]?.message?.content || "AIからの返答が空っぽだぜ";
+        
+        // 返ってきたデータからテキストを取り出す（標準形式用の解析）
+        let replyText = "";
+        if (Array.isArray(data) && data[0]?.generated_text) {
+            replyText = data[0].generated_text;
+        } else if (data.generated_text) {
+            replyText = data.generated_text;
+        } else {
+            replyText = JSON.stringify(data);
+        }
+
+        // もし返答に自分の送った質問が含まれていたら、それ以降を綺麗に切り取る処理
+        if (replyText.includes(message)) {
+            replyText = replyText.replace(message, "").trim();
+        }
 
         return new Response(JSON.stringify({ reply: replyText }), {
             status: 200,
@@ -58,7 +70,7 @@ export default async function handler(req) {
         });
 
     } catch (error) {
-        return new Response(JSON.stringify({ reply: `Edge環境エラー: ${error.message}` }), {
+        return new Response(JSON.stringify({ reply: `Edge最終エラー: ${error.message}` }), {
             status: 500,
             headers: { ...headers, 'Content-Type': 'application/json' }
         });
