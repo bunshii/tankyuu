@@ -1,42 +1,66 @@
-import { HfInference } from '@huggingface/inference';
+// 🔥 Vercelに「Node.jsじゃなくて、ネットワーク最強のEdge環境で動かせ」と命令する
+export const config = {
+    runtime: 'edge',
+};
 
-export default async function handler(req, res) {
-    // CORS設定
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req) {
+    // 1. CORS設定
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+    };
 
-    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method === 'OPTIONS') {
+        return new Response(null, { status: 200, headers });
+    }
 
     try {
-        const { message } = req.body;
+        // Edge Runtimeでは req.body ではなく req.json() でデータを取るぜ
+        const { message } = await req.json();
         const hfToken = process.env.HF_TOKEN;
 
         if (!hfToken) {
-            return res.status(500).json({ reply: "エラー：Vercelに『HF_TOKEN』が登録されてないぜ！" });
+            return new Response(JSON.stringify({ reply: "エラー：HF_TOKENが登録されてないぜ！" }), {
+                status: 500,
+                headers: { ...headers, 'Content-Type': 'application/json' }
+            });
         }
 
-        // 🔥 Hugging Face公式の接続ツールを起動！
-        const hf = new HfInference(hfToken);
-
-        // 🔥 公式ツールを使って、迷子にならずにQwenを呼び出す！
-        const response = await hf.chatCompletion({
-            model: "Qwen/Qwen2.5-7B-Instruct",
-            messages: [
-                { "role": "user", "content": message }
-            ],
-            max_tokens: 300
+        // 2. Qwen直通の通信（Edge環境なら迷子にならない！）
+        const response = await fetch("https://api.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${hfToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "Qwen/Qwen2.5-7B-Instruct",
+                messages: [{ "role": "user", "content": message }],
+                max_tokens: 300
+            })
         });
 
-        // 返答を綺麗に引っこ抜く
-        const replyText = response.choices?.[0]?.message?.content || "AIからの返答が空っぽだぜ";
+        if (!response.ok) {
+            const errorText = await response.text();
+            return new Response(JSON.stringify({ reply: `HFエラー(${response.status}): ${errorText}` }), {
+                status: response.status,
+                headers: { ...headers, 'Content-Type': 'application/json' }
+            });
+        }
 
-        return res.status(200).json({ reply: replyText });
+        const data = await response.json();
+        const replyText = data.choices?.[0]?.message?.content || "AIからの返答が空っぽだぜ";
+
+        return new Response(JSON.stringify({ reply: replyText }), {
+            status: 200,
+            headers: { ...headers, 'Content-Type': 'application/json' }
+        });
 
     } catch (error) {
-        // エラーが出た場合、原因を詳しく画面に出す
-        return res.status(500).json({ 
-            reply: `公式ツールでもエラーだぜ:\n[名] ${error.name}\n[内容] ${error.message}` 
+        return new Response(JSON.stringify({ reply: `Edge環境エラー: ${error.message}` }), {
+            status: 500,
+            headers: { ...headers, 'Content-Type': 'application/json' }
         });
     }
 }
