@@ -17,7 +17,7 @@ export default async function handler(req, res) {
         }
 
         // Hugging Faceへアタック！
-        const response = await fetch("https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-1B-Instruct", {
+        const response = await fetch("https://api.huggingface.co/models/meta-llama/Llama-3.2-1B-Instruct", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${hfToken}`,
