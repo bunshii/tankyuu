@@ -4,480 +4,264 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OCEAN COMPASS</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; box-sizing: border-box; background: #4361ee; }
+        /* --- 全体のスタイル（深海グラデーション） --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            box-sizing: border-box;
+            padding-bottom: 110px;
+        }
         input:focus, select:focus, textarea:focus { outline: none; }
-        ::-webkit-scrollbar { display: none; }
+        
+        /* --- グラスモーフィズム（ガラス調カード） --- */
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 画面全体のコンテナ */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* タブの表示・非表示制御 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ナビゲーションバー */
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            z-index: 90;
+        }
+        nav button {
+            flex: 1;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        nav button.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        nav button.home-btn { font-size: 2.2rem; }
+
+        /* ボタン */
+        .btn-main {
+            width: 100%;
+            background: #ff9e00;
+            border: none;
+            color: #fff;
+            border-radius: 18px;
+            font-weight: bold;
+            height: 60px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #cc7e00;
+        }
+        .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc7e00; }
+
+        /* スケジュールテーブル */
+        table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px; text-align: center; }
+        
+        /* 単語帳のモザイク効果 */
+        .blur-text { filter: blur(6px); cursor: pointer; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; transition: filter 0.2s; }
+        .blur-text.reveal { filter: none; }
     </style>
 </head>
 <body>
 
-    <div id="root"></div>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div style="width: 45px; height: 45px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🧑‍💻</div>
+            <div style="text-align: center;">
+                <div style="font-weight: 900; letter-spacing: 3px;">OCEAN COMPASS</div>
+                <div style="font-size: 0.65rem; background: rgba(0,0,0,0.15); padding: 2px 8px; border-radius: 10px; margin-top: 3px;">ID: D-7732 ⚓️ DIVER_01</div>
+            </div>
+            <span style="font-size: 1.2rem;">🐠</span>
+        </div>
 
-    <script type="text/babel">
-        // Reactの機能をブラウザ用に取り出す
-        const { useState, useEffect, useRef } = React;
-
-        const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
-
-        // 深海テーマのスタイル設定
-        const theme = {
-            bg: 'linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%)',
-            glass: 'rgba(255, 255, 255, 0.2)',
-            glassStrong: 'rgba(255, 255, 255, 0.4)',
-            accent: '#ff9e00',
-            text: '#ffffff',
-            navIcon: 'grayscale(100%) opacity(0.6)',
-            navActive: 'grayscale(0%) opacity(1)'
-        };
-
-        const cardStyle = {
-            background: theme.glass,
-            backdropFilter: 'blur(15px)',
-            borderRadius: '28px',
-            padding: '20px',
-            marginBottom: '15px',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        };
-
-        function App() {
-            // --- 1. 状態管理（LocalStorageを使ってパソコン内にデータを自動保存） ---
-            const [profile, setProfile] = useState(() => {
-                const saved = localStorage.getItem('ocean_profile');
-                if (saved) return JSON.parse(saved);
-                return { 
-                    id: `D-${Math.floor(1000 + Math.random() * 9000)}`, 
-                    name: "DIVER_01", 
-                    bio: "サンゴ礁で学習中...", 
-                    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diver" 
-                };
-            });
-
-            const [todos, setTodos] = useState(() => {
-                const saved = localStorage.getItem('ocean_todos');
-                return saved ? JSON.parse(saved) : [
-                    { id: "1", text: "クジラの生態を調べる", done: false },
-                    { id: "2", text: "単語帳を5個進める", done: true }
-                ];
-            });
-
-            const [regularTimetable, setRegularTimetable] = useState(() => {
-                const saved = localStorage.getItem('ocean_regular_table');
-                return saved ? JSON.parse(saved) : Array(7).fill(null).map(() => Array(7).fill(""));
-            });
-
-            const [holidayTimetable, setHolidayTimetable] = useState(() => {
-                const saved = localStorage.getItem('ocean_holiday_table');
-                return saved ? JSON.parse(saved) : Array(7).fill(null).map(() => Array(7).fill(""));
-            });
-
-            const [words, setWords] = useState(() => {
-                const saved = localStorage.getItem('ocean_words');
-                return saved ? JSON.parse(saved) : [
-                    { id: 1, en: "Coral", ja: "珊瑚", revealed: false },
-                    { id: 2, en: "Current", ja: "海流", revealed: false }
-                ];
-            });
-
-            const [history, setHistory] = useState(() => {
-                const saved = localStorage.getItem('ocean_history');
-                return saved ? JSON.parse(saved) : [10, 20, 15, 45, 30, 0, 0];
-            });
-
-            // 画面切り替え用の状態
-            const [activeTab, setActiveTab] = useState('home');
-            const [isDiving, setIsDiving] = useState(false);
-            const [diveMode, setDiveMode] = useState('countdown');
-            const [diveMinutes, setDiveMinutes] = useState(25);
-            const [timeLeft, setTimeLeft] = useState(1500);
-            const [timeElapsed, setTimeElapsed] = useState(0);
-            const [pressureWarning, setPressureWarning] = useState(false);
-            const [isHolidayMode, setIsHolidayMode] = useState(false);
-
-            // モーダル・入力用
-            const [showTodoInput, setShowTodoInput] = useState(false);
-            const [showReviewModal, setShowReviewModal] = useState(false);
-            const [newTodoText, setNewTodoText] = useState("");
-            const [reviewInput, setReviewInput] = useState("");
-            const [aiResponse, setAiResponse] = useState("");
-            const [isAiLoading, setIsAiLoading] = useState(false);
-            const [inputEn, setInputEn] = useState("");
-            const [inputJa, setInputJa] = useState("");
-            const [isGlobalBlur, setIsGlobalBlur] = useState(true);
-
-            // チーム機能（サーバーなしで動くようにモックデータ化）
-            const [friends] = useState([
-                { id: "D-4432", name: "TAKUYA", depth: 45, status: 'diving', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Takuya" },
-                { id: "D-8821", name: "YUKA", depth: 0, status: 'resting', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Yuka" }
-            ]);
-
-            const fileInputRef = useRef(null);
-            const currentTimetable = isHolidayMode ? holidayTimetable : regularTimetable;
-
-            // --- 2. 自動保存エフェクト ---
-            useEffect(() => { localStorage.setItem('ocean_profile', JSON.stringify(profile)); }, [profile]);
-            useEffect(() => { localStorage.setItem('ocean_todos', JSON.stringify(todos)); }, [todos]);
-            useEffect(() => { localStorage.setItem('ocean_regular_table', JSON.stringify(regularTimetable)); }, [regularTimetable]);
-            useEffect(() => { localStorage.setItem('ocean_holiday_table', JSON.stringify(holidayTimetable)); }, [holidayTimetable]);
-            useEffect(() => { localStorage.setItem('ocean_words', JSON.stringify(words)); }, [words]);
-            useEffect(() => { localStorage.setItem('ocean_history', JSON.stringify(history)); }, [history]);
-
-            // --- 3. タイマーロジック ---
-            const recordLearningTime = (minutes) => {
-                if (minutes <= 0) return;
-                const rawDay = new Date().getDay();
-                const dayIndex = rawDay === 0 ? 6 : rawDay - 1;
-                setHistory(prev => {
-                    const newHistory = [...prev];
-                    newHistory[dayIndex] = (newHistory[dayIndex] || 0) + minutes;
-                    return newHistory;
-                });
-            };
-
-            useEffect(() => {
-                if (isDiving && diveMode === 'countdown' && timeLeft === 0) {
-                    setIsDiving(false);
-                    setPressureWarning(false);
-                    recordLearningTime(diveMinutes);
-                    setTimeout(() => alert(`🎉 ミッション完了！${diveMinutes}分間の潜水に成功しました。`), 100);
-                }
-            }, [timeLeft, isDiving, diveMode, diveMinutes]);
-
-            useEffect(() => {
-                let timer;
-                if (isDiving) {
-                    timer = setInterval(() => {
-                        if (diveMode === 'countdown') {
-                            setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
-                        } else {
-                            setTimeElapsed(prev => prev + 1);
-                        }
-                    }, 1000);
-                }
-
-                const handleVisibilityChange = () => {
-                    if (document.hidden && isDiving) {
-                        setPressureWarning(true);
-                    }
-                };
-
-                document.addEventListener("visibilitychange", handleVisibilityChange);
-                return () => {
-                    clearInterval(timer);
-                    document.removeEventListener("visibilitychange", handleVisibilityChange);
-                };
-            }, [isDiving, diveMode]);
-
-            const startDive = () => {
-                setTimeLeft(diveMinutes * 60);
-                setTimeElapsed(0);
-                setIsDiving(true);
-                setPressureWarning(false);
-            };
-
-            const handleSurfacing = () => {
-                setIsDiving(false);
-                setPressureWarning(false);
-                const finalSeconds = diveMode === 'countdown' ? (diveMinutes * 60 - timeLeft) : timeElapsed;
-                const finalMinutes = Math.floor(finalSeconds / 60);
-                if (finalMinutes > 0) {
-                    recordLearningTime(finalMinutes);
-                    setTimeout(() => alert(`急浮上しました。今回は ${finalMinutes}分間 潜水しました！`), 100);
-                } else {
-                    setTimeout(() => alert(`急浮上しました。1分未満のログは記録されませんでした。`), 100);
-                }
-            };
-
-            // --- 4. 各種アクション ---
-            const handleToggleTodo = (id) => {
-                setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
-            };
-
-            const addQuickTodo = () => {
-                if (!newTodoText.trim()) return;
-                setTodos([{ id: String(Date.now()), text: newTodoText.trim(), done: false }, ...todos]);
-                setNewTodoText("");
-                setShowTodoInput(false);
-            };
-
-            const handleAiReview = () => {
-                if (!reviewInput.trim()) return;
-                setIsAiLoading(true);
-                setAiResponse("");
-                // 船長からの自動返信メッセージ（1秒後に返ってくる演出）
-                setTimeout(() => {
-                    const replies = [
-                        `船長より：『${reviewInput}』か！素晴らしい潜水だった。今日の水圧を耐え抜いた君には、確実に深海の知恵が刻まれている。明日の海流も味方にしていこう！`,
-                        `船長より：なるほどな。だが航海日誌に『${reviewInput}』と刻んだその一歩が偉大だ。焦るな、深海の財宝は逃げやしない。ゆっくり休めよ！`
-                    ];
-                    setAiResponse(replies[Math.floor(Math.random() * replies.length)]);
-                    setIsAiLoading(false);
-                }, 1000);
-            };
-
-            const formatTime = (seconds) => {
-                const m = Math.floor(seconds / 60);
-                const s = seconds % 60;
-                return `${m}:${s < 10 ? '0' : ''}${s}`;
-            };
-
-            const toggleGlobalBlur = () => {
-                const newState = !isGlobalBlur;
-                setIsGlobalBlur(newState);
-                setWords(words.map(w => ({ ...w, revealed: !newState })));
-            };
-
-            const handleTimetableChange = (i, j, value) => {
-                const updateTable = (prevTable) => prevTable.map((row, rIdx) => rIdx === i ? row.map((cell, cIdx) => cIdx === j ? value : cell) : row);
-                if (isHolidayMode) { setHolidayTimetable(updateTable); } else { setRegularTimetable(updateTable); }
-            };
-
-            // --- 🌊 潜水モード画面 ---
-            if (isDiving) {
-                const totalInitialSeconds = diveMinutes * 60;
-                const oxygenRate = diveMode === 'countdown' ? (timeLeft / totalInitialSeconds) * 100 : 100;
-                const currentDepth = Math.floor(timeElapsed * 0.5);
-                return (
-                    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #001d3d 0%, #000814 100%)', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                        <div style={{ fontSize: '80px', fontWeight: '100' }}>{diveMode === 'countdown' ? formatTime(timeLeft) : formatTime(timeElapsed)}</div>
-                        <div style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '20px' }}>{diveMode === 'countdown' ? 'TIME REMAINING' : 'TIME ELAPSED'}</div>
-                        <div style={{ width: '250px' }}>
-                            {diveMode === 'countdown' ? (
-                                <>
-                                    <div style={{ fontSize: '0.7rem', marginBottom: '5px' }}>OXYGEN LEVEL</div>
-                                    <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden' }}>
-                                        <div style={{ width: `${oxygenRate}%`, height: '100%', background: oxygenRate < 20 ? '#ff4d4d' : '#4cc9f0' }} />
-                                    </div>
-                                </>
-                            ) : (
-                                <div style={{ textAlign: 'center' }}>
-                                    <div style={{ fontSize: '0.7rem' }}>CURRENT DEPTH</div>
-                                    <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4cc9f0' }}>{currentDepth}m</div>
-                                </div>
-                            )}
-                        </div>
-                        {pressureWarning && <div style={{ position: 'absolute', top: '25%', background: 'rgba(255, 77, 77, 0.2)', padding: '12px 24px', borderRadius: '15px', border: '1px solid #ff4d4d', color: '#ff4d4d', fontWeight: 'bold' }}>⚠️ 水圧上昇：集中が乱れています！</div>}
-                        <button onClick={handleSurfacing} style={{ marginTop: '60px', background: 'none', border: '1px solid #fff', color: '#fff', padding: '12px 40px', borderRadius: '30px', cursor: 'pointer' }}>浮上する</button>
-                    </div>
-                );
-            }
-
-            // --- ⛵ メイン画面 ---
-            return (
-                <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, paddingBottom: '110px', boxSizing: 'border-box' }}>
-                    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px' }}>
-                        
-                        {/* ヘッダー */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                            <img src={profile.avatar} style={{ width: '45px', height: '45px', borderRadius: '50%', border: '2px solid #fff', objectFit: 'cover', cursor: 'pointer' }} onClick={() => setActiveTab('settings')} />
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <span style={{ fontWeight: '900', letterSpacing: '3px' }}>OCEAN COMPASS</span>
-                                <span style={{ fontSize: '0.65rem', opacity: 0.8, background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginTop: '3px' }}>
-                                    ID: {profile.id} ⚓️ {profile.name}
-                                </span>
-                            </div>
-                            <span style={{ fontSize: '1.2rem' }}>🐠</span>
-                        </div>
-
-                        {/* 🏠 ホームタブ */}
-                        {activeTab === 'home' && (
-                          <div>
-                            <div style={cardStyle}>
-                              <div style={{ fontSize: '0.8rem', marginBottom: '8px', opacity: 0.8 }}>今週の潜水記録（分）</div>
-                              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '100px', gap: '8px' }}>
-                                {history.map((h, i) => {
-                                  const heightPercent = Math.min((h / 120) * 100, 100);
-                                  const isToday = (new Date().getDay() === 0 ? 6 : new Date().getDay() - 1) === i;
-                                  return (
-                                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                      <div style={{ background: isToday ? theme.accent : '#fff', height: `${Math.max(heightPercent, 5)}px`, width: '100%', borderRadius: '4px', opacity: isToday ? 1 : 0.6 }} />
-                                      <span style={{ fontSize: '0.6rem', marginTop: '4px', opacity: 0.7 }}>{DAYS[i]}</span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            <div style={{ ...cardStyle, background: 'rgba(0,0,0,0.1)' }}>
-                              <div style={{ fontSize: '0.8rem', marginBottom: '10px', opacity: 0.8 }}>潜水設定</div>
-                              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                                <select value={diveMode} onChange={e => setDiveMode(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)' }}>
-                                  <option value="countdown" style={{color: '#333'}}>カウントダウン</option>
-                                  <option value="countup" style={{color: '#333'}}>カウントアップ</option>
-                                </select>
-                                {diveMode === 'countdown' && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <input type="number" value={diveMinutes} onChange={e => setDiveMinutes(Number(e.target.value))} style={{ width: '60px', padding: '10px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', textAlign: 'center' }} />
-                                    <span>分</span>
-                                  </div>
-                                )}
-                              </div>
-                              <button onClick={startDive} style={{ width: '100%', background: theme.accent, border: 'none', color: '#fff', borderRadius: '18px', fontWeight: 'bold', height: '60px', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 4px 0 #cc7e00' }}>潜水開始</button>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                              <button onClick={() => setShowTodoInput(true)} style={{ flex: 1, background: theme.glassStrong, border: 'none', color: '#fff', borderRadius: '15px', padding: '15px', cursor: 'pointer' }}>+ クイックToDo</button>
-                              <button onClick={() => { setShowReviewModal(true); setAiResponse(""); setReviewInput(""); }} style={{ flex: 1, background: '#fff', border: 'none', color: '#4361ee', borderRadius: '15px', padding: '15px', fontWeight: 'bold', cursor: 'pointer' }}>🧠 AI振り返り</button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 📅 スケジュールタブ */}
-                        {activeTab === 'schedule' && (
-                          <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
-                              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>予定リスト</h2>
-                              <button onClick={() => setIsHolidayMode(!isHolidayMode)} style={{ background: isHolidayMode ? theme.accent : '#fff', color: isHolidayMode ? '#fff' : theme.accent, border: 'none', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}>
-                                {isHolidayMode ? "🏖 長期休みモード中" : "通常モード"}
-                              </button>
-                            </div>
-                            <div style={cardStyle}>
-                              {todos.map(t => (
-                                <div key={t.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                                  <input type="checkbox" checked={t.done} onChange={() => handleToggleTodo(t.id)} />
-                                  <span style={{ textDecoration: t.done ? 'line-through' : 'none', opacity: t.done ? 0.6 : 1 }}>{t.text}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <div style={{ ...cardStyle, overflowX: 'auto' }}>
-                              <table style={{ width: '100%', fontSize: '0.7rem', borderCollapse: 'collapse' }}>
-                                <thead><tr>{DAYS.map(d => <th key={d} style={{ padding: '5px' }}>{d}</th>)}</tr></thead>
-                                <tbody>
-                                  {currentTimetable.map((row, i) => (
-                                    <tr key={i}>{row.map((cell, j) => <td key={j} style={{ border: '1px solid rgba(255,255,255,0.2)', padding: '8px', textAlign: 'center', minWidth: '40px', height: '35px' }}>{cell}</td>)}</tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 🎴 単語帳タブ */}
-                        {activeTab === 'word' && (
-                          <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
-                              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>単語帳</h2>
-                              <button onClick={toggleGlobalBlur} style={{ background: '#fff', color: '#444', border: 'none', borderRadius: '20px', padding: '4px 12px', fontSize: '0.7rem', cursor: 'pointer' }}>{isGlobalBlur ? "全部見る" : "全部隠す"}</button>
-                            </div>
-                            <div style={cardStyle}>
-                              <div style={{ display: 'flex', gap: '8px' }}>
-                                <input placeholder="En" value={inputEn} onChange={e => setInputEn(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
-                                <input placeholder="Ja" value={inputJa} onChange={e => setInputJa(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '10px', color: '#fff' }} />
-                                <button onClick={() => { if(inputEn && inputJa){ setWords([{id:Date.now(), en:inputEn, ja:inputJa, revealed:!isGlobalBlur}, ...words]); setInputEn(""); setInputJa(""); }}} style={{ background: theme.accent, border: 'none', borderRadius: '8px', color: '#fff', width: '40px', cursor: 'pointer' }}>+</button>
-                              </div>
-                            </div>
-                            {words.map(w => (
-                              <div key={w.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>{w.en}</span>
-                                <span onClick={() => setWords(words.map(x => x.id === w.id ? {...x, revealed: !x.revealed} : x))} style={{ filter: w.revealed ? 'none' : 'blur(8px)', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px' }}>{w.ja}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* 👥 フレンドタブ */}
-                        {activeTab === 'friends' && (
-                          <div>
-                            <h2 style={{ fontSize: '1.2rem', margin: '0 0 15px 0' }}>探索チーム</h2>
-                            {friends.map(f => (
-                              <div key={f.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                <img src={f.avatar} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontWeight: 'bold' }}>{f.name}</div>
-                                  <div style={{ fontSize: '0.7rem' }}>ID: {f.id} | 深度: {f.depth}m</div>
-                                </div>
-                                <span style={{ fontSize: "0.7rem", color: f.status === "diving" ? "#4ade80" : "#fff" }}>
-                                  {f.status === "diving" ? "● 潜水中" : "待機中"}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* ⚙️ 設定タブ */}
-                        {activeTab === 'settings' && (
-                          <div>
-                            <h2 style={{ fontSize: '1.2rem' }}>システム設定</h2>
-                            <div style={cardStyle}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                <img src={profile.avatar} style={{ width: '70px', height: '70px', borderRadius: '50%' }} />
-                                <div style={{ flex: 1 }}>
-                                  <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>ダイバーネーム</span>
-                                  <input value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', padding: '5px 10px', borderRadius: '6px', width: '100%', boxSizing: 'border-box' }} />
-                                </div>
-                              </div>
-                            </div>
-                            <div style={cardStyle}>
-                              <div style={{ fontSize: '0.8rem', marginBottom: '10px' }}>時間割の編集</div>
-                              <table style={{ margin: '0 auto' }}><tbody>
-                                {currentTimetable.map((row, i) => (
-                                  <tr key={i}>{row.map((cell, j) => (
-                                    <td key={j} style={{ padding: '2px' }}>
-                                      <input value={cell} onChange={e => handleTimetableChange(i, j, e.target.value)} style={{ width: '45px', height: '35px', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', textAlign: 'center', borderRadius: '4px' }} />
-                                    </td>
-                                  ))}</tr>
-                                ))}
-                              </tbody></table>
-                            </div>
-                          </div>
-                        )}
-
-                    </div>
-
-                    {/* クイックToDoモーダル */}
-                    {showTodoInput && (
-                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
-                            <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px' }}>
-                                <h3 style={{ marginTop: 0 }}>ToDoを追加</h3>
-                                <input autoFocus value={newTodoText} onChange={e => setNewTodoText(e.target.value)} onKeyDown={e => { if(e.key === 'Enter') addQuickTodo(); }} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff', color: '#333' }} />
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button onClick={() => setShowTodoInput(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>戻る</button>
-                                    <button onClick={addQuickTodo} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>追加</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* AI振り返りモーダル */}
-                    {showReviewModal && (
-                        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
-                            <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px', maxHeight: '80vh', overflowY: 'auto' }}>
-                                <h3 style={{ marginTop: 0, color: '#4361ee' }}>⚓ AI深海メンターへの報告</h3>
-                                <textarea rows={3} placeholder="例: 今日は英単語を30個覚えた！" value={reviewInput} onChange={e => setReviewInput(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff', color: '#333' }} />
-                                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                                    <button onClick={() => setShowReviewModal(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>閉じる</button>
-                                    <button onClick={handleAiReview} disabled={isAiLoading || !reviewInput.trim()} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', opacity: (!reviewInput.trim() || isAiLoading) ? 0.5 : 1 }}>
-                                        {isAiLoading ? "通信中...📡" : "船長に送信 🫧"}
-                                    </button>
-                                </div>
-                                {aiResponse && (
-                                    <div style={{ background: '#edf2f7', padding: '15px', borderRadius: '12px', borderLeft: '5px solid #ff9e00', fontSize: '0.9rem', lineHeight: '1.4' }}>
-                                        {aiResponse}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* フッターナビ */}
-                    <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '85px', background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', zIndex: 90 }}>
-                        {[ { id: 'word', icon: '🎴' }, { id: 'schedule', icon: '📅' }, { id: 'home', icon: '⚓' }, { id: 'friends', icon: '👥' }, { id: 'settings', icon: '⚙️' } ].map(tab => (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, background: 'none', border: 'none', fontSize: tab.id === 'home' ? '2.2rem' : '1.8rem', filter: activeTab === tab.id ? theme.navActive : theme.navIcon, cursor: 'pointer', padding: 0 }}>
-                                {tab.icon}
-                            </button>
-                        ))}
-                    </nav>
+        <div id="tab-home" class="tab-content active">
+            <div class="card">
+                <div style="font-size: 0.8rem; margin-bottom: 12px; opacity: 0.8;">今週の潜水記録（分）</div>
+                <div style="display: flex; align-items: flex-end; justify-content: space-around; height: 80px; gap: 8px;">
+                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:20px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">月</span></div>
+                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:45px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">火</span></div>
+                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:30px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">水</span></div>
+                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:60px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">木</span></div>
+                    <div style="flex:1; text-align:center;"><div style="background:#ff9e00; height:75px; border-radius:4px;"></div><span style="font-size:0.6rem; font-weight:bold;">金</span></div>
+                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:10px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">土</span></div>
+                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:5px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">日</span></div>
                 </div>
-            );
+            </div>
+
+            <div class="card" style="background: rgba(0,0,0,0.1); text-align: center; padding: 30px 20px;">
+                <div style="font-size: 3rem; font-weight: 100; margin-bottom: 5px;" id="timer-display">25:00</div>
+                <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 2px;">FOCUS TIMER</div>
+                <button class="btn-main" onclick="toggleTimer()" id="sync-btn">潜水開始</button>
+            </div>
+        </div>
+
+        <div id="tab-schedule" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">ミッション・予定</h2>
+            <div class="card">
+                <div style="margin-bottom: 10px;"><input type="checkbox" checked> <span>クジラの生態を調べる</span></div>
+                <div style="margin-bottom: 10px;"><input type="checkbox"> <span>単語帳を5個進める</span></div>
+                <div><input type="checkbox"> <span>本日の振り返りを完了する</span></div>
+            </div>
+            <div class="card" style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th></tr></thead>
+                    <tbody>
+                        <tr><td>英語</td><td>数学</td><td>英語</td><td>プロ</td><td>数学</td><td>休み</td><td>休み</td></tr>
+                        <tr><td>国語</td><td>理科</td><td>社会</td><td>英語</td><td>理科</td><td>演習</td><td>復習</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-word" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">深海単語帳</h2>
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Coral</span>
+                <span class="blur-text" onclick="this.classList.toggle('reveal')">珊瑚（サンゴ）</span>
+            </div>
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Current</span>
+                <span class="blur-text" onclick="this.classList.toggle('reveal')">海流</span>
+            </div>
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Deep Sea</span>
+                <span class="blur-text" onclick="this.classList.toggle('reveal')">深海</span>
+            </div>
+        </div>
+
+        <div id="tab-friends" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 5px;">探索チーム</h2>
+            <p style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 15px;">※スタンドアロン（オフライン）稼働中</p>
+            <div class="card" style="display: flex; align-items: center; gap: 15px;">
+                <div style="width:45px; height:45px; background:rgba(255,255,255,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">🐳</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: bold;">TAKUYA</div>
+                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
+                </div>
+                <span style="color: #4ade80; font-size: 0.8rem;">● 潜水中</span>
+            </div>
+            <div class="card" style="display: flex; align-items: center; gap: 15px;">
+                <div style="width:45px; height:45px; background:rgba(255,255,255,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">🐙</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: bold;">YUKA</div>
+                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-8821 | 深度: 0m</div>
+                </div>
+                <span style="opacity: 0.6; font-size: 0.8rem;">待機中</span>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">システム設定</h2>
+            <div class="card">
+                <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 5px;">ダイバーネーム</label>
+                <input type="text" value="DIVER_01" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">
+            </div>
+            <div class="card" style="font-size: 0.8rem; opacity: 0.7;">
+                ベースシステム: Ocean Compass v2.0<br>
+                ローカル動作モード（データベース未接続）
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <button onclick="switchTab('word', this)">🎴</button>
+        <button onclick="switchTab('schedule', this)">📅</button>
+        <button onclick="switchTab('home', this)" class="home-btn active">⚓</button>
+        <button onclick="switchTab('friends', this)">👥</button>
+        <button onclick="switchTab('settings', this)">⚙️</button>
+    </nav>
+
+    <script>
+        // タブ切り替えシステム
+        function switchTab(tabId, button) {
+            // すべてのタブコンテンツを非表示にする
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // すべてのナビボタンの選択状態を解除
+            const buttons = document.querySelectorAll('nav button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // 選択されたタブとボタンをアクティブにする
+            document.getElementById('tab-' + tabId).classList.add('active');
+            button.classList.add('active');
         }
 
-        // アプリ起動
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // タイマーシステム
+        let timer = null;
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+
+        function toggleTimer() {
+            const btn = document.getElementById('sync-btn');
+            const display = document.getElementById('timer-display');
+            
+            if (isRunning) {
+                // タイマー停止（浮上）
+                clearInterval(timer);
+                isRunning = false;
+                btn.innerText = "潜水開始";
+                btn.style.background = "#ff9e00";
+                timeLeft = 25 * 60;
+                display.innerText = "25:00";
+                alert("浅瀬に浮上しました。");
+            } else {
+                // タイマー開始（潜水）
+                isRunning = true;
+                btn.innerText = "浮上する";
+                btn.style.background = "rgba(255,255,255,0.2)";
+                
+                timer = setInterval(() => {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    display.innerText = (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        isRunning = false;
+                        btn.innerText = "潜水開始";
+                        btn.style.background = "#ff9e00";
+                        timeLeft = 25 * 60;
+                        display.innerText = "25:00";
+                        alert("🎉 潜水ミッション完了！お疲れ様でした！");
+                    }
+                }, 1000);
+            }
+        }
     </script>
 </body>
 </html>
