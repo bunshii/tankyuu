@@ -24,17 +24,17 @@ export default async function handler(req) {
             });
         }
 
-        // 💡 Edge環境からHugging FaceのQwenへ、最もエラーが起きにくい標準形式で通信！
-        const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct", {
+        // 💡 Hugging Faceで最も安定して稼働している Llama-3 のエンドポイントに突撃！
+        const response = await fetch("https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${hfToken}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                inputs: message, // 最もシンプルな入力形式に変更
+                inputs: message,
                 options: {
-                    wait_for_model: true // 💡 相手のサーバーが混んでいたら、起動するまで少し待つ魔法のオプション
+                    wait_for_model: true // 眠っていたら起こす
                 }
             })
         });
@@ -49,7 +49,6 @@ export default async function handler(req) {
 
         const data = await response.json();
         
-        // 返ってきたデータからテキストを取り出す（標準形式用の解析）
         let replyText = "";
         if (Array.isArray(data) && data[0]?.generated_text) {
             replyText = data[0].generated_text;
@@ -59,7 +58,6 @@ export default async function handler(req) {
             replyText = JSON.stringify(data);
         }
 
-        // もし返答に自分の送った質問が含まれていたら、それ以降を綺麗に切り取る処理
         if (replyText.includes(message)) {
             replyText = replyText.replace(message, "").trim();
         }
