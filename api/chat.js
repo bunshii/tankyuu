@@ -1,3 +1,4 @@
+
 export const config = {
     runtime: 'edge',
 };
@@ -18,13 +19,13 @@ export default async function handler(req) {
         const hfToken = process.env.HF_TOKEN;
 
         if (!hfToken) {
-            return new Response(JSON.stringify({ reply: "エラー：HF_TOKENが登録されてないぜ！" }), {
+            return new Response(JSON.stringify({ reply: "エラー：HF_TOKENなし" }), {
                 status: 500,
                 headers: { ...headers, 'Content-Type': 'application/json' }
             });
         }
 
-        // 💡 Hugging Faceで最も安定して稼働している Llama-3 のエンドポイントに突撃！
+        // 💡 Edge環境で確実に外に飛び出すシンプルなfetch
         const response = await fetch("https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct", {
             method: "POST",
             headers: {
@@ -32,16 +33,13 @@ export default async function handler(req) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                inputs: message,
-                options: {
-                    wait_for_model: true // 眠っていたら起こす
-                }
+                inputs: message
             })
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            return new Response(JSON.stringify({ reply: `HFエラー(${response.status}): ${errorText}` }), {
+            return new Response(JSON.stringify({ reply: `HFエラー: ${errorText}` }), {
                 status: response.status,
                 headers: { ...headers, 'Content-Type': 'application/json' }
             });
@@ -49,6 +47,7 @@ export default async function handler(req) {
 
         const data = await response.json();
         
+        // 余計な加工は一切せず、返ってきたデータをそのままテキストにする
         let replyText = "";
         if (Array.isArray(data) && data[0]?.generated_text) {
             replyText = data[0].generated_text;
@@ -58,17 +57,13 @@ export default async function handler(req) {
             replyText = JSON.stringify(data);
         }
 
-        if (replyText.includes(message)) {
-            replyText = replyText.replace(message, "").trim();
-        }
-
         return new Response(JSON.stringify({ reply: replyText }), {
             status: 200,
             headers: { ...headers, 'Content-Type': 'application/json' }
         });
 
     } catch (error) {
-        return new Response(JSON.stringify({ reply: `Edge最終エラー: ${error.message}` }), {
+        return new Response(JSON.stringify({ reply: `内部コードエラー: ${error.message}` }), {
             status: 500,
             headers: { ...headers, 'Content-Type': 'application/json' }
         });
