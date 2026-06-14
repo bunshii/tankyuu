@@ -23,7 +23,7 @@
 
         const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
 
-        // テーマカラー＆スタイル完全移植 [cite: 72, 73]
+        // スタイル定数
         const theme = {
             bg: 'linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%)',
             glass: 'rgba(255, 255, 255, 0.2)',
@@ -45,7 +45,7 @@
         };
 
         function App() {
-            // --- 1. 状態管理（LocalStorage連動） --- [cite: 7, 12]
+            // --- 1. 状態管理（TypeScriptの型を排除し、安全にLocalStorage連動） ---
             const [profile, setProfile] = useState(() => {
                 const saved = localStorage.getItem('ocean_profile');
                 if (saved) {
@@ -61,10 +61,7 @@
                 };
             });
 
-            const [todos, setTodos] = useState(() => {
-                const saved = localStorage.getItem('ocean_todos');
-                return saved ? JSON.parse(saved) : [];
-            });
+            const [todos, setTodos] = useState([]);
 
             const [regularTimetable, setRegularTimetable] = useState(() => {
                 const saved = localStorage.getItem('ocean_regular_table');
@@ -89,7 +86,7 @@
                 return saved ? JSON.parse(saved) : [10, 20, 15, 45, 30, 0, 0];
             });
 
-            // 画面表示用ステート [cite: 13, 19]
+            // 一時的な状態
             const [activeTab, setActiveTab] = useState('home');
             const [isDiving, setIsDiving] = useState(false);
             const [diveMode, setDiveMode] = useState('countdown');
@@ -100,7 +97,7 @@
             const [isHolidayMode, setIsHolidayMode] = useState(false);
             const [bubbleNotification, setBubbleNotification] = useState("");
 
-            // 入力・モーダル [cite: 16, 18]
+            // モーダル・入力関連
             const [showTodoInput, setShowTodoInput] = useState(false);
             const [showReviewModal, setShowReviewModal] = useState(false);
             const [newTodoText, setNewTodoText] = useState("");
@@ -111,7 +108,9 @@
             const [inputJa, setInputJa] = useState("");
             const [isGlobalBlur, setIsGlobalBlur] = useState(true);
 
-            // スタンドアロン動作のためのチームモック [cite: 19]
+            const fileInputRef = useRef(null);
+
+            // フレンド機能用の状態（スタンドアロンで動くようにモックデータを初期値に設定）
             const [friends, setFriends] = useState([
                 { id: "D-4432", name: "TAKUYA", depth: 45, status: 'diving', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Takuya" },
                 { id: "D-8821", name: "YUKA", depth: 0, status: 'resting', avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Yuka" }
@@ -119,18 +118,27 @@
             const [friendIdInput, setFriendIdInput] = useState("");
             const [friendMessage, setFriendMessage] = useState("");
 
-            const fileInputRef = useRef(null);
             const currentTimetable = isHolidayMode ? holidayTimetable : regularTimetable;
 
-            // --- 2. LocalStorage 自動保存 --- [cite: 20, 22]
+            // --- 2. データ自動保存 (LocalStorage) ---
             useEffect(() => { localStorage.setItem('ocean_profile', JSON.stringify(profile)); }, [profile]);
-            useEffect(() => { localStorage.setItem('ocean_todos', JSON.stringify(todos)); }, [todos]);
             useEffect(() => { localStorage.setItem('ocean_regular_table', JSON.stringify(regularTimetable)); }, [regularTimetable]);
             useEffect(() => { localStorage.setItem('ocean_holiday_table', JSON.stringify(holidayTimetable)); }, [holidayTimetable]);
             useEffect(() => { localStorage.setItem('ocean_words', JSON.stringify(words)); }, [words]);
             useEffect(() => { localStorage.setItem('ocean_history', JSON.stringify(history)); }, [history]);
 
-            // --- 3. 潜水タイマーロジック (カウントダウン/カウントアップ) --- [cite: 34, 44]
+            // アプリ起動時にローカルサーバー（3000番）があればデータを取りにいく（落ちていても動くフォールバック付き）
+            useEffect(() => {
+                fetch("http://localhost:3000/api/todos")
+                    .then((res) => res.json())
+                    .then((data) => {
+                        const mappedTodos = data.map(t => ({ id: t.id, text: t.text, done: t.completed || t.done || false }));
+                        setTodos(mappedTodos);
+                    })
+                    .catch((err) => console.log("ローカルサーバー未接続です。スタンドアロンで動作します。"));
+            }, []);
+
+            // --- 3. グラフ自動記録ロジック ---
             const recordLearningTime = (minutes) => {
                 if (minutes <= 0) return;
                 const rawDay = new Date().getDay();
@@ -192,44 +200,38 @@
                     recordLearningTime(finalMinutes);
                     setTimeout(() => alert(`急浮上しました。今回は ${finalMinutes}分間 潜水しました！`), 100);
                 } else {
-                    setTimeout(() => alert(`急浮上しました。1分未満の潜水のためログには記録されませんでした！`), 100);
+                    setTimeout(() => alert(`急浮上しました。1分未満の潜水のためログには記録されませんでした。`), 100);
                 }
             };
 
-            // --- 4. ToDo操作 --- [cite: 45, 46]
-            const handleToggleTodo = (id) => {
-                setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
+            const handleToggleTodo = (id, currentDone) => {
+                const nextStatus = !currentDone;
+                setTodos(todos.map(t => t.id === id ? { ...t, done: nextStatus } : t));
             };
 
             const addQuickTodo = () => {
                 if (!newTodoText.trim()) return;
-                const newTodoItem = { id: String(Date.now()), text: newTodoText.trim(), done: false };
-                setTodos([newTodoItem, ...todos]);
+                const fallbackTodo = { id: String(Date.now()), text: newTodoText.trim(), done: false };
+                setTodos([fallbackTodo, ...todos]);
                 setNewTodoText("");
                 setShowTodoInput(false);
             };
 
-            // --- 5. AI深海メンター連携 (自前Cloudflare API接続) --- [cite: 58, 63]
             const handleAiReview = async () => {
                 if (!reviewInput.trim()) return;
                 setIsAiLoading(true);
                 setAiResponse("");
 
-                const prompt = `ユーザーの振り返り: "${reviewInput}" に対して、潜水艦の船長として海や冒険の比喩を交え熱く励ますフィードバックを150文字程度で返してください。`;
-
-                try {
-                    const response = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: prompt })
-                    });
-                    const data = await response.json();
-                    setAiResponse(data.reply || "船長への無線が途切れたようだ。もう一度送ってみてくれ！");
-                } catch (error) {
-                    setAiResponse("通信エラーが発生したようだ！船長への無線が届かないぜ。");
-                } finally {
+                // スタンドアロン環境用のモック返答（即時モチベーションアップ！）
+                setTimeout(() => {
+                    const mockReplies = [
+                        `船長より：『${reviewInput}』か！素晴らしい潜水だったな。今日の水圧を耐え抜いた君の身体には、確実に深海の知恵が刻まれている。明日の海流も味方にしていこう！`,
+                        `船長より：なるほど、今日の海は少し荒れていたようだな。だが航海日誌に『${reviewInput}』と刻んだその一歩が偉大だ。焦るな、深海の財宝は逃げやしないさ。ゆっくり休めよ！`,
+                        `船長より：素晴らしい！君の集中力はダイオウイカをも圧倒するレベルだ。『${reviewInput}』という最高の成果を抱えて、明日はさらに深い未知の領域へ潜水開始だ！`
+                    ];
+                    setAiResponse(mockReplies[Math.floor(Math.random() * mockReplies.length)]);
                     setIsAiLoading(false);
-                }
+                }, 1000);
             };
 
             const formatTime = (seconds) => {
@@ -258,7 +260,7 @@
                 if (isHolidayMode) { setHolidayTimetable(updateTable); } else { setRegularTimetable(updateTable); }
             };
 
-            // --- 🌊 A. 潜水モード画面 (ダーク深海モード) --- [cite: 74, 80]
+            // --- 潜水モード画面 ---
             if (isDiving) {
                 const totalInitialSeconds = diveMinutes * 60;
                 const oxygenRate = diveMode === 'countdown' ? (timeLeft / totalInitialSeconds) * 100 : 100;
@@ -288,24 +290,31 @@
                 );
             }
 
-            // --- ⛵ B. 通常画面 (グラデーション海流モード) --- [cite: 80, 81]
+            // --- メイン画面 ---
             return (
-                <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, paddingBottom: '110px', boxSizing: 'border-box', overflowX: 'hidden' }}>
-                    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px' }}>
+                <div style={{ minHeight: '100vh', background: theme.bg, color: theme.text, fontFamily: 'sans-serif', paddingBottom: '110px', boxSizing: 'border-box', overflowX: 'hidden' }}>
+                    
+                    {bubbleNotification && (
+                        <div style={{ position: 'fixed', top: '20px', left: '20px', right: '20px', background: 'rgba(0, 26, 51, 0.9)', color: '#4cc9f0', padding: '15px 20px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', border: '2px solid #4cc9f0', zIndex: 2000, fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+                            {bubbleNotification}
+                        </div>
+                    )}
+
+                    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px', position: 'relative', zIndex: 1, boxSizing: 'border-box' }}>
                         
                         {/* ヘッダー */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                             <img src={profile.avatar} style={{ width: '45px', height: '45px', borderRadius: '50%', border: '2px solid #fff', objectFit: 'cover', cursor: 'pointer' }} onClick={() => setActiveTab('settings')} />
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <span style={{ fontWeight: '900', letterSpacing: '3px' }}>OCEAN COMPASS</span>
-                                <span style={{ fontSize: '0.65rem', opacity: 0.8, background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginTop: '3px' }}>
+                                <span style={{ fontSize: '0.65rem', opacity: 0.8, letterSpacing: '1px', background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginTop: '3px' }}>
                                     ID: {profile.id} ⚓️ {profile.name}
                                 </span>
                             </div>
                             <span style={{ fontSize: '1.2rem' }}>🐠</span>
                         </div>
 
-                        {/* 🏠 ホームタブ */}
+                        {/* 🏠 ホーム */}
                         {activeTab === 'home' && (
                             <div>
                                 <div style={cardStyle}>
@@ -349,7 +358,7 @@
                             </div>
                         )}
 
-                        {/* 📅 スケジュールタブ */}
+                        {/* 📅 スケジュール */}
                         {activeTab === 'schedule' && (
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
@@ -363,9 +372,9 @@
                                         <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>タスクはありません。クイックToDoから追加しましょう！</p>
                                     ) : (
                                         todos.map(t => (
-                                            <div key={t.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                                                <input type="checkbox" checked={t.done} onChange={() => handleToggleTodo(t.id)} style={{cursor: 'pointer'}} />
-                                                <span style={{ textDecoration: t.done ? 'line-through' : 'none', opacity: t.done ? 0.6 : 1 }}>{t.text}</span>
+                                            <div key={t.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                                <input type="checkbox" checked={t.done} onChange={() => handleToggleTodo(t.id, t.done)} />
+                                                <span style={{ textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</span>
                                             </div>
                                         ))
                                     )}
@@ -384,7 +393,7 @@
                             </div>
                         )}
 
-                        {/* 🎴 単語帳タブ */}
+                        {/* 🎴 単語帳 */}
                         {activeTab === 'word' && (
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
@@ -401,13 +410,13 @@
                                 {words.map(w => (
                                     <div key={w.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', gap: '10px' }}>
                                         <span style={{ wordBreak: 'break-word', flex: 1 }}>{w.en}</span>
-                                        <span onClick={() => setWords(words.map(x => x.id === w.id ? {...x, revealed: !x.revealed} : x))} style={{ filter: w.revealed ? 'none' : 'blur(8px)', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px', wordBreak: 'break-word', maxWidth: '50%', textAlign: 'right', transition: 'filter 0.3s' }}>{w.ja}</span>
+                                        <span onClick={() => setWords(words.map(x => x.id === w.id ? {...x, revealed: !x.revealed} : x))} style={{ filter: w.revealed ? 'none' : 'blur(8px)', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px', wordBreak: 'break-word', maxWidth: '50%', textAlign: 'right' }}>{w.ja}</span>
                                     </div>
                                 ))}
                             </div>
                         )}
 
-                        {/* 👥 フレンドタブ */}
+                        {/* 👥 フレンド */}
                         {activeTab === 'friends' && (
                             <div>
                                 <h2 style={{ fontSize: '1.2rem', margin: '0 0 5px 0' }}>探索チーム</h2>
@@ -433,7 +442,7 @@
                             </div>
                         )}
 
-                        {/* ⚙️ 設定タブ */}
+                        {/* ⚙️ 設定 */}
                         {activeTab === 'settings' && (
                             <div>
                                 <h2 style={{ fontSize: '1.2rem' }}>システム設定</h2>
@@ -441,7 +450,7 @@
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
                                         <div style={{ position: 'relative' }}>
                                             <img src={profile.avatar} style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover' }} />
-                                            <button onClick={() => fileInputRef.current?.click()} style={{ position: 'absolute', bottom: 0, right: 0, background: theme.accent, border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✎</button>
+                                            <button onClick={() => fileInputRef.current?.click()} style={{ position: 'absolute', bottom: 0, right: 0, background: theme.accent, border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer', width: '24px', height: '24px' }}>✎</button>
                                         </div>
                                         <div style={{ flex: 1 }}>
                                             <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>ダイバーネーム（変更可能）</span>
@@ -473,7 +482,7 @@
                         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                             <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px' }}>
                                 <h3 style={{ marginTop: 0 }}>ToDoを追加</h3>
-                                <input autoFocus value={newTodoText} onChange={e => setNewTodoText(e.target.value)} onKeyDown={e => { if(e.key === 'Enter') addQuickTodo(); }} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box', color: '#333', background: '#fff' }} />
+                                <input autoFocus value={newTodoText} onChange={e => setNewTodoText(e.target.value)} onKeyDown={e => { if(e.key === 'Enter') addQuickTodo(); }} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff', color: '#333' }} />
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <button onClick={() => setShowTodoInput(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', color: '#333', cursor: 'pointer' }}>戻る</button>
                                     <button onClick={addQuickTodo} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>追加</button>
@@ -487,7 +496,8 @@
                         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                             <div style={{ ...cardStyle, background: '#fff', color: '#333', width: '100%', maxWidth: '400px', maxHeight: '80vh', overflowY: 'auto' }}>
                                 <h3 style={{ marginTop: 0, color: '#4361ee' }}>⚓ AI深海メンターへの報告</h3>
-                                <textarea rows={3} placeholder="例: 今日は英語の単語を30個覚えた！" value={reviewInput} onChange={e => setReviewInput(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', fontFamily: 'sans-serif', boxSizing: 'border-box', color: '#333', background: '#fff' }} />
+                                <p style={{ fontSize: '0.8rem', color: '#666' }}>今日の勉強の感想、難しかったこと、自分の頑張りを船長に報告しよう！</p>
+                                <textarea rows={3} placeholder="例: 今日は英語の単語を30個覚えた！後半ちょっと集中が切れちゃった。" value={reviewInput} onChange={e => setReviewInput(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ccc', fontFamily: 'sans-serif', boxSizing: 'border-box', background: '#fff', color: '#333' }} />
                                 <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
                                     <button onClick={() => setShowReviewModal(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc', background: '#fff', color: '#333', cursor: 'pointer' }}>閉じる</button>
                                     <button onClick={handleAiReview} disabled={isAiLoading || !reviewInput.trim()} style={{ flex: 1, background: theme.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', opacity: (!reviewInput.trim() || isAiLoading) ? 0.5 : 1 }}>
@@ -503,10 +513,10 @@
                         </div>
                     )}
 
-                    {/* フッターナビ [cite: 134, 136] */}
+                    {/* フッターナビ */}
                     <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '85px', background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', zIndex: 90 }}>
                         {[ { id: 'word', icon: '🎴' }, { id: 'schedule', icon: '📅' }, { id: 'home', icon: '⚓' }, { id: 'friends', icon: '👥' }, { id: 'settings', icon: '⚙️' } ].map(tab => (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, background: 'none', border: 'none', fontSize: tab.id === 'home' ? '2.2rem' : '1.8rem', filter: activeTab === tab.id ? theme.navActive : theme.navIcon, cursor: 'pointer', padding: 0, transition: 'filter 0.2s' }}>
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, background: 'none', border: 'none', fontSize: tab.id === 'home' ? '2.2rem' : '1.8rem', filter: activeTab === tab.id ? theme.navActive : theme.navIcon, cursor: 'pointer', padding: 0 }}>
                                 {tab.icon}
                             </button>
                         ))}
@@ -515,7 +525,7 @@
             );
         }
 
-        // 🌟 タイポを完全に修正！これで絶対に白くならないぜ
+        // --- アプリの起動スイッチ ---
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
