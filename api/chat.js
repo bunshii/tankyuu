@@ -1,5 +1,7 @@
+import { HfInference } from '@huggingface/inference';
+
 export default async function handler(req, res) {
-    // CORS（ブラウザからの通信を許可する）設定
+    // CORS設定
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -11,33 +13,30 @@ export default async function handler(req, res) {
         const hfToken = process.env.HF_TOKEN;
 
         if (!hfToken) {
-            return res.status(500).json({ reply: "エラー：HF_TOKENが登録されてないぜ！" });
+            return res.status(500).json({ reply: "エラー：Vercelに『HF_TOKEN』が登録されてないぜ！" });
         }
 
-        // 💡 DNSエラー（迷子）が絶対に起きないドメイン ＋ Qwen直通の最新OpenAI互換URLだ！
-        const response = await fetch("https://api.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${hfToken}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "Qwen/Qwen2.5-7B-Instruct", // 日本語が超得意な最強モデル
-                messages: [{ "role": "user", "content": message }],
-                max_tokens: 300
-            })
+        // 🔥 Hugging Face公式の接続ツールを起動！
+        const hf = new HfInference(hfToken);
+
+        // 🔥 公式ツールを使って、迷子にならずにQwenを呼び出す！
+        const response = await hf.chatCompletion({
+            model: "Qwen/Qwen2.5-7B-Instruct",
+            messages: [
+                { "role": "user", "content": message }
+            ],
+            max_tokens: 300
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            return res.status(response.status).json({ reply: `HFエラー(${response.status}): ${errorText}` });
-        }
+        // 返答を綺麗に引っこ抜く
+        const replyText = response.choices?.[0]?.message?.content || "AIからの返答が空っぽだぜ";
 
-        const data = await response.json();
-        const replyText = data.choices?.[0]?.message?.content || "AIからの返答が空っぽだぜ";
         return res.status(200).json({ reply: replyText });
 
     } catch (error) {
-        return res.status(500).json({ reply: `Vercel内部エラー: ${error.message}` });
+        // エラーが出た場合、原因を詳しく画面に出す
+        return res.status(500).json({ 
+            reply: `公式ツールでもエラーだぜ:\n[名] ${error.name}\n[内容] ${error.message}` 
+        });
     }
 }
