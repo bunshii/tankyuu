@@ -50,7 +50,16 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ reply: replyText });
 
-    } catch (error) {
-        return res.status(500).json({ reply: "Vercelの裏の部屋でのエラーだぜ: " + error.message });
+} catch (error) {
+        // エラーの名前やメッセージ、詳しい原因を全部合体させて画面に返すぜ！
+        const errorDetails = {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+            cause: error.cause ? error.cause.message : "原因の詳細はなし"
+        };
+        return res.status(500).json({ 
+            reply: `Vercelの裏の部屋での詳細エラーだぜ:\n${JSON.stringify(errorDetails, null, 2)}` 
+        });
     }
 }
