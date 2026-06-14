@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tankyuu AI Chat</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        #chat-container { width: 100%; max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        #messages { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; background: #fafafa; }
+        .message { margin-bottom: 10px; padding: 8px 12px; border-radius: 4px; max-width: 80%; }
+        .user { background: #007bff; color: white; margin-left: auto; text-align: right; width: fit-content; }
+        .ai { background: #e9ecef; color: #333; margin-right: auto; text-align: left; width: fit-content; white-space: pre-wrap; }
+        #input-container { display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <h2>🤖 tankyuu AI Chat Room</h2>
+    <div id="messages"></div>
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="メッセージを入力してくれ！" onkeypress="if(event.key==='Enter')sendMessage()">
+        <button onclick="sendMessage()">送信</button>
+    </div>
+</div>
+
+<script>
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        appendMessage(message, 'user');
+        input.value = '';
+
+        appendMessage("考え中だぜ...", 'ai', true);
+
+        try {
+            // Vercelの自分のバックエンドAPI（/api/chat）を呼び出す
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+            removeLoadingMessage();
+            appendMessage(data.reply, 'ai');
+        } catch (error) {
+            removeLoadingMessage();
+            appendMessage("通信エラーが起きちまったぜ： " + error.message, 'ai');
+        }
+    }
+
+    function appendMessage(text, sender, isLoading = false) {
+        const messagesDiv = document.getElementById('messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', sender);
+        if (isLoading) msgDiv.id = 'loading-msg';
+        msgDiv.innerText = text;
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function removeLoadingMessage() {
+        const loadingMsg = document.getElementById('loading-msg');
+        if (loadingMsg) loadingMsg.remove();
+    }
+</script>
+
+</body>
+</html>
