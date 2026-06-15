@@ -503,7 +503,7 @@
 
         function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
 
-        // 🌟 【修正完了】正しく動くCloudflare Workers通信関数
+                // 🌟 Vercel API Routes (chat.js) に最適化した翻訳通信関数
         async function askCloudflareTranslate() {
             const enVal = document.getElementById('input-en').value.trim();
             const jaInput = document.getElementById('input-ja');
@@ -511,35 +511,47 @@
 
             if (!enVal) { alert("英語を入力してください。"); return; }
 
-            tips.innerText = "🐋 Cloudflare経由でAI翻訳データを探索中...";
+            tips.innerText = "🐋 Vercel ➔ Cloudflare AI経由で翻訳データを探索中...";
             tips.style.display = "block";
 
-            // ⚠️ 環境に合わせてCloudflare WorkersのURLを書き換えてね！
-            const cloudflareUrl = '/api/translate'; 
+            // ⚠️ chat.jsを配置しているVercelのAPIパスに合わせてね！
+            // もしファイル名が chat.js なら '/api/chat' になります。
+            // もしファイル名が handler.js なら '/api/handler' に書き換えてください。
+            const apiEndpoint = '/api/chat'; 
+
+            // AI（Gemma）に「翻訳結果だけを出力させる」ための厳格なプロンプトを作成
+            const systemPrompt = `Translate the following English word or phrase into Japanese. Output ONLY the Japanese translation (if there are multiple meanings, separate them with commas). Do not include any greetings, explanations, notes, or markdown formatting.\nTarget: ${enVal}`;
 
             try {
-                const response = await fetch(cloudflareUrl, {
+                // 君のchat.jsの仕様（req.body.message）に合わせてデータを送信！
+                const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: enVal })
+                    body: JSON.stringify({ message: systemPrompt })
                 });
 
                 const data = await response.json();
                 
-                if (data && data.translation) {
-                    jaInput.value = data.translation;
-                    tips.innerText = "✨ Cloudflare AI翻訳に成功！";
-                } else if (data && data.text) { 
-                    jaInput.value = data.text;
-                    tips.innerText = "✨ 翻訳データを取得しました！";
+                // 君のchat.jsの仕様（res.json({ reply: ... })）に合わせてデータを受け取り！
+                if (data && data.reply) {
+                    // もし環境変数エラーなどが返ってきた場合も画面に表示して気付けるようにする
+                    if (data.reply.includes("エラー：") || data.reply.includes("Cloudflareエラー")) {
+                        tips.innerText = "❌ バックエンド側でエラーが発生したみたい。";
+                        jaInput.value = data.reply;
+                    } else {
+                        // 正常に翻訳されたテキストをセット
+                        jaInput.value = data.reply.trim();
+                        tips.innerText = "✨ Cloudflare AI（Gemma）による翻訳に成功！";
+                    }
                 } else {
-                    tips.innerText = "❌ 構造エラー：Workersからの応答フォーマットを確認してください。";
+                    tips.innerText = "❌ 構造エラー：APIからの応答フォーマットが想定外です。";
                 }
             } catch (error) {
                 console.error(error);
-                tips.innerText = "❌ 通信エラー。WorkersのURL設定やCORSの設定を確認してね！";
+                tips.innerText = "❌ 通信エラー。APIのパス（/api/chat）が合っているか確認してね！";
             }
         }
+
     </script>
 </body>
 </html>
