@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         const cfAccountId = process.env.CF_ACCOUNT_ID;
 
         if (!cfToken || !cfAccountId) {
-            return res.status(500).json({ reply: "エラー：Vercelの環境変数が足りないぜ！" });
+            return res.status(500).json({ reply: "エラー：Vercelの環境変数（CF_TOKEN または CF_ACCOUNT_ID）が足りないぜ！" });
         }
 
         const systemPrompt = `You are the strict but deeply supportive Deep Sea Captain AI for a study/focus app named "OCEAN COMPASS".
@@ -36,10 +36,10 @@ Your mission is to analyze the diver's focus data of today and write an inspirin
 - Use deep-sea terminology (e.g., 潜水, 深海, 航海, キャプテン, 水圧).
 - Format it as a cohesive, natural captain's log. Do not use bullet points.`;
 
-        // 🚀 【修正】Cloudflareの正しいQwenモデル名に変えてfetchを叩く！
-        // 「@cf/qwen/qwen1.5-14b-chat」から「@cf/qwen/qwen1.5-14b-chat-awq」などの公式なルートへ変更
+        // 🚀 【2026年最新版モデルに修正！】
+        // 提供終了したqwen1.5から、現役の「qwen2.5-7b-instruct」へエンドポイントを変更！
         const response = await fetch(
-            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/qwen/qwen1.5-14b-chat-awq`,
+            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/qwen/qwen2.5-7b-instruct`,
             {
                 method: "POST",
                 headers: {
