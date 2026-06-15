@@ -130,8 +130,8 @@
         .deep-sea-fish { position: fixed; pointer-events: none; z-index: 3; font-size: 1.8rem; opacity: 0; transition: opacity 1s, transform 4s linear; filter: drop-shadow(0 0 8px rgba(0,180,216,0.5)); mix-blend-mode: screen; }
         .fish-swim { opacity: 0.75; }
 
-        .ai-loading-pulse { animation: aiPulse 1.5s infinite alternate; }
-        @keyframes aiPulse { 0% { opacity: 0.4; filter: drop-shadow(0 0 2px #00b4d8); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00b4d8); } }
+        .ai-loading-pulse { animation: aiPulse 1.2s infinite alternate; }
+        @keyframes aiPulse { 0% { opacity: 0.5; filter: drop-shadow(0 0 2px #00b4d8); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00b4d8); } }
     </style>
 </head>
 <body>
@@ -146,7 +146,10 @@
                 <div style="font-weight: 900; letter-spacing: 3px; color: #00b4d8; text-shadow: 0 0 10px rgba(0,180,216,0.5);" id="header-app-title">OCEAN COMPASS</div>
                 <div style="font-size: 0.65rem; background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); padding: 2px 8px; border-radius: 10px; margin-top: 3px; color: #fff;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
             </div>
-            <span style="font-size: 1.2rem; filter: drop-shadow(0 0 5px #00b4d8); cursor: pointer;" onclick="clearAllSystemData()">⚠️</span>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span style="font-size: 1.4rem; filter: drop-shadow(0 0 5px #00b4d8); cursor: pointer; transition: transform 0.2s;" onclick="openProfileModal()" onmouseover="this.style.transform='rotate(30deg)'" onmouseout="this.style.transform='rotate(0deg)'">⚙️</span>
+                <span style="font-size: 1.1rem; opacity: 0.5; cursor: pointer;" onclick="clearAllSystemData()">⚠️</span>
+            </div>
         </div>
 
         <div id="tab-home" class="tab-content active">
@@ -181,7 +184,10 @@
             <div class="card">
                 <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; color: #00b4d8; display: flex; justify-content: space-between; align-items: center;">
                     <span>⚓️ 現在のミッション (ToDo)</span>
-                    <button onclick="openTodoModal()" style="background: none; border: none; color: #ff9e00; cursor: pointer; font-weight: bold;">＋追加</button>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button onclick="generateAiReview()" id="btn-ai-review" style="background: #ffffff; color: #0b2545; border: none; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer;">🧠 AI振り返り</button>
+                        <button onclick="openTodoModal()" style="background: none; border: none; color: #ff9e00; cursor: pointer; font-weight: bold; font-size: 0.85rem;">＋追加</button>
+                    </div>
                 </div>
                 <div id="todo-list-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;"></div>
             </div>
@@ -189,7 +195,8 @@
 
         <div id="tab-timetable" class="tab-content">
             <div class="card">
-                <div style="font-weight: bold; margin-bottom: 10px; color: #00b4d8;">⚓️ 深海時間割航路</div>
+                <div style="font-weight: bold; margin-bottom: 4px; color: #00b4d8;">⚓️ 深海時間割航路</div>
+                <div style="font-size: 0.65rem; opacity: 0.6; margin-bottom: 10px;">💡 マスをタップすると時間割をサクッと書き換えられます</div>
                 <table>
                     <thead>
                         <tr>
@@ -207,10 +214,13 @@
                 <div style="font-weight: bold; margin-bottom: 12px; color: #00b4d8;">🗂️ 深海単語帳暗記</div>
                 <div class="word-form">
                     <div class="word-input-row">
-                        <input type="text" id="input-en" class="word-field" placeholder="English...">
-                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳...">
+                        <input type="text" id="input-en" class="word-field" placeholder="English (例: Abyss)">
+                        <button class="btn-action" onclick="askVercelCloudflareAiTranslate()" id="btn-ai-translate" style="background: #ffffff; color: #0b2545; border: none; font-weight: bold; height: 42px;">AI翻訳 🧠</button>
                     </div>
-                    <button class="btn-add" onclick="addNewWord()">単語レコードを追加</button>
+                    <div class="word-input-row" style="margin-top: 5px;">
+                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳（AIが自動生成も可能）">
+                        <button class="btn-add" onclick="addNewWord()" style="height: 42px; padding: 0 20px;">追加</button>
+                    </div>
                 </div>
                 <div class="control-btns">
                     <button class="btn-ctrl" onclick="setGlobalVisibility('show-all')">すべて表示</button>
@@ -218,6 +228,21 @@
                     <button class="btn-ctrl" onclick="setGlobalVisibility('hide-ja')">日本語を隠す</button>
                 </div>
                 <div id="word-list-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
+            </div>
+        </div>
+
+        <div id="tab-friends" class="tab-content">
+            <div class="card">
+                <div style="font-weight: bold; margin-bottom: 5px; color: #00b4d8;">👥 探索チーム</div>
+                <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 15px;">※スタンドアロン（オフライン）稼働中</p>
+                <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 16px; border: 1px solid rgba(0,180,216,0.1);">
+                    <div style="width:45px; height:45px; background:rgba(0,180,216,0.1); border: 1px solid #00b4d8; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size: 1.3rem;">🐳</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 0.9rem;">TAKUYA</div>
+                        <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
+                    </div>
+                    <span style="color: #4ade80; font-size: 0.8rem;">● 潜水中</span>
+                </div>
             </div>
         </div>
 
@@ -241,9 +266,10 @@
     </div>
 
     <nav id="bottom-nav">
-        <button onclick="switchTab('home')" id="nav-home" class="active">🏠</button>
-        <button onclick="switchTab('timetable')" id="nav-timetable">📅</button>
         <button onclick="switchTab('words')" id="nav-words">🗂️</button>
+        <button onclick="switchTab('timetable')" id="nav-timetable">📅</button>
+        <button onclick="switchTab('home')" id="nav-home" class="home-btn active">⚓</button>
+        <button onclick="switchTab('friends')" id="nav-friends">👥</button>
         <button onclick="switchTab('analytics')" id="nav-analytics">📊</button>
     </nav>
 
@@ -267,6 +293,17 @@
                 <span onclick="closeTimetableModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
+                <span style="font-size: 0.75rem; opacity: 0.7;">タップで爆速入力:</span>
+                <div class="subject-chip-container">
+                    <div class="subject-chip" onclick="selectSubjectChip('国語')">国語</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('数学')">数学</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('英語')">英語</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('理科')">理科</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('社会')">社会</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('プロ')">プロ</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('自習')">自習</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('-')">クリア ( - )</div>
+                </div>
                 <input type="text" id="timetable-subject-input" class="word-field" placeholder="科目名を入力...">
                 <button class="btn-main" style="height: 45px;" onclick="saveTimetableCell()">航路を保存</button>
             </div>
@@ -295,11 +332,22 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="ai-modal-overlay" onclick="closeAiModal()">
+        <div class="card modal-content" onclick="event.stopPropagation()" style="border-color: #00b4d8; max-width: 420px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8; display: flex; align-items: center; gap: 6px;">⚓️ 深海ログキャプテン</div>
+                <span onclick="closeAiModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div id="ai-response-box" style="font-size: 0.88rem; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px; max-height: 280px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap;">データ解析中...</div>
+            <button class="btn-main" onclick="closeAiModal()" style="height: 45px; margin-top: 15px; font-size: 0.95rem; background: #134074; box-shadow: none;">ログを閉じる</button>
+        </div>
+    </div>
+
     <script>
         // --- 状態管理システム ---
         let timerInterval = null;
         let isTimerRunning = false;
-        let timerMode = 'countdown'; // countdown or countup
+        let timerMode = 'countdown';
         let durationSeconds = 25 * 60;
         let elapsedSeconds = 0;
 
@@ -334,6 +382,79 @@
                 refreshAnalytics();
             }
         }
+
+        // --- 🧠 AI翻訳機能（不具合完全修正版） ---
+        async function askVercelCloudflareAiTranslate() {
+            const enInput = document.getElementById('input-en').value.trim();
+            const jaInputField = document.getElementById('input-ja');
+            const btn = document.getElementById('btn-ai-translate');
+
+            if (!enInput) {
+                alert("英語を入力してください！");
+                return;
+            }
+
+            btn.innerText = "解読中...⚡";
+            btn.classList.add('ai-loading-pulse');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: enInput })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.reply) {
+                    // 日本語入力欄にダイレクトに結果を格納
+                    jaInputField.value = data.reply.trim();
+                } else {
+                    alert(`APIエラー: ${data.reply || '翻訳に失敗しました'}`);
+                }
+            } catch (error) {
+                console.error("AI翻訳エラー:", error);
+                alert("通信エラーが発生しました。");
+            } finally {
+                btn.innerText = "AI翻訳 🧠";
+                btn.classList.remove('ai-loading-pulse');
+                btn.disabled = false;
+            }
+        }
+
+        // --- 🧠 AI振り返り生成機能 ---
+        async function generateAiReview() {
+            const btn = document.getElementById('btn-ai-review');
+            const overlay = document.getElementById('ai-modal-overlay');
+            const box = document.getElementById('ai-response-box');
+            
+            box.innerText = "深海ログを多角的に解析中...🧠⚡";
+            overlay.classList.add('open');
+            btn.disabled = true;
+
+            try {
+                const statsSummary = `現在のダイバー: ${profile.name}\n覚えた単語数: ${words.length}個\nToDo未完了数: ${todos.filter(t=>!t.done).length}個\n今週の総潜水時間: ${document.getElementById('stat-week-time').innerText}分`;
+                
+                const response = await fetch("/api/review", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ logData: statsSummary })
+                });
+                const data = await response.json();
+                if(response.ok && data.reply) {
+                    box.innerText = data.reply.trim();
+                } else {
+                    box.innerText = "キャプテンログの解析に失敗しました。";
+                }
+            } catch(e) {
+                console.error(e);
+                box.innerText = "通信エラーが発生しました。接続を確認してください。";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        function closeAiModal() { document.getElementById('ai-modal-overlay').classList.remove('open'); }
 
         // --- プロフィールシステム ---
         function loadProfile() {
@@ -397,7 +518,7 @@
 
         function toggleTimer() {
             if (isTimerRunning) {
-                stopTimer(true); // 手動停止（ログ保存）
+                stopTimer(true);
             } else {
                 startTimer();
             }
@@ -412,7 +533,6 @@
             document.getElementById('timer-settings-box').style.opacity = '0.3';
             document.getElementById('diving-animation').style.display = 'block';
             
-            // エフェクト開始
             document.getElementById('bubble-container').style.display = 'block';
             document.getElementById('light-ray-effect').style.display = 'block';
             spawnFishLoop();
@@ -423,7 +543,7 @@
                         durationSeconds--;
                         elapsedSeconds++;
                         if (durationSeconds <= 0) {
-                            stopTimer(false); // タイマー終了
+                            stopTimer(false);
                             alert('ミッション完了！無事浮上しました。');
                         }
                     }
@@ -438,7 +558,6 @@
             isTimerRunning = false;
             clearInterval(timerInterval);
             
-            // ログに保存（分単位、最低1分未満でも秒換算で記録）
             const minutesEarned = Math.round(elapsedSeconds / 60);
             if (minutesEarned > 0) {
                 const todayStr = new Date().toISOString().split('T')[0];
@@ -446,7 +565,6 @@
                 localStorage.setItem('ocean_dive_logs', JSON.stringify(logLogs));
             }
 
-            // 状態リセット
             elapsedSeconds = 0;
             document.getElementById('sync-btn').innerText = '潜水開始';
             document.getElementById('sync-btn').style.background = 'linear-gradient(135deg, #ff9e00 0%, #ff6d00 100%)';
@@ -465,7 +583,7 @@
             refreshAnalytics();
         }
 
-        // --- 深海魚スポーンロジック ---
+        // --- 深海魚エフェクト ---
         function spawnFishLoop() {
             if(!isTimerRunning) return;
             const fishes = ['🐠','🐡','🐙','🦑','🦈','🐋','🦐'];
@@ -523,6 +641,9 @@
             document.getElementById('timetable-modal').classList.add('open');
         }
         function closeTimetableModal() { document.getElementById('timetable-modal').classList.remove('open'); }
+        function selectSubjectChip(val) {
+            document.getElementById('timetable-subject-input').value = val === '-' ? '' : val;
+        }
         function saveTimetableCell() {
             const val = document.getElementById('timetable-subject-input').value.trim();
             if(val) timetableData[currentEditingCell] = val;
@@ -543,7 +664,7 @@
             words.forEach(w => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.style.marginButton = '5px';
+                card.style.marginBottom = '5px';
                 card.style.padding = '12px 15px';
                 card.style.display = 'flex'; card.style.justifyContent = 'space-between'; card.style.alignItems = 'center';
                 
@@ -626,12 +747,8 @@
         // --- アナリティクスシステム ---
         function refreshAnalytics() {
             const todayStr = new Date().toISOString().split('T')[0];
-            
-            // データの集計
             let todayTotal = 0;
-            let weekTotal = 0;
             
-            // 直近7日間の日付リスト生成
             const last7Days = [];
             for(let i=6; i>=0; i--) {
                 const d = new Date(); d.setDate(d.getDate() - i);
@@ -646,19 +763,15 @@
                     dayMinutesMap[log.date] += log.minutes;
                 }
                 if(log.date === todayStr) todayTotal += log.minutes;
-                weekTotal += log.minutes; // すべての蓄積時間を仮に合計（または直近分のみ）
             });
 
-            // 1週間の正確な合計値
             let accurateWeekTotal = 0;
             last7Days.forEach(day => accurateWeekTotal += dayMinutesMap[day]);
 
-            // UIへの反映
             document.getElementById('home-today-total-label').innerText = `今日: ${todayTotal}分`;
             document.getElementById('stat-today-time').innerText = todayTotal;
             document.getElementById('stat-week-time').innerText = accurateWeekTotal;
 
-            // グラフ描画（HOME用とANALYTICS用の両方）
             renderChartBars('home-weekly-chart', last7Days, dayMinutesMap, todayStr);
             renderChartBars('analytics-chart-box', last7Days, dayMinutesMap, todayStr);
         }
@@ -667,8 +780,7 @@
             const container = document.getElementById(containerId);
             if(!container) return;
             container.innerHTML = '';
-            
-            const maxVal = Math.max(...Object.values(dataMap), 30); // 最低基準高さを30分にする
+            const maxVal = Math.max(...Object.values(dataMap), 30);
 
             days.forEach(day => {
                 const mins = dataMap[day];
@@ -695,11 +807,11 @@
             });
         }
 
-        // --- 緊急システムデータリセット ---
+        // --- 緊急データリセット ---
         function clearAllSystemData() {
             if(confirm('潜水ログ、時間割、単語帳、すべての深海データが消失します。本当に実行しますか？')) {
                 localStorage.clear();
-                alert('すべてのシステムログが初期化されました。アプリケーションを再起動します。');
+                alert('すべてのシステムログが初期化されました。');
                 location.reload();
             }
         }
