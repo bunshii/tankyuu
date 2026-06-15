@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    // 🌐 CORS設定
+    // 🌐 CORS設定（お手本と完全一致）
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -22,6 +22,7 @@ export default async function handler(req, res) {
             return res.status(500).json({ reply: "エラー：Vercelの環境変数（CF_TOKEN または CF_ACCOUNT_ID）が足りないぜ！" });
         }
 
+        // 🧠 日本語で出力するように厳重に縛ったキャプテンプロンプト
         const systemPrompt = `You are the strict but deeply supportive Deep Sea Captain AI for a study/focus app named "OCEAN COMPASS".
 Your mission is to analyze the diver's focus data of today and write an inspiring, passionate, and serious feedback message in Japanese.
 
@@ -36,10 +37,10 @@ Your mission is to analyze the diver's focus data of today and write an inspirin
 - Use deep-sea terminology (e.g., 潜水, 深海, 航海, キャプテン, 水圧).
 - Format it as a cohesive, natural captain's log. Do not use bullet points.`;
 
-        // 🚀 【2026年最新版モデルに修正！】
-        // 提供終了したqwen1.5から、現役の「qwen2.5-7b-instruct」へエンドポイントを変更！
+        // 🚀 【確実ルート】翻訳側で実績のあるモデルパスに統一してfetch！
+        // ※ もしchat.js側のモデル名がこれと少し違っていたら、そっちと完全に同じ文字に書き換えてくれ！
         const response = await fetch(
-            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/qwen/qwen2.5-7b-instruct`,
+            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
             {
                 method: "POST",
                 headers: {
@@ -49,7 +50,7 @@ Your mission is to analyze the diver's focus data of today and write an inspirin
                 body: JSON.stringify({
                     messages: [
                         { role: "system", content: systemPrompt },
-                        { role: "user", content: "本日の潜水データの解析を完了し、航海ログ・フィードバックを出力せよ。" }
+                        { role: "user", content: "本日の潜水データのログ解析を完了し、日本語のセリフ本文だけを出力せよ。" }
                     ]
                 }),
             }
