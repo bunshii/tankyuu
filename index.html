@@ -263,7 +263,7 @@
             </div>
 
             <div class="card" style="font-size: 0.8rem; opacity: 0.7;">
-                ベースシステム: Ocean Compass v2.3<br>
+                ベースシステム: Ocean Compass v2.4<br>
                 環境: Cloudflare Workers 連動モード
             </div>
         </div>
@@ -392,4 +392,154 @@
         const defaultTimetable = [
             ["休み", "英語", "数学", "英語", "プロ", "数学", "休み"],
             ["復習", "国語", "理科", "社会", "英語", "理科", "演習"],
-            ["-", "-", "-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-
+            ["-", "-", "-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-", "-", "-"],
+            ["-", "-", "-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-", "-", "-"],
+            ["-", "-", "-", "-", "-", "-", "-"]
+        ];
+        let timetableData = localStorage.getItem('ocean_timetable_data') ? JSON.parse(localStorage.getItem('ocean_timetable_data')) : defaultTimetable;
+
+        initTimetable();
+
+        function initTimetable() {
+            const tableBody = document.getElementById('timetable-body');
+            const editorBox = document.getElementById('timetable-editor-box');
+            tableBody.innerHTML = '';
+            editorBox.innerHTML = '';
+
+            for (let r = 0; r < ROWS; r++) {
+                const tr = document.createElement('tr');
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'setting-grid-row';
+
+                for (let c = 0; c < COLS; c++) {
+                    const text = timetableData[r][c] || '';
+                    const td = document.createElement('td');
+                    td.id = `cell-${r}-${c}`;
+                    td.innerText = text;
+                    tr.appendChild(td);
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'setting-grid-input';
+                    input.value = text;
+                    input.oninput = function() {
+                        timetableData[r][c] = this.value;
+                        localStorage.setItem('ocean_timetable_data', JSON.stringify(timetableData));
+                        document.getElementById(`cell-${r}-${c}`).innerText = this.value;
+                    };
+                    rowDiv.appendChild(input);
+                }
+                tableBody.appendChild(tr);
+                editorBox.appendChild(rowDiv);
+            }
+        }
+
+        // --- Cloudflare Workers連動 単語帳システム ---
+        const defaultWords = [
+            { id: 1, en: "Coral", ja: "珊瑚（サンゴ）" },
+            { id: 2, en: "Current", ja: "海流" }
+        ];
+        let words = localStorage.getItem('ocean_words_list') ? JSON.parse(localStorage.getItem('ocean_words_list')) : defaultWords;
+        let globalVisibilityMode = 'hide-ja';
+
+        renderWordList();
+
+        function renderWordList() {
+            const container = document.getElementById('word-list-container');
+            container.innerHTML = '';
+            if (words.length === 0) {
+                container.innerHTML = `<div style="text-align:center; font-size:0.85rem; opacity:0.6; padding:20px;">単語がありません。</div>`;
+                return;
+            }
+            words.forEach(w => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.display = 'flex';
+                card.style.justify = 'space-between';
+                card.style.alignItems = 'center';
+
+                const enSpan = document.createElement('span');
+                enSpan.innerText = w.en;
+                if (globalVisibilityMode === 'hide-en') {
+                    enSpan.className = 'blur-text';
+                    enSpan.onclick = function() { this.classList.toggle('reveal'); };
+                }
+
+                const jaSpan = document.createElement('span');
+                jaSpan.innerText = w.ja;
+                if (globalVisibilityMode === 'hide-ja') {
+                    jaSpan.className = 'blur-text';
+                    jaSpan.onclick = function() { this.classList.toggle('reveal'); };
+                }
+
+                const deleteBtn = document.createElement('span');
+                deleteBtn.innerHTML = ' ✕';
+                deleteBtn.style.color = 'rgba(255,255,255,0.4)';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.style.fontSize = '0.8rem';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.onclick = function(e) { e.stopPropagation(); words = words.filter(item => item.id !== w.id); localStorage.setItem('ocean_words_list', JSON.stringify(words)); renderWordList(); };
+
+                const rightWrapper = document.createElement('div');
+                rightWrapper.appendChild(jaSpan);
+                rightWrapper.appendChild(deleteBtn);
+
+                card.appendChild(enSpan);
+                card.appendChild(rightWrapper);
+                container.appendChild(card);
+            });
+        }
+
+        function addNewWord() {
+            const enInput = document.getElementById('input-en');
+            const jaInput = document.getElementById('input-ja');
+            if (!enInput.value.trim() || !jaInput.value.trim()) { alert("両方入力してください"); return; }
+            words.unshift({ id: Date.now(), en: enInput.value.trim(), ja: jaInput.value.trim() });
+            localStorage.setItem('ocean_words_list', JSON.stringify(words));
+            enInput.value = ''; jaInput.value = '';
+            document.getElementById('ai-status-tips').style.display = 'none';
+            renderWordList();
+        }
+
+        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
+
+        // 🌟 【修正完了】正しく動くCloudflare Workers通信関数
+        async function askCloudflareTranslate() {
+            const enVal = document.getElementById('input-en').value.trim();
+            const jaInput = document.getElementById('input-ja');
+            const tips = document.getElementById('ai-status-tips');
+
+            if (!enVal) { alert("英語を入力してください。"); return; }
+
+            tips.innerText = "🐋 Cloudflare経由でAI翻訳データを探索中...";
+            tips.style.display = "block";
+
+            // ⚠️ 環境に合わせてCloudflare WorkersのURLを書き換えてね！
+            const cloudflareUrl = '/api/translate'; 
+
+            try {
+                const response = await fetch(cloudflareUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: enVal })
+                });
+
+                const data = await response.json();
+                
+                if (data && data.translation) {
+                    jaInput.value = data.translation;
+                    tips.innerText = "✨ Cloudflare AI翻訳に成功！";
+                } else if (data && data.text) { 
+                    jaInput.value = data.text;
+                    tips.innerText = "✨ 翻訳データを取得しました！";
+                } else {
+                    tips.innerText = "❌ 構造エラー：Workersからの応答フォーマットを確認してください。";
+                }
+            } catch (error) {
+                console.error(error);
+                tips.innerText = "❌ 通信エラー。WorkersのURL設定やCORSの設定を確認してね！";
+            }
+        }
+    </script>
+</body>
+</html>
