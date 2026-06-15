@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    // 🌐 CORS設定（お手本と完全一致）
+    // 🌐 CORS設定
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -13,7 +13,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 📦 余計なパース処理を全削除！お手本通りの直球取得
         const { minutes, todosCount, diverName } = req.body; 
         
         const cfToken = process.env.CF_TOKEN;
@@ -23,7 +22,6 @@ export default async function handler(req, res) {
             return res.status(500).json({ reply: "エラー：Vercelの環境変数が足りないぜ！" });
         }
 
-        // 🧠 キャプテンAIへの指示プロンプト
         const systemPrompt = `You are the strict but deeply supportive Deep Sea Captain AI for a study/focus app named "OCEAN COMPASS".
 Your mission is to analyze the diver's focus data of today and write an inspiring, passionate, and serious feedback message in Japanese.
 
@@ -38,9 +36,10 @@ Your mission is to analyze the diver's focus data of today and write an inspirin
 - Use deep-sea terminology (e.g., 潜水, 深海, 航海, キャプテン, 水圧).
 - Format it as a cohesive, natural captain's log. Do not use bullet points.`;
 
-        // 🚀 Cloudflare のエンドポイントを fetch で叩く
+        // 🚀 【修正】Cloudflareの正しいQwenモデル名に変えてfetchを叩く！
+        // 「@cf/qwen/qwen1.5-14b-chat」から「@cf/qwen/qwen1.5-14b-chat-awq」などの公式なルートへ変更
         const response = await fetch(
-            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/qwen/qwen1.5-14b-chat`,
+            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/qwen/qwen1.5-14b-chat-awq`,
             {
                 method: "POST",
                 headers: {
@@ -58,7 +57,6 @@ Your mission is to analyze the diver's focus data of today and write an inspirin
 
         const data = await response.json();
 
-        // 🛑 Cloudflare側からエラーが返ってきた場合は、フロントの画面をフリーズさせずに「そのエラー文字自体」をボックスに表示させる！
         if (!response.ok) {
             return res.status(200).json({
                 reply: `🚨 Cloudflare APIエラー: ${JSON.stringify(data)}`
@@ -66,12 +64,9 @@ Your mission is to analyze the diver's focus data of today and write an inspirin
         }
 
         const replyText = data.result?.response || "潜水データの解析に失敗した。通信環境を確認せよ。";
-
-        // 200で綺麗なテキストをフロントに返す
         return res.status(200).json({ reply: replyText.trim() });
 
     } catch (error) {
-        // 🛑 万が一ここ（サーバー内部）でコケても、フロントにエラー内容をハッキリ渡す！
         return res.status(200).json({ reply: `🚨 サーバー内部エラーが発生: ${error.message}` });
     }
 }
