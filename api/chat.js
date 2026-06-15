@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { message } = req.body;
+        const { message } = req.body; // フロントから届いた英単語
         const cfToken = process.env.CF_TOKEN;
         const cfAccountId = process.env.CF_ACCOUNT_ID;
 
@@ -20,7 +20,12 @@ export default async function handler(req, res) {
             return res.status(500).json({ reply: "エラー：Vercelの環境変数（CF_TOKEN または CF_ACCOUNT_ID）が足りないぜ！" });
         }
 
-        // 💡 役割（system）と翻訳対象（user）を完全に分けて、AIに命令を絶対遵守させる！
+        // 💡 AIが一発で理解できるように、1つのユーザーメッセージの中に鉄壁のルールを仕込む
+        const strictPrompt = `Translate the English word "${message}" into Japanese. 
+Output ONLY the Japanese translation character. 
+Do NOT include any explanations, English words, notes, formatting, or greetings. 
+Just reply with the Japanese word.`;
+
         const response = await fetch(
             `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
             {
@@ -32,12 +37,8 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     messages: [
                         { 
-                            role: "system", 
-                            content: "You are a professional English-to-Japanese translation dictionary. Output ONLY the Japanese translation of the provided word. Never include any explanations, definitions, English sentences, pronunciations, greetings, introduction, or markdown formatting. Your response must be strictly in Japanese characters only." 
-                        },
-                        { 
                             role: "user", 
-                            content: `Translate this word: ${message}` 
+                            content: strictPrompt
                         }
                     ]
                 }),
@@ -52,10 +53,12 @@ export default async function handler(req, res) {
             });
         }
 
-        const replyText = data.result?.response || "返事が空っぽだぜ？";
+        let replyText = data.result?.response || "返事が空っぽだぜ？";
 
-        // 万が一、AIが前後に余計な改行やスペースを入れても大丈夫なようにトリミングして返す
-        return res.status(200).json({ reply: replyText.trim() });
+        // AIがどうしても「"魚"」のようにクォーテーションマークをつけてきた場合のために、余計な記号を消すクリーンアップ処理
+        replyText = replyText.replace(/["'「」]/g, '').trim();
+
+        return res.status(200).json({ reply: replyText });
 
     } catch (error) {
         return res.status(500).json({ reply: `サーバー内部エラー: ${error.message}` });
