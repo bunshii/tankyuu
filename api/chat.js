@@ -20,11 +20,8 @@ export default async function handler(req, res) {
             return res.status(500).json({ reply: "エラー：Vercelの環境変数（CF_TOKEN または CF_ACCOUNT_ID）が足りないぜ！" });
         }
 
-        // 💡 AIが一発で理解できるように、1つのユーザーメッセージの中に鉄壁のルールを仕込む
-        const strictPrompt = `Translate the English word "${message}" into Japanese. 
-Output ONLY the Japanese translation character. 
-Do NOT include any explanations, English words, notes, formatting, or greetings. 
-Just reply with the Japanese word.`;
+        // AIへの指示文
+        const strictPrompt = `Translate the English word "${message}" into Japanese. Output ONLY the Japanese translation word.`;
 
         const response = await fetch(
             `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
@@ -53,12 +50,20 @@ Just reply with the Japanese word.`;
             });
         }
 
-        let replyText = data.result?.response || "返事が空っぽだぜ？";
+        const replyText = data.result?.response || "返事が空っぽだぜ？";
 
-        // AIがどうしても「"魚"」のようにクォーテーションマークをつけてきた場合のために、余計な記号を消すクリーンアップ処理
-        replyText = replyText.replace(/["'「」]/g, '').trim();
+        // 🌟【超力技フィルター】返ってきた文章から「日本語（漢字・ひらがな・カタカナ）」が連続している最初の部分だけを強引に抽出する
+        // これにより、後ろに続く「(yu) The character for...」などの英語解説をすべて完全にカットします
+        const japaneseMatch = replyText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/);
+        
+        let finalReply = replyText;
+        if (japaneseMatch) {
+            finalReply = japaneseMatch[0]; // 最初に見つかった日本語の塊だけをセット（例: "魚"）
+        } else {
+            finalReply = replyText.replace(/["'「」]/g, '').trim(); // 日本語が見つからない時の保険
+        }
 
-        return res.status(200).json({ reply: replyText });
+        return res.status(200).json({ reply: finalReply });
 
     } catch (error) {
         return res.status(500).json({ reply: `サーバー内部エラー: ${error.message}` });
