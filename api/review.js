@@ -15,7 +15,7 @@ export default async function handler(req) {
         // Cloudflare Workers AI の初期化
         const ai = new Ai(process.env.CLOUDFLARE_AI_TOKEN);
 
-        // 🧠 性能を引き出すための詳細な深海キャプテンプロンプト
+        // 🧠 Qwenの日本語能力を100%引き出すプロンプト
         const systemPrompt = `You are the strict but deeply supportive Deep Sea Captain AI for a study/focus app named "OCEAN COMPASS".
 Your mission is to analyze the diver's focus data of today and write an inspiring, passionate, and serious feedback message in Japanese.
 
@@ -24,31 +24,29 @@ Your mission is to analyze the diver's focus data of today and write an inspirin
 - Today's Total Dive (Focus) Time: ${minutes} minutes
 - Unfinished Missions (ToDos): ${todosCount} items
 
-[Rules for Output]
-- Output ONLY the final message in Japanese. Do not include any intro, outro, or explanation.
-- Address the user as "DIVER_${diverName}".
-- Use cinematic, nautical, and deep-sea terminology (e.g., 潜水, 深海, 航海, キャプテン, 水圧, 酸素ボンベ).
-- Adopt a tone that is serious, professional, and deeply encouraging—like a legendary submarine captain speaking to a trusted diver.
-- Do not use markdown bullet points. Format it as a cohesive, natural captain's log or letter.
+[Rules]
+- 必ず日本語だけで出力してください。説明や挨拶（例：「はい、分かりました」など）は一切不要です。解析結果のメッセージ本文だけを出力してください。
+- ユーザーを "DIVER_${diverName}" と呼んでください。
+- 潜水、深海、航海、キャプテン、水圧、酸素ボンベなどの深海・潜水用語を交えて、映画のワンシーンのような熱いトーンで書いてください。
+- 改行を適度に入れ、読みやすい手紙やログの形式にしてください（箇条書きは禁止）。
 
-[Analysis Guidance based on Dive Time]
-- 0 mins: Strictly but passionately urge them to take the first dive. Tell them even 5 minutes of diving changes everything.
-- 1-29 mins: Acknowledge their first step into the water. Tell them they have started to adjust to the pressure, but encourage them to aim for deeper areas next time.
-- 30-59 mins: Praise their solid focus. Acknowledge that they have successfully reached the twilight zone of deep-sea study, and urge them to tackle the remaining ${todosCount} missions.
-- 60+ mins: Exceptional high praise for a legendary deep-dive session. Tell them their intense focus has illuminated the dark trenches of the abyss. Give them respect.`;
+[Analysis Guidance]
+- 0分: 厳しくも熱く、最初の5分の潜水（集中）を始めるよう促す。
+- 1-29分: 水圧に慣れ始めた一歩を褒めつつ、次はさらに深いエリア（長時間の集中）を目指すよう鼓舞する。
+- 30-59分: 素晴らしい集中力を称賛する。深海のトワイライトゾーンに到達したと告げ、残り ${todosCount} 件のミッションの撃破を促す。
+- 60分以上: 圧倒的な深海ダイブを大絶賛する。暗黒の海溝を君の集中力が照らし出したと、最大級のリスペクトを送る。`;
 
-        // 🔥 モデルを「@cf/meta/llama-3.1-8b-instruct」に格上げ！
-        const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+        // 🚀 日本語が超得意で、レスポンス形式が安全な「qwen1.5-14b-chat」を採用！
+        const response = await ai.run('@cf/qwen/qwen1.5-14b-chat', {
             messages: [
                 { role: 'system', content: systemPrompt },
-                { role: 'user', content: '本日の潜水データの解析を完了し、私への航海ログ・フィードバックを出力してください。' }
+                { role: 'user', content: '本日の潜水データの解析を完了し、航海ログ・フィードバックを出力せよ。' }
             ],
-            // ログが途中で切れないように最大トークンを少し広めに確保
-            max_tokens: 512,
+            max_tokens: 400,
             temperature: 0.7
         });
 
-        // Llama 3.1 のレスポンスからテキストを抽出
+        // qwen は response.response で安全にテキストが取得できるぜ！
         const reply = response.response || "潜水データの解析に失敗した。通信環境を確認せよ。";
 
         return new Response(JSON.stringify({ reply }), {
