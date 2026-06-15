@@ -101,11 +101,7 @@
             border-radius: 8px;
             transition: filter 0.15s, background 0.15s;
         }
-        /* クリックして解除された時のスタイル */
-        .blur-text.reveal {
-            filter: none;
-            background: transparent;
-        }
+        .blur-text.reveal { filter: none; background: transparent; }
 
         /* タイマー設定用のスタイル */
         .timer-settings { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
@@ -117,7 +113,7 @@
         .setting-grid-row { display: flex; gap: 5px; margin-bottom: 5px; }
         .setting-grid-input { flex: 1; width: 100%; min-width: 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 4px; border-radius: 6px; font-size: 0.75rem; text-align: center; box-sizing: border-box; }
 
-        /* 単語入力フォーム用のスタイル */
+        /* 入力フォーム用のスタイル */
         .word-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .word-input-row { display: flex; gap: 8px; align-items: center; }
         .word-field { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box; }
@@ -130,6 +126,18 @@
         /* コントロールボタン群 */
         .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
         .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
+
+        /* 🌟 クイックToDo追加フォームアニメーション用 */
+        .quick-input-box {
+            display: none;
+            gap: 8px;
+            margin-top: 10px;
+            animation: slideDown 0.2s ease-out forwards;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -158,7 +166,7 @@
                 </div>
             </div>
 
-            <div class="card" style="background: rgba(0,0,0,0.1); padding: 25px 20px;">
+            <div class="card" style="background: rgba(0,0,0,0.1); padding: 25px 20px; margin-bottom: 15px;">
                 <div class="timer-settings" id="timer-settings-box">
                     <select class="timer-select" id="timer-mode-select" onchange="changeTimerMode()" style="flex: 1;">
                         <option value="countdown">カウントダウン</option>
@@ -176,26 +184,41 @@
                     <button class="btn-main" onclick="toggleTimer()" id="sync-btn">潜水開始</button>
                 </div>
             </div>
+
+            <div class="card" style="padding: 18px 20px;">
+                <div style="font-size: 0.85rem; margin-bottom: 12px; opacity: 0.8; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                    <span>⚓️ 現在のミッション（ToDo）</span>
+                    <span id="todo-count-badge" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">0</span>
+                </div>
+                
+                <div id="home-todo-list-container" style="margin-bottom: 15px;">
+                    </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-action" onclick="toggleQuickTodoInput()" style="flex: 1; background: rgba(255,255,255,0.15); box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDo</button>
+                    <button class="btn-action" style="flex: 1; background: #ffffff; color: #3a0ca3; box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">🧠 AI振り返り</button>
+                </div>
+
+                <div class="quick-input-box" id="quick-todo-form">
+                    <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 40px; border-radius: 10px;">
+                    <button class="btn-add" onclick="addHomeTodo()" style="height: 40px; padding: 0 15px; border-radius: 10px; font-size: 0.85rem;">追加</button>
+                </div>
+            </div>
         </div>
 
         <div id="tab-schedule" class="tab-content">
-            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">ミッション・予定</h2>
-            <div class="card">
-                <div style="margin-bottom: 10px;"><input type="checkbox" checked> <span>クジラの生態を調べる</span></div>
-                <div style="margin-bottom: 10px;"><input type="checkbox"> <span>単語帳を5個進める</span></div>
-                <div><input type="checkbox"> <span>本日の振り返りを完了する</span></div>
-            </div>
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">週間潜水プラン</h2>
             
             <div class="card" style="overflow-x: auto; padding: 15px 10px;">
                 <div style="font-size: 0.8rem; margin-bottom: 8px; opacity: 0.8; font-weight: bold;">⚓️ 週間潜水プラン（時間割）</div>
                 <table>
                     <thead>
                         <tr>
-                            <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
+                            <th>日</th><th>月</th><th>火</th><th>神</th><th>木</th><th>金</th><th>土</th>
                         </tr>
                     </thead>
                     <tbody id="timetable-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -224,8 +247,7 @@
                 <button class="btn-ctrl" onclick="setGlobalVisibility('reveal-all')">👁️ 全て表示</button>
             </div>
 
-            <div id="word-list-container">
-                </div>
+            <div id="word-list-container"></div>
         </div>
 
         <div id="tab-friends" class="tab-content">
@@ -239,14 +261,6 @@
                 </div>
                 <span style="color: #4ade80; font-size: 0.8rem;">● 潜水中</span>
             </div>
-            <div class="card" style="display: flex; align-items: center; gap: 15px;">
-                <div style="width:45px; height:45px; background:rgba(255,255,255,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">🐙</div>
-                <div style="flex: 1;">
-                    <div style="font-weight: bold;">YUKA</div>
-                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-8821 |深度: 0m</div>
-                </div>
-                <span style="opacity: 0.6; font-size: 0.8rem;">待機中</span>
-            </div>
         </div>
 
         <div id="tab-settings" class="tab-content">
@@ -258,16 +272,7 @@
 
             <div class="card">
                 <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 10px; font-weight: bold;">📅 時間割の設定 (7時間×7日)</label>
-                <div style="display: flex; gap: 5px; margin-bottom: 5px; text-align: center; font-size: 0.65rem; opacity: 0.7; font-weight: bold;">
-                    <div style="flex:1;">日</div><div style="flex:1;">月</div><div style="flex:1;">火</div><div style="flex:1;">水</div><div style="flex:1;">木</div><div style="flex:1;">金</div><div style="flex:1;">土</div>
-                </div>
-                <div id="timetable-editor-box">
-                    </div>
-            </div>
-
-            <div class="card" style="font-size: 0.8rem; opacity: 0.7;">
-                ベースシステム: Ocean Compass v2.5<br>
-                環境: Vercel AI Routes & Cloudflare 連動モード
+                <div id="timetable-editor-box"></div>
             </div>
         </div>
     </div>
@@ -281,19 +286,16 @@
     </nav>
 
     <script>
-        // タブ切り替えシステム
         function switchTab(tabId, button) {
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
-            
             const buttons = document.querySelectorAll('nav button');
             buttons.forEach(btn => btn.classList.remove('active'));
-            
             document.getElementById('tab-' + tabId).classList.add('active');
             button.classList.add('active');
         }
 
-        // --- タイマーシステム用変数 ---
+        // --- タイマーシステム ---
         let timer = null;
         let isRunning = false;
         let currentMode = localStorage.getItem('ocean_timer_mode') || 'countdown';
@@ -309,9 +311,7 @@
             if (isRunning) return;
             currentMode = document.getElementById('timer-mode-select').value;
             localStorage.setItem('ocean_timer_mode', currentMode);
-            
-            const inputWrapper = document.getElementById('countdown-input-wrapper');
-            inputWrapper.style.display = (currentMode === 'countdown') ? 'flex' : 'none';
+            document.getElementById('countdown-input-wrapper').style.display = (currentMode === 'countdown') ? 'flex' : 'none';
             resetTimerState();
         }
 
@@ -329,7 +329,6 @@
             secondsRemaining = savedMinutes * 60;
             const display = document.getElementById('timer-display');
             const label = document.getElementById('timer-status-label');
-            
             if (currentMode === 'countdown') {
                 display.innerText = formatTime(secondsRemaining);
                 label.innerText = "TIME REMAINING";
@@ -340,8 +339,7 @@
         }
 
         function applyInitialDisplay() {
-            const inputWrapper = document.getElementById('countdown-input-wrapper');
-            inputWrapper.style.display = (currentMode === 'countdown') ? 'flex' : 'none';
+            document.getElementById('countdown-input-wrapper').style.display = (currentMode === 'countdown') ? 'flex' : 'none';
             resetTimerState();
         }
 
@@ -363,14 +361,6 @@
                 btn.style.background = "#ff9e00";
                 settingsBox.style.opacity = "1";
                 settingsBox.style.pointerEvents = "auto";
-                
-                if (currentMode === 'countdown') {
-                    let doneMinutes = Math.floor((savedMinutes * 60 - secondsRemaining) / 60);
-                    alert("急浮上しました。今回は " + doneMinutes + " 分間潜水しました！");
-                } else {
-                    let doneMinutes = Math.floor(secondsElapsed / 60);
-                    alert("潜水を終了しました。深度ログ: " + doneMinutes + " 分間");
-                }
                 resetTimerState();
             } else {
                 isRunning = true;
@@ -390,7 +380,7 @@
                             btn.style.background = "#ff9e00";
                             settingsBox.style.opacity = "1";
                             settingsBox.style.pointerEvents = "auto";
-                            alert("🎉 カウントダウン終了！ミッション完了です。");
+                            alert("🎉 ミッション完了！");
                             resetTimerState();
                         }
                     } else {
@@ -401,49 +391,141 @@
             }
         }
 
-        // --- スケジュール（時間割）システム用スクリプト ---
-        const ROWS = 7;
-        const COLS = 7;
+        // --- 🐙 【大進化】ホーム画面連動ToDoシステム（5分後消滅仕様） ---
+        const defaultTodos = [
+            { id: 1, text: "クジラの生態を調べる", completed: false },
+            { id: 2, text: "単語帳を5個進める", completed: false }
+        ];
+
+        let todos = localStorage.getItem('ocean_todo_list') ? JSON.parse(localStorage.getItem('ocean_todo_list')) : defaultTodos;
         
+        // アプリ起動時にリストを描画
+        renderHomeTodoList();
+
+        // クイック入力フォームを開閉する
+        function toggleQuickTodoInput() {
+            const form = document.getElementById('quick-todo-form');
+            form.style.display = (form.style.display === 'flex') ? 'none' : 'flex';
+            if (form.style.display === 'flex') {
+                document.getElementById('input-home-todo').focus();
+            }
+        }
+
+        // ホーム画面にToDoリストを描画する関数
+        function renderHomeTodoList() {
+            const container = document.getElementById('home-todo-list-container');
+            const badge = document.getElementById('todo-count-badge');
+            container.innerHTML = '';
+
+            // 未完了のミッション数をバッジに反映
+            const incompleteCount = todos.filter(t => !t.completed).length;
+            badge.innerText = incompleteCount;
+
+            if (todos.length === 0) {
+                container.innerHTML = `<div style="text-align:center; font-size:0.8rem; opacity:0.5; padding:10px;">現在のミッションはすべてクリア！</div>`;
+                return;
+            }
+
+            todos.forEach(todo => {
+                const itemDiv = document.createElement('div');
+                itemDiv.style.display = 'flex';
+                itemDiv.style.alignItems = 'center';
+                itemDiv.style.gap = '10px';
+                itemDiv.style.marginBottom = '10px';
+                itemDiv.style.transition = 'opacity 0.6s, transform 0.6s';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = todo.completed;
+                checkbox.style.transform = 'scale(1.2)';
+                checkbox.style.cursor = 'pointer';
+
+                const textSpan = document.createElement('span');
+                textSpan.innerText = todo.text;
+                textSpan.style.fontSize = '0.9rem';
+                textSpan.style.transition = 'text-decoration 0.2s, opacity 0.2s';
+
+                if (todo.completed) {
+                    textSpan.style.textDecoration = 'line-through';
+                    textSpan.style.opacity = '0.4';
+                }
+
+                checkbox.onchange = function() {
+                    todo.completed = checkbox.checked;
+                    localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
+                    
+                    // バッジの数をリアルタイム更新
+                    badge.innerText = todos.filter(t => !t.completed).length;
+
+                    if (checkbox.checked) {
+                        textSpan.style.textDecoration = 'line-through';
+                        textSpan.style.opacity = '0.4';
+
+                        // 💡【5分後（300,000ミリ秒）に自動消滅発動】
+                        setTimeout(() => {
+                            // もし5分の間にチェックが外されていなければ消滅アニメーション開始
+                            const currentTodo = todos.find(t => t.id === todo.id);
+                            if (currentTodo && currentTodo.completed) {
+                                itemDiv.style.opacity = '0';
+                                itemDiv.style.transform = 'translateX(20px)';
+                                
+                                setTimeout(() => {
+                                    todos = todos.filter(t => t.id !== todo.id);
+                                    localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
+                                    renderHomeTodoList();
+                                }, 600);
+                            }
+                        }, 300000); // 5分 = 300000ms
+                    } else {
+                        textSpan.style.textDecoration = 'none';
+                        textSpan.style.opacity = '1';
+                    }
+                };
+
+                itemDiv.appendChild(checkbox);
+                itemDiv.appendChild(textSpan);
+                container.appendChild(itemDiv);
+            });
+        }
+
+        // 新しいToDoを追加する
+        function addHomeTodo() {
+            const input = document.getElementById('input-home-todo');
+            const val = input.value.trim();
+            if (!val) return;
+
+            const newTodo = { id: Date.now(), text: val, completed: false };
+            todos.push(newTodo);
+            localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
+
+            input.value = '';
+            document.getElementById('quick-todo-form').style.display = 'none'; // 追加したら閉じる
+            renderHomeTodoList();
+        }
+
+
+        // --- 時間割システム ---
+        const ROWS = 7, COLS = 7;
         const defaultTimetable = [
             ["邦楽", "英語", "数学", "英語", "プロ", "数学", "休み"],
             ["復習", "国語", "理科", "社会", "英語", "理科", "演習"],
-            ["-", "-", "-", "-", "-", "-", "-"],
-            ["-", "-", "-", "-", "-", "-", "-"],
-            ["-", "-", "-", "-", "-", "-", "-"],
-            ["-", "-", "-", "-", "-", "-", "-"],
-            ["-", "-", "-", "-", "-", "-", "-"]
+            ["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],
+            ["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"]
         ];
-
-        let savedTableData = localStorage.getItem('ocean_timetable_data');
-        let timetableData = savedTableData ? JSON.parse(savedTableData) : defaultTimetable;
+        let timetableData = localStorage.getItem('ocean_timetable_data') ? JSON.parse(localStorage.getItem('ocean_timetable_data')) : defaultTimetable;
 
         initTimetable();
-
         function initTimetable() {
             const tableBody = document.getElementById('timetable-body');
             const editorBox = document.getElementById('timetable-editor-box');
-            
-            tableBody.innerHTML = '';
-            editorBox.innerHTML = '';
-
+            tableBody.innerHTML = ''; editorBox.innerHTML = '';
             for (let r = 0; r < ROWS; r++) {
                 const tr = document.createElement('tr');
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'setting-grid-row';
-
+                const rowDiv = document.createElement('div'); rowDiv.className = 'setting-grid-row';
                 for (let c = 0; c < COLS; c++) {
                     const text = timetableData[r][c] || '';
-                    const td = document.createElement('td');
-                    td.id = `cell-${r}-${c}`;
-                    td.innerText = text;
-                    tr.appendChild(td);
-
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.className = 'setting-grid-input';
-                    input.value = text;
-                    input.placeholder = `${r+1}限`;
+                    const td = document.createElement('td'); td.id = `cell-${r}-${c}`; td.innerText = text; tr.appendChild(td);
+                    const input = document.createElement('input'); input.type = 'text'; input.className = 'setting-grid-input'; input.value = text;
                     input.oninput = function() {
                         timetableData[r][c] = this.value;
                         localStorage.setItem('ocean_timetable_data', JSON.stringify(timetableData));
@@ -451,186 +533,58 @@
                     };
                     rowDiv.appendChild(input);
                 }
-                tableBody.appendChild(tr);
-                editorBox.appendChild(rowDiv);
+                tableBody.appendChild(tr); editorBox.appendChild(rowDiv);
             }
         }
 
-        // --- 単語帳システム用スクリプト ---
-        const defaultWords = [
-            { id: 1, en: "Coral", ja: "珊瑚（サンゴ）" },
-            { id: 2, en: "Current", ja: "海流" },
-            { id: 3, en: "Deep Sea", ja: "深海" }
-        ];
-
+        // --- 単語帳システム ---
+        const defaultWords = [{ id: 1, en: "Coral", ja: "珊瑚（サンゴ）" }, { id: 2, en: "Current", ja: "海流" }];
         let words = localStorage.getItem('ocean_words_list') ? JSON.parse(localStorage.getItem('ocean_words_list')) : defaultWords;
-        
-        // 全体の表示モード ('reveal-all': 全表示, 'hide-ja': 日本語隠し, 'hide-en': 英語隠し)
         let globalVisibilityMode = 'hide-ja'; 
-
         renderWordList();
 
-                // 🎨 【縦ライン整列版】単語リストを画面に描画する関数
         function renderWordList() {
-            const container = document.getElementById('word-list-container');
-            container.innerHTML = '';
-
-            if (words.length === 0) {
-                container.innerHTML = `<div style="text-align:center; font-size:0.85rem; opacity:0.6; padding:20px;">単語が登録されていません。</div>`;
-                return;
-            }
-
+            const container = document.getElementById('word-list-container'); container.innerHTML = '';
+            if (words.length === 0) { container.innerHTML = `<div style="text-align:center; font-size:0.85rem; opacity:0.6; padding:20px;">単語が登録されていません。</div>`; return; }
             words.forEach(w => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                // 💡 space-between をやめて、左詰めの flex に変更！
-                card.style.display = 'flex';
-                card.style.justifyContent = 'flex-start'; 
-                card.style.alignItems = 'center';
-                card.style.padding = '18px 20px';
-
-                // 🇺🇸 英語部分
-                const enSpan = document.createElement('span');
-                enSpan.innerText = w.en;
-                // 💡 英語エリアの幅を「120px」に固定して、長い単語もはみ出さないように調整！
-                enSpan.style.width = '120px';
-                enSpan.style.flexShrink = '0'; // 画面が狭くなっても英語が潰れないようにする
-                if (globalVisibilityMode === 'hide-en') {
-                    enSpan.className = 'blur-text';
-                    enSpan.onclick = function() { this.classList.toggle('reveal'); };
-                }
-
-                // 🇯🇵 日本語部分
-                const jaSpan = document.createElement('span');
-                jaSpan.innerText = w.ja;
-                if (globalVisibilityMode === 'hide-ja') {
-                    jaSpan.className = 'blur-text';
-                    jaSpan.onclick = function() { this.classList.toggle('reveal'); };
-                }
-
-                                // ✕ 削除ボタン（押しやすさ超強化版）
-                const deleteBtn = document.createElement('span');
-                deleteBtn.innerHTML = '✕';
-                deleteBtn.style.color = 'rgba(255,255,255,0.4)';
-                deleteBtn.style.cursor = 'pointer';
+                const card = document.createElement('div'); card.className = 'card'; card.style.display = 'flex'; card.style.justifyContent = 'flex-start'; card.style.alignItems = 'center'; card.style.padding = '18px 20px';
+                const enSpan = document.createElement('span'); enSpan.innerText = w.en; enSpan.style.width = '120px'; enSpan.style.flexShrink = '0';
+                if (globalVisibilityMode === 'hide-en') { enSpan.className = 'blur-text'; enSpan.onclick = function() { this.classList.toggle('reveal'); }; }
+                const jaSpan = document.createElement('span'); jaSpan.innerText = w.ja;
+                if (globalVisibilityMode === 'hide-ja') { jaSpan.className = 'blur-text'; jaSpan.onclick = function() { this.classList.toggle('reveal'); }; }
                 
-                // 💡 文字サイズをガッツリ大きくして、太字に！
-                deleteBtn.style.fontSize = '1.2rem'; 
-                deleteBtn.style.fontWeight = 'bold';
+                const deleteBtn = document.createElement('span'); deleteBtn.innerHTML = '✕'; deleteBtn.style.color = 'rgba(255,255,255,0.4)'; deleteBtn.style.cursor = 'pointer'; deleteBtn.style.fontSize = '1.2rem'; deleteBtn.style.fontWeight = 'bold'; deleteBtn.style.padding = '10px 15px'; deleteBtn.style.marginRight = '-10px'; deleteBtn.style.transition = 'opacity 0.1s';
+                deleteBtn.addEventListener('touchstart', () => deleteBtn.style.opacity = '0.5'); deleteBtn.addEventListener('touchend', () => deleteBtn.style.opacity = '1');
+                deleteBtn.onclick = function(e) { e.stopPropagation(); words = words.filter(item => item.id !== w.id); localStorage.setItem('ocean_words_list', JSON.stringify(words)); renderWordList(); };
                 
-                // 💡 ボタンの周りに広めの余白（パディング）を作って、タップできる面積を拡大！
-                deleteBtn.style.padding = '10px 15px'; 
-                // 💡 余白を広げた分、左側のマージンを微調整
-                deleteBtn.style.marginRight = '-10px'; 
-                
-                // タップした時にちょっとだけ不透明度を変えて、押した感を出す演出
-                deleteBtn.style.transition = 'opacity 0.1s';
-                deleteBtn.addEventListener('touchstart', () => deleteBtn.style.opacity = '0.5');
-                deleteBtn.addEventListener('touchend', () => deleteBtn.style.opacity = '1');
-
-                deleteBtn.onclick = function(e) {
-                    e.stopPropagation(); // カード全体のクリックイベント（ぼかし解除など）が発動するのを防ぐ
-                    words = words.filter(item => item.id !== w.id);
-                    localStorage.setItem('ocean_words_list', JSON.stringify(words));
-                    renderWordList();
-                };
-
-                // 右側のラッパー（日本語と削除ボタンを右端まで伸ばす）
-                const rightWrapper = document.createElement('div');
-                rightWrapper.style.flex = '1';
-                rightWrapper.style.display = 'flex';
-                rightWrapper.style.justifyContent = 'space-between';
-                rightWrapper.style.alignItems = 'center';
-                
-                rightWrapper.appendChild(jaSpan);
-                rightWrapper.appendChild(deleteBtn);
-
-                // カードにガチッと結合
-                card.appendChild(enSpan);
-                card.appendChild(rightWrapper);
-                container.appendChild(card);
+                const rightWrapper = document.createElement('div'); rightWrapper.style.flex = '1'; rightWrapper.style.display = 'flex'; rightWrapper.style.justifyContent = 'space-between'; rightWrapper.style.alignItems = 'center';
+                rightWrapper.appendChild(jaSpan); rightWrapper.appendChild(deleteBtn);
+                card.appendChild(enSpan); card.appendChild(rightWrapper); container.appendChild(card);
             });
         }
 
-
-        // 新しい単語を追加
         function addNewWord() {
-            const enInput = document.getElementById('input-en');
-            const jaInput = document.getElementById('input-ja');
-            const enVal = enInput.value.trim();
-            const jaVal = jaInput.value.trim();
-
+            const enInput = document.getElementById('input-en'); const jaInput = document.getElementById('input-ja');
+            const enVal = enInput.value.trim(); const jaVal = jaInput.value.trim();
             if (!enVal || !jaVal) { alert("英語と日本語訳の両方を入力してください。"); return; }
-
-            const newWord = { id: Date.now(), en: enVal, ja: jaVal };
-            words.unshift(newWord); // 先頭に追加
-            localStorage.setItem('ocean_words_list', JSON.stringify(words));
-            
-            // フォームリセット
-            enInput.value = '';
-            jaInput.value = '';
-            document.getElementById('ai-status-tips').style.display = 'none';
-
+            words.unshift({ id: Date.now(), en: enVal, ja: jaVal }); localStorage.setItem('ocean_words_list', JSON.stringify(words));
+            enInput.value = ''; jaInput.value = ''; document.getElementById('ai-status-tips').style.display = 'none';
             renderWordList();
         }
 
-        // 一括表示・隠し切り替え
-        function setGlobalVisibility(mode) {
-            globalVisibilityMode = mode;
-            renderWordList();
-        }
+        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
 
-                // 🌟 【最終調整版】シンプルに単語だけをバックエンドに投げる関数
+        // AI翻訳
         async function askVercelAiTranslate() {
-            const enVal = document.getElementById('input-en').value.trim();
-            const jaInput = document.getElementById('input-ja');
-            const tips = document.getElementById('ai-status-tips');
-
+            const enVal = document.getElementById('input-en').value.trim(); const jaInput = document.getElementById('input-ja'); const tips = document.getElementById('ai-status-tips');
             if (!enVal) { alert("英語を入力してください。"); return; }
-
-            tips.innerText = "🐋 VercelのServerless Functionを探索中...";
-            tips.style.display = "block";
-
-            // chat.jsのファイル名に応じたAPIエンドポイント
-            const apiEndpoint = '/api/chat'; 
-
-            // 📝 余計な英文プロンプトを消去！入力された単語だけをピュアに送る
-            const systemPrompt = enVal; 
-
+            tips.innerText = "🐋 VercelのServerless Functionを探索中..."; tips.style.display = "block";
             try {
-                // chat.jsのreq.body.messageに合わせて送信！
-                const response = await fetch(apiEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: systemPrompt })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Server Error: ${response.status}`);
-                }
-
+                const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: enVal }) });
+                if (!response.ok) throw new Error(`API Server Error: ${response.status}`);
                 const data = await response.json();
-                
-                // chat.jsのres.json({ reply: ... })に合わせてデータを受け取り！
-                if (data && data.reply) {
-                    if (data.reply.includes("Vercelの環境変数")) {
-                        tips.innerText = "❌ バックエンド側で環境変数エラー。";
-                        jaInput.value = data.reply;
-                    } else if (data.reply.includes("Cloudflareエラー")) {
-                        tips.innerText = "❌ Cloudflare API側でエラー。";
-                        jaInput.value = data.reply;
-                    } else {
-                        // 🌟 余計な解説を排除した「純粋な日本語」だけがここに入ります！
-                        jaInput.value = data.reply.trim();
-                        tips.innerText = "✨ Gemma-7b AIによる翻訳に成功！";
-                    }
-                } else {
-                    tips.innerText = "❌ 構造エラー：想定外のAPI応答です。";
-                }
-            } catch (error) {
-                console.error(error);
-                tips.innerText = "❌ 通信エラー。APIパス(/api/chat)設定などを確認してね！";
-            }
+                if (data && data.reply) { jaInput.value = data.reply.trim(); tips.innerText = "✨ Gemma-7b AIによる翻訳に成功！"; }
+            } catch (error) { console.error(error); tips.innerText = "❌ 通信エラー。"; }
         }
     </script>
 </body>
