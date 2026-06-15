@@ -122,7 +122,7 @@
         .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00; }
         .btn-add:active { transform: translateY(1px); box-shadow: 0 2px 0 #cc7e00; }
 
-        /* 👑 【新設】画面中央ポップアップ（モーダル）用のスタイル */
+        /* 画面中央ポップアップ（モーダル）用のスタイル */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -138,21 +138,15 @@
             transition: opacity 0.25s ease;
             padding: 20px;
         }
-        .modal-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            width: 100%;
-            max-width: 400px;
-            background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            transform: scale(0.85);
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .modal-overlay.open .modal-content {
-            transform: scale(1);
-        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-content { width: 100%; max-width: 400px; background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%); border: 1px solid rgba(255, 255, 255, 0.4); transform: scale(0.85); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal-overlay.open .modal-content { transform: scale(1); }
+
+        /* 👑 【新設】アイコン選択用のエモジグリッド */
+        .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+        .avatar-option { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; font-size: 1.5rem; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        .avatar-option:active { transform: scale(0.95); }
+        .avatar-option.selected { background: #ff9e00; border-color: #fff; box-shadow: 0 0 10px rgba(255, 158, 0, 0.6); }
 
         .date-field { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; color-scheme: dark; }
         .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
@@ -169,11 +163,7 @@
         .stat-unit { font-size: 0.75rem; color: #fff; margin-left: 2px; opacity: 0.8; }
 
         /* タップ可能な集計行 */
-        .stat-row-clickable {
-            display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(255,255,255,0.08); padding: 12px 18px; border-radius: 16px;
-            cursor: pointer; transition: background 0.2s, transform 0.2s;
-        }
+        .stat-row-clickable { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); padding: 12px 18px; border-radius: 16px; cursor: pointer; transition: background 0.2s, transform 0.2s; }
         .stat-row-clickable:hover { background: rgba(255,255,255,0.15); transform: scale(1.02); }
         .stat-row-clickable.active-filter { background: rgba(255, 158, 0, 0.25); border: 1px solid rgba(255, 158, 0, 0.4); }
 
@@ -186,10 +176,10 @@
 
     <div class="container">
         <div id="app-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <div style="width: 45px; height: 45px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🧑‍💻</div>
+            <div id="header-avatar-box" style="width: 45px; height: 45px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">🧑‍💻</div>
             <div style="text-align: center;">
-                <div style="font-weight: 900; letter-spacing: 3px;">OCEAN COMPASS</div>
-                <div style="font-size: 0.65rem; background: rgba(0,0,0,0.15); padding: 2px 8px; border-radius: 10px; margin-top: 3px;">ID: D-7732 ⚓️ DIVER_01</div>
+                <div style="font-weight: 900; letter-spacing: 3px;" id="header-app-title">OCEAN COMPASS</div>
+                <div style="font-size: 0.65rem; background: rgba(0,0,0,0.15); padding: 2px 8px; border-radius: 10px; margin-top: 3px;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
             </div>
             <span style="font-size: 1.2rem;">🐠</span>
         </div>
@@ -361,10 +351,20 @@
 
         <div id="tab-settings" class="tab-content">
             <h2 style="font-size: 1.2rem; margin-bottom: 15px;">システム設定</h2>
+            
             <div class="card">
-                <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 5px;">ダイバーネーム</label>
-                <input type="text" value="DIVER_01" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">
+                <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold;">🐋 ダイバープロフィール編集</label>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div id="settings-avatar-preview" style="width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🧑‍💻</div>
+                    <input type="text" id="input-diver-name" value="DIVER_01" oninput="updateProfileData()" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px 14px; border-radius: 14px; font-size: 1rem; box-sizing: border-box;">
+                </div>
+
+                <label style="font-size: 0.75rem; opacity: 0.7; display: block; margin-bottom: 5px;">👇 アバターアイコンを選択</label>
+                <div class="avatar-grid" id="avatar-selector-grid">
+                    </div>
             </div>
+
             <div class="card">
                 <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 10px; font-weight: bold;">📅 時間割の設定 (7時間×7日)</label>
                 <div id="timetable-editor-box"></div>
@@ -382,6 +382,51 @@
 
     <script>
         let currentAnalyticsFilter = 'week';
+
+        // --- 👑 プロフィール（名前＆アイコン）セーブデータシステム ---
+        const avatarOptions = ['🧑‍💻', '🤿', '🐳', '🦈', '🐙', '🦀', '🐧', '🛸', '🤖', '👾'];
+        let currentDiverName = localStorage.getItem('ocean_diver_name') || 'DIVER_01';
+        let currentAvatar = localStorage.getItem('ocean_diver_avatar') || '🧑‍💻';
+
+        // 初期ロード時にプロフィールを反映
+        document.getElementById('input-diver-name').value = currentDiverName;
+        applyProfileDOM();
+        buildAvatarGrid();
+
+        function applyProfileDOM() {
+            document.getElementById('header-diver-name').innerText = currentDiverName;
+            document.getElementById('header-avatar-box').innerText = currentAvatar;
+            document.getElementById('settings-avatar-preview').innerText = currentAvatar;
+        }
+
+        function updateProfileData() {
+            const nameInput = document.getElementById('input-diver-name').value.trim();
+            currentDiverName = nameInput || 'DIVER_01';
+            localStorage.setItem('ocean_diver_name', currentDiverName);
+            applyProfileDOM();
+        }
+
+        function buildAvatarGrid() {
+            const grid = document.getElementById('avatar-selector-grid');
+            grid.innerHTML = '';
+            avatarOptions.forEach(emoji => {
+                const opt = document.createElement('div');
+                opt.className = 'avatar-option' + (emoji === currentAvatar ? ' selected' : '');
+                opt.innerText = emoji;
+                opt.onclick = function() {
+                    currentAvatar = emoji;
+                    localStorage.setItem('ocean_diver_avatar', currentAvatar);
+                    
+                    // グリッドのアクティブ表示切替
+                    document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    
+                    applyProfileDOM();
+                };
+                grid.appendChild(opt);
+            });
+        }
+
 
         function switchTab(tabId, button) {
             if (isRunning) return;
@@ -404,16 +449,12 @@
             document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
         }
 
-        // 👑 モーダル（中央ポップアップ）の開閉システム
+        // モーダル（中央ポップアップ）の開閉システム
         function openTodoModal() {
             const overlay = document.getElementById('todo-modal-overlay');
             overlay.classList.add('open');
-            // 開いた瞬間に、自動でテキストボックスにフォーカスを合わせてすぐ打てるようにする親切設計
-            setTimeout(() => {
-                document.getElementById('input-home-todo').focus();
-            }, 100);
+            setTimeout(() => { document.getElementById('input-home-todo').focus(); }, 100);
         }
-
         function closeTodoModal() {
             const overlay = document.getElementById('todo-modal-overlay');
             overlay.classList.remove('open');
@@ -492,9 +533,7 @@
                 const mins = timeLogs[dateKey] || 0;
                 
                 let xLabelText = `${d.getDate()}日`;
-                if (daysCount === 30 && i % 5 !== 0 && i !== 0 && i !== daysCount - 1) {
-                    xLabelText = '';
-                }
+                if (daysCount === 30 && i % 5 !== 0 && i !== 0 && i !== daysCount - 1) { xLabelText = ''; }
 
                 dataPoints.push({ label: xLabelText, val: mins });
                 if (mins > maxMins) maxMins = mins;
@@ -515,17 +554,11 @@
                 const x = paddingLeft + (idx / (dataPoints.length - 1 || 1)) * chartWidth;
                 const y = svgHeight - (pt.val / maxMins) * (svgHeight - 20) - 10;
 
-                if (idx === 0) {
-                    pointsPath += `M ${x} ${y}`;
-                } else {
-                    pointsPath += ` L ${x} ${y}`;
-                }
+                if (idx === 0) { pointsPath += `M ${x} ${y}`; } else { pointsPath += ` L ${x} ${y}`; }
 
                 if (daysCount <= 7) {
                     dotsHTML += `<circle cx="${x}" cy="${y}" r="4" fill="#ff9e00" stroke="#fff" stroke-width="1.5" />`;
-                    if (pt.val > 0) {
-                        dotsHTML += `<text x="${x}" y="${y - 8}" font-size="9" fill="#fff" font-weight="bold" text-anchor="middle">${pt.val}</text>`;
-                    }
+                    if (pt.val > 0) { dotsHTML += `<text x="${x}" y="${y - 8}" font-size="9" fill="#fff" font-weight="bold" text-anchor="middle">${pt.val}</text>`; }
                 }
 
                 if (pt.label) {
@@ -542,7 +575,6 @@
             });
 
             let areaPath = `${pointsPath} L ${paddingLeft + chartWidth} ${svgHeight} L ${paddingLeft} ${svgHeight} Z`;
-
             let svgContent = `
                 <defs>
                     <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
@@ -580,16 +612,9 @@
             document.getElementById('stat-month').innerText = monthTotal;
 
             const title = document.getElementById('chart-period-title');
-            if (filterType === 'day') {
-                title.innerText = "本日の潜水ログ（スポット値）";
-                drawLineChart(1);
-            } else if (filterType === 'week') {
-                title.innerText = "直近1週間の集中トレンド (推移)";
-                drawLineChart(7);
-            } else if (filterType === 'month') {
-                title.innerText = "直近30日間のディープマンスリー推移";
-                drawLineChart(30);
-            }
+            if (filterType === 'day') { title.innerText = "本日の潜水ログ（スポット値）"; drawLineChart(1); } 
+            else if (filterType === 'week') { title.innerText = "直近1週間の集中トレンド (推移)"; drawLineChart(7); } 
+            else if (filterType === 'month') { title.innerText = "直近30日間のディープマンスリー推移"; drawLineChart(30); }
         }
 
         window.addEventListener('resize', () => {
@@ -710,11 +735,7 @@
             const input = document.getElementById('input-home-todo'); const deadlineInput = document.getElementById('input-todo-deadline'); if (!input.value.trim()) return;
             todos.push({ id: Date.now(), text: input.value.trim(), completed: false, deadline: deadlineInput.value });
             localStorage.setItem('ocean_todo_list', JSON.stringify(todos)); 
-            
-            // 入力欄をクリアしてモーダルを閉じる
-            input.value = ''; deadlineInput.value = '';
-            closeTodoModal(); 
-            // そのままスケジュール画面へ移動
+            input.value = ''; deadlineInput.value = ''; closeTodoModal(); 
             switchTab('schedule', document.querySelectorAll('nav button')[1]);
         }
 
