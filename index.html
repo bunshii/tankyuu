@@ -92,7 +92,7 @@
         th { background: rgba(255, 255, 255, 0.15); font-weight: bold; }
         td { background: rgba(255, 255, 255, 0.05); }
         
-        /* 単語帳のモザイク効果 */
+        /* 🌟 単語帳のモザイク（ぼかし）効果 */
         .blur-text {
             filter: blur(6px);
             cursor: pointer;
@@ -101,6 +101,7 @@
             border-radius: 8px;
             transition: filter 0.15s, background 0.15s;
         }
+        /* クリックして解除された時のスタイル */
         .blur-text.reveal {
             filter: none;
             background: transparent;
@@ -112,11 +113,11 @@
         .timer-select option { color: #333; }
         .timer-input { width: 60px; text-align: center; }
 
-        /* スケジュール入力グリッド */
+        /* 設定画面の時間割入力スタイル */
         .setting-grid-row { display: flex; gap: 5px; margin-bottom: 5px; }
         .setting-grid-input { flex: 1; width: 100%; min-width: 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 4px; border-radius: 6px; font-size: 0.75rem; text-align: center; box-sizing: border-box; }
 
-        /* 単語入力フォーム */
+        /* 単語入力フォーム用のスタイル */
         .word-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .word-input-row { display: flex; gap: 8px; align-items: center; }
         .word-field { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box; }
@@ -126,7 +127,7 @@
         .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00; }
         .btn-add:active { transform: translateY(1px); box-shadow: 0 2px 0 #cc7e00; }
 
-        /* コントロールボタン */
+        /* コントロールボタン群 */
         .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
         .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
     </style>
@@ -193,7 +194,8 @@
                             <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
                         </tr>
                     </thead>
-                    <tbody id="timetable-body"></tbody>
+                    <tbody id="timetable-body">
+                        </tbody>
                 </table>
             </div>
         </div>
@@ -202,11 +204,11 @@
             <h2 style="font-size: 1.2rem; margin-bottom: 15px;">深海単語帳</h2>
             
             <div class="card">
-                <div style="font-size: 0.8rem; margin-bottom: 10px; opacity: 0.8; font-weight: bold;">🫧 AIで単語を追加</div>
+                <div style="font-size: 0.8rem; margin-bottom: 10px; opacity: 0.8; font-weight: bold;">🫧 新しい単語を追加</div>
                 <div class="word-form">
                     <div class="word-input-row">
-                        <input type="text" id="input-en" class="word-field" placeholder="英語 (例: deep sea)">
-                        <button class="btn-action" onclick="askCloudflareTranslate()" id="btn-ai-translate">AI翻訳 🧠</button>
+                        <input type="text" id="input-en" class="word-field" placeholder="英語 (例: Ocean)">
+                        <button class="btn-action" onclick="askVercelAiTranslate()" id="btn-ai-translate">AI翻訳 🧠</button>
                     </div>
                     <div class="word-input-row">
                         <input type="text" id="input-ja" class="word-field" placeholder="日本語訳（AIが自動生成します）">
@@ -222,7 +224,8 @@
                 <button class="btn-ctrl" onclick="setGlobalVisibility('reveal-all')">👁️ 全て表示</button>
             </div>
 
-            <div id="word-list-container"></div>
+            <div id="word-list-container">
+                </div>
         </div>
 
         <div id="tab-friends" class="tab-content">
@@ -232,7 +235,7 @@
                 <div style="width:45px; height:45px; background:rgba(255,255,255,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">🐳</div>
                 <div style="flex: 1;">
                     <div style="font-weight: bold;">TAKUYA</div>
-                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
+                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 |深度: 45m</div>
                 </div>
                 <span style="color: #4ade80; font-size: 0.8rem;">● 潜水中</span>
             </div>
@@ -240,7 +243,7 @@
                 <div style="width:45px; height:45px; background:rgba(255,255,255,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">🐙</div>
                 <div style="flex: 1;">
                     <div style="font-weight: bold;">YUKA</div>
-                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-8821 | 深度: 0m</div>
+                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-8821 |深度: 0m</div>
                 </div>
                 <span style="opacity: 0.6; font-size: 0.8rem;">待機中</span>
             </div>
@@ -248,7 +251,6 @@
 
         <div id="tab-settings" class="tab-content">
             <h2 style="font-size: 1.2rem; margin-bottom: 15px;">システム設定</h2>
-            
             <div class="card">
                 <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 5px;">ダイバーネーム</label>
                 <input type="text" value="DIVER_01" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">
@@ -259,12 +261,13 @@
                 <div style="display: flex; gap: 5px; margin-bottom: 5px; text-align: center; font-size: 0.65rem; opacity: 0.7; font-weight: bold;">
                     <div style="flex:1;">日</div><div style="flex:1;">月</div><div style="flex:1;">火</div><div style="flex:1;">水</div><div style="flex:1;">木</div><div style="flex:1;">金</div><div style="flex:1;">土</div>
                 </div>
-                <div id="timetable-editor-box"></div>
+                <div id="timetable-editor-box">
+                    </div>
             </div>
 
             <div class="card" style="font-size: 0.8rem; opacity: 0.7;">
-                ベースシステム: Ocean Compass v2.4<br>
-                環境: Cloudflare Workers 連動モード
+                ベースシステム: Ocean Compass v2.5<br>
+                環境: Vercel AI Routes & Cloudflare 連動モード
             </div>
         </div>
     </div>
@@ -282,13 +285,15 @@
         function switchTab(tabId, button) {
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
+            
             const buttons = document.querySelectorAll('nav button');
             buttons.forEach(btn => btn.classList.remove('active'));
+            
             document.getElementById('tab-' + tabId).classList.add('active');
             button.classList.add('active');
         }
 
-        // --- タイマーシステム ---
+        // --- タイマーシステム用変数 ---
         let timer = null;
         let isRunning = false;
         let currentMode = localStorage.getItem('ocean_timer_mode') || 'countdown';
@@ -304,6 +309,7 @@
             if (isRunning) return;
             currentMode = document.getElementById('timer-mode-select').value;
             localStorage.setItem('ocean_timer_mode', currentMode);
+            
             const inputWrapper = document.getElementById('countdown-input-wrapper');
             inputWrapper.style.display = (currentMode === 'countdown') ? 'flex' : 'none';
             resetTimerState();
@@ -323,6 +329,7 @@
             secondsRemaining = savedMinutes * 60;
             const display = document.getElementById('timer-display');
             const label = document.getElementById('timer-status-label');
+            
             if (currentMode === 'countdown') {
                 display.innerText = formatTime(secondsRemaining);
                 label.innerText = "TIME REMAINING";
@@ -356,6 +363,14 @@
                 btn.style.background = "#ff9e00";
                 settingsBox.style.opacity = "1";
                 settingsBox.style.pointerEvents = "auto";
+                
+                if (currentMode === 'countdown') {
+                    let doneMinutes = Math.floor((savedMinutes * 60 - secondsRemaining) / 60);
+                    alert("急浮上しました。今回は " + doneMinutes + " 分間潜水しました！");
+                } else {
+                    let doneMinutes = Math.floor(secondsElapsed / 60);
+                    alert("潜水を終了しました。深度ログ: " + doneMinutes + " 分間");
+                }
                 resetTimerState();
             } else {
                 isRunning = true;
@@ -375,7 +390,7 @@
                             btn.style.background = "#ff9e00";
                             settingsBox.style.opacity = "1";
                             settingsBox.style.pointerEvents = "auto";
-                            alert("🎉 カウントダウン終了！");
+                            alert("🎉 カウントダウン終了！ミッション完了です。");
                             resetTimerState();
                         }
                     } else {
@@ -386,23 +401,29 @@
             }
         }
 
-        // --- スケジュールシステム ---
+        // --- スケジュール（時間割）システム用スクリプト ---
         const ROWS = 7;
         const COLS = 7;
+        
         const defaultTimetable = [
-            ["休み", "英語", "数学", "英語", "プロ", "数学", "休み"],
+            ["邦楽", "英語", "数学", "英語", "プロ", "数学", "休み"],
             ["復習", "国語", "理科", "社会", "英語", "理科", "演習"],
-            ["-", "-", "-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-", "-", "-"],
-            ["-", "-", "-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-", "-", "-"],
+            ["-", "-", "-", "-", "-", "-", "-"],
+            ["-", "-", "-", "-", "-", "-", "-"],
+            ["-", "-", "-", "-", "-", "-", "-"],
+            ["-", "-", "-", "-", "-", "-", "-"],
             ["-", "-", "-", "-", "-", "-", "-"]
         ];
-        let timetableData = localStorage.getItem('ocean_timetable_data') ? JSON.parse(localStorage.getItem('ocean_timetable_data')) : defaultTimetable;
+
+        let savedTableData = localStorage.getItem('ocean_timetable_data');
+        let timetableData = savedTableData ? JSON.parse(savedTableData) : defaultTimetable;
 
         initTimetable();
 
         function initTimetable() {
             const tableBody = document.getElementById('timetable-body');
             const editorBox = document.getElementById('timetable-editor-box');
+            
             tableBody.innerHTML = '';
             editorBox.innerHTML = '';
 
@@ -422,6 +443,7 @@
                     input.type = 'text';
                     input.className = 'setting-grid-input';
                     input.value = text;
+                    input.placeholder = `${r+1}限`;
                     input.oninput = function() {
                         timetableData[r][c] = this.value;
                         localStorage.setItem('ocean_timetable_data', JSON.stringify(timetableData));
@@ -434,30 +456,39 @@
             }
         }
 
-        // --- Cloudflare Workers連動 単語帳システム ---
+        // --- 単語帳システム用スクリプト ---
         const defaultWords = [
             { id: 1, en: "Coral", ja: "珊瑚（サンゴ）" },
-            { id: 2, en: "Current", ja: "海流" }
+            { id: 2, en: "Current", ja: "海流" },
+            { id: 3, en: "Deep Sea", ja: "深海" }
         ];
+
         let words = localStorage.getItem('ocean_words_list') ? JSON.parse(localStorage.getItem('ocean_words_list')) : defaultWords;
-        let globalVisibilityMode = 'hide-ja';
+        
+        // 全体の表示モード ('reveal-all': 全表示, 'hide-ja': 日本語隠し, 'hide-en': 英語隠し)
+        let globalVisibilityMode = 'hide-ja'; 
 
         renderWordList();
 
+        // 単語リストを画面に描画する関数
         function renderWordList() {
             const container = document.getElementById('word-list-container');
             container.innerHTML = '';
+
             if (words.length === 0) {
-                container.innerHTML = `<div style="text-align:center; font-size:0.85rem; opacity:0.6; padding:20px;">単語がありません。</div>`;
+                container.innerHTML = `<div style="text-align:center; font-size:0.85rem; opacity:0.6; padding:20px;">単語が登録されていません。</div>`;
                 return;
             }
+
             words.forEach(w => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.style.display = 'flex';
                 card.style.justify = 'space-between';
                 card.style.alignItems = 'center';
+                card.style.padding = '18px 20px';
 
+                // 英語部分
                 const enSpan = document.createElement('span');
                 enSpan.innerText = w.en;
                 if (globalVisibilityMode === 'hide-en') {
@@ -465,6 +496,7 @@
                     enSpan.onclick = function() { this.classList.toggle('reveal'); };
                 }
 
+                // 日本語部分
                 const jaSpan = document.createElement('span');
                 jaSpan.innerText = w.ja;
                 if (globalVisibilityMode === 'hide-ja') {
@@ -472,13 +504,19 @@
                     jaSpan.onclick = function() { this.classList.toggle('reveal'); };
                 }
 
+                // 削除ボタン
                 const deleteBtn = document.createElement('span');
                 deleteBtn.innerHTML = ' ✕';
                 deleteBtn.style.color = 'rgba(255,255,255,0.4)';
                 deleteBtn.style.cursor = 'pointer';
                 deleteBtn.style.fontSize = '0.8rem';
                 deleteBtn.style.marginLeft = '10px';
-                deleteBtn.onclick = function(e) { e.stopPropagation(); words = words.filter(item => item.id !== w.id); localStorage.setItem('ocean_words_list', JSON.stringify(words)); renderWordList(); };
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    words = words.filter(item => item.id !== w.id);
+                    localStorage.setItem('ocean_words_list', JSON.stringify(words));
+                    renderWordList();
+                };
 
                 const rightWrapper = document.createElement('div');
                 rightWrapper.appendChild(jaSpan);
@@ -490,68 +528,85 @@
             });
         }
 
+        // 新しい単語を追加
         function addNewWord() {
             const enInput = document.getElementById('input-en');
             const jaInput = document.getElementById('input-ja');
-            if (!enInput.value.trim() || !jaInput.value.trim()) { alert("両方入力してください"); return; }
-            words.unshift({ id: Date.now(), en: enInput.value.trim(), ja: jaInput.value.trim() });
+            const enVal = enInput.value.trim();
+            const jaVal = jaInput.value.trim();
+
+            if (!enVal || !jaVal) { alert("英語と日本語訳の両方を入力してください。"); return; }
+
+            const newWord = { id: Date.now(), en: enVal, ja: jaVal };
+            words.unshift(newWord); // 先頭に追加
             localStorage.setItem('ocean_words_list', JSON.stringify(words));
-            enInput.value = ''; jaInput.value = '';
+            
+            // フォームリセット
+            enInput.value = '';
+            jaInput.value = '';
             document.getElementById('ai-status-tips').style.display = 'none';
+
             renderWordList();
         }
 
-        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
+        // 一括表示・隠し切り替え
+        function setGlobalVisibility(mode) {
+            globalVisibilityMode = mode;
+            renderWordList();
+        }
 
-                // 🌟 Vercel API Routes (chat.js) に最適化した翻訳通信関数
-        async function askCloudflareTranslate() {
+        // 🌟 【抜けなし・最終形態】AI先回り翻訳通信関数
+        async function askVercelAiTranslate() {
             const enVal = document.getElementById('input-en').value.trim();
             const jaInput = document.getElementById('input-ja');
             const tips = document.getElementById('ai-status-tips');
 
             if (!enVal) { alert("英語を入力してください。"); return; }
 
-            tips.innerText = "🐋 Vercel ➔ Cloudflare AI経由で翻訳データを探索中...";
+            tips.innerText = "🐋 VercelのServerless Functionを探索中...";
             tips.style.display = "block";
 
-            // ⚠️ chat.jsを配置しているVercelのAPIパスに合わせてね！
-            // もしファイル名が chat.js なら '/api/chat' になります。
-            // もしファイル名が handler.js なら '/api/handler' に書き換えてください。
+            // chat.jsのファイル名に応じたAPIエンドポイント
             const apiEndpoint = '/api/chat'; 
 
-            // AI（Gemma）に「翻訳結果だけを出力させる」ための厳格なプロンプトを作成
-            const systemPrompt = `Translate the following English word or phrase into Japanese. Output ONLY the Japanese translation (if there are multiple meanings, separate them with commas). Do not include any greetings, explanations, notes, or markdown formatting.\nTarget: ${enVal}`;
+            // Gemma-7bモデルに「日本語訳だけを出力させる」ための厳格なプロンプトを作成
+            const systemPrompt = `Translate the following English word or phrase into Japanese. Output ONLY the Japanese translation (if there are multiple meanings, separate them with commas). Do not include any greetings, explanations, notes, greetings, or markdown formatting.\nTarget: ${enVal}`;
 
             try {
-                // 君のchat.jsの仕様（req.body.message）に合わせてデータを送信！
+                // chat.jsのreq.body.messageに合わせて送信！
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: systemPrompt })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`API Server Error: ${response.status}`);
+                }
+
                 const data = await response.json();
                 
-                // 君のchat.jsの仕様（res.json({ reply: ... })）に合わせてデータを受け取り！
+                // chat.jsのres.json({ reply: ... })に合わせてデータを受け取り！
                 if (data && data.reply) {
-                    // もし環境変数エラーなどが返ってきた場合も画面に表示して気付けるようにする
-                    if (data.reply.includes("エラー：") || data.reply.includes("Cloudflareエラー")) {
-                        tips.innerText = "❌ バックエンド側でエラーが発生したみたい。";
+                    if (data.reply.includes("Vercelの環境変数")) {
+                        tips.innerText = "❌ バックエンド側で環境変数エラー。";
+                        jaInput.value = data.reply;
+                    } else if (data.reply.includes("Cloudflareエラー")) {
+                        tips.innerText = "❌ Cloudflare API側でエラー。";
                         jaInput.value = data.reply;
                     } else {
-                        // 正常に翻訳されたテキストをセット
+                        // 🌟 Gemmaからの返答（翻訳テキスト）を日本語入力欄にセット！
                         jaInput.value = data.reply.trim();
-                        tips.innerText = "✨ Cloudflare AI（Gemma）による翻訳に成功！";
+                        tips.innerText = "✨ Gemma-7b AIによる翻訳に成功！";
                     }
                 } else {
-                    tips.innerText = "❌ 構造エラー：APIからの応答フォーマットが想定外です。";
+                    tips.innerText = "❌ 構造エラー：想定外のAPI応答です。";
                 }
             } catch (error) {
                 console.error(error);
-                tips.innerText = "❌ 通信エラー。APIのパス（/api/chat）が合っているか確認してね！";
+                tips.innerText = "❌ 通信エラー。APIパス(/api/chat)設定などを確認してね！";
             }
         }
-
     </script>
 </body>
 </html>
