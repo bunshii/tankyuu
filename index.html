@@ -555,7 +555,7 @@
             renderWordList();
         }
 
-        // 🌟 【抜けなし・最終形態】AI先回り翻訳通信関数
+                // 🌟 【最終調整版】シンプルに単語だけをバックエンドに投げる関数
         async function askVercelAiTranslate() {
             const enVal = document.getElementById('input-en').value.trim();
             const jaInput = document.getElementById('input-ja');
@@ -569,8 +569,8 @@
             // chat.jsのファイル名に応じたAPIエンドポイント
             const apiEndpoint = '/api/chat'; 
 
-            // Gemma-7bモデルに「日本語訳だけを出力させる」ための厳格なプロンプトを作成
-            const systemPrompt = `Translate the following English word or phrase into Japanese. Output ONLY the Japanese translation (if there are multiple meanings, separate them with commas). Do not include any greetings, explanations, notes, greetings, or markdown formatting.\nTarget: ${enVal}`;
+            // 📝 余計な英文プロンプトを消去！入力された単語だけをピュアに送る
+            const systemPrompt = enVal; 
 
             try {
                 // chat.jsのreq.body.messageに合わせて送信！
@@ -595,7 +595,7 @@
                         tips.innerText = "❌ Cloudflare API側でエラー。";
                         jaInput.value = data.reply;
                     } else {
-                        // 🌟 Gemmaからの返答（翻訳テキスト）を日本語入力欄にセット！
+                        // 🌟 余計な解説を排除した「純粋な日本語」だけがここに入ります！
                         jaInput.value = data.reply.trim();
                         tips.innerText = "✨ Gemma-7b AIによる翻訳に成功！";
                     }
