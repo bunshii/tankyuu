@@ -425,12 +425,13 @@
             }
         }
 
-    // 🧠 2. ホーム画面の「AI振り返り 🧠」（新設した review.js を叩く！）
+  // 🧠 2. ホーム画面の「AI振り返り 🧠」（新設した review.js を叩く！）
         async function generateAiReview() {
             const overlay = document.getElementById('ai-modal-overlay');
             const responseBox = document.getElementById('ai-response-box');
             const btn = document.getElementById('btn-ai-review');
             
+            // モーダルを開いてローディングメッセージを表示
             overlay.classList.add('open');
             responseBox.innerText = "本日のログデータを深海サーバーへアップロード中...🧭\nキャプテンAIが解析しています...";
             
@@ -439,7 +440,7 @@
             const unfinishedTodosCount = todos.filter(t => !t.completed).length;
 
             try {
-                // 📡 新しい review.js へ、今日の成果をPOSTで送りつける！
+                // 📡 構造を統一した新 review.js へデータをPOST
                 const response = await fetch(VERCEL_REVIEW_API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -453,14 +454,15 @@
                 const data = await response.json();
 
                 if (response.ok && data.reply) {
-                    // AIがガチで考えてくれたオリジナル応援ログを表示！
-                    responseBox.innerText = data.reply.trim();
+                    // 🎉 届いたキャプテンの熱いメッセージをそのままボックスに叩き込む！
+                    responseBox.innerText = data.reply;
                 } else {
-                    responseBox.innerText = `🚨 ログ解析エラー\nキャプテンAIとの通信に障害が発生したようだ。制限時間やトークンの設定を確認してくれ。`;
+                    // サーバー側から返ってきたエラー文を表示
+                    responseBox.innerText = `🚨 ログ解析エラー\n${data.reply || 'キャプテンAIとの通信に障害が発生したようだ。'}`;
                 }
             } catch (error) {
                 console.error("振り返りAPI接続エラー:", error);
-                responseBox.innerText = `🚨 接続失敗\nサーバーに届かなかったぜ。api/review.js が正しく配置されているか確認してくれ！`;
+                responseBox.innerText = `🚨 接続失敗\n深海通信プロトコルに失敗した。Vercelへのデプロイが完了しているか、またはURLを確認してくれ！`;
             }
         }
 
