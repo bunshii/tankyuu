@@ -92,7 +92,7 @@
         th { background: rgba(255, 255, 255, 0.15); font-weight: bold; }
         td { background: rgba(255, 255, 255, 0.05); }
         
-        /* 🌟 単語帳のモザイク（ぼかし）効果 */
+        /* 単語帳のモザイク */
         .blur-text {
             filter: blur(6px);
             cursor: pointer;
@@ -103,17 +103,17 @@
         }
         .blur-text.reveal { filter: none; background: transparent; }
 
-        /* タイマー設定用のスタイル */
+        /* タイマー設定 */
         .timer-settings { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .timer-select, .timer-input { padding: 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.2); color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); font-size: 0.9rem; }
         .timer-select option { color: #333; }
         .timer-input { width: 60px; text-align: center; }
 
-        /* 設定画面の時間割入力スタイル */
+        /* 設定画面の時間割入力 */
         .setting-grid-row { display: flex; gap: 5px; margin-bottom: 5px; }
         .setting-grid-input { flex: 1; width: 100%; min-width: 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 4px; border-radius: 6px; font-size: 0.75rem; text-align: center; box-sizing: border-box; }
 
-        /* 入力フォーム用のスタイル */
+        /* 入力フォーム */
         .word-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .word-input-row { display: flex; gap: 8px; align-items: center; }
         .word-field { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box; }
@@ -123,20 +123,31 @@
         .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00; }
         .btn-add:active { transform: translateY(1px); box-shadow: 0 2px 0 #cc7e00; }
 
-        /* コントロールボタン群 */
         .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
         .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
 
-        /* 🌟 クイックToDo追加フォームアニメーション用 */
+        /* クイックToDo追加フォーム（ホーム用） */
         .quick-input-box {
             display: none;
-            gap: 8px;
+            flex-direction: column;
+            gap: 10px;
             margin-top: 10px;
             animation: slideDown 0.2s ease-out forwards;
         }
         @keyframes slideDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 締め切り日入力欄のカスタム */
+        .date-field {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color-scheme: dark; /* カレンダーのポップアップをダークモード対応に */
         }
     </style>
 </head>
@@ -185,36 +196,45 @@
                 </div>
             </div>
 
-            <div class="card" style="padding: 18px 20px;">
-                <div style="font-size: 0.85rem; margin-bottom: 12px; opacity: 0.8; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
-                    <span>⚓️ 現在のミッション（ToDo）</span>
-                    <span id="todo-count-badge" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">0</span>
-                </div>
-                
-                <div id="home-todo-list-container" style="margin-bottom: 15px;">
-                    </div>
-
+            <div class="card" style="padding: 15px 20px;">
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-action" onclick="toggleQuickTodoInput()" style="flex: 1; background: rgba(255,255,255,0.15); box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDo</button>
                     <button class="btn-action" style="flex: 1; background: #ffffff; color: #3a0ca3; box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">🧠 AI振り返り</button>
                 </div>
 
                 <div class="quick-input-box" id="quick-todo-form">
+                    <div style="font-size: 0.75rem; opacity: 0.8; font-weight: bold; margin-top: 5px;">🫧 新しいミッションを登録</div>
                     <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 40px; border-radius: 10px;">
-                    <button class="btn-add" onclick="addHomeTodo()" style="height: 40px; padding: 0 15px; border-radius: 10px; font-size: 0.85rem;">追加</button>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 10px;">
+                        <span style="font-size: 0.75rem; opacity: 0.8;">⏳ 締め切り設定 (任意):</span>
+                        <input type="date" id="input-todo-deadline" class="date-field" style="flex: 1; height: 30px;">
+                    </div>
+
+                    <button class="btn-add" onclick="addHomeTodo()" style="height: 40px; padding: 0 15px; border-radius: 10px; font-size: 0.85rem; width: 100%;">ミッションを発動する 🚀</button>
                 </div>
             </div>
         </div>
 
         <div id="tab-schedule" class="tab-content">
-            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">週間潜水プラン</h2>
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">スケジュール & ミッション</h2>
+            
+            <div class="card" style="padding: 18px 20px;">
+                <div style="font-size: 0.85rem; margin-bottom: 15px; opacity: 0.8; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                    <span>⚓️ 現在のミッション一覧（ToDo）</span>
+                    <span id="todo-count-badge" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">0</span>
+                </div>
+                
+                <div id="schedule-todo-list-container">
+                    </div>
+            </div>
             
             <div class="card" style="overflow-x: auto; padding: 15px 10px;">
                 <div style="font-size: 0.8rem; margin-bottom: 8px; opacity: 0.8; font-weight: bold;">⚓️ 週間潜水プラン（時間割）</div>
                 <table>
                     <thead>
                         <tr>
-                            <th>日</th><th>月</th><th>火</th><th>神</th><th>木</th><th>金</th><th>土</th>
+                            <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
                         </tr>
                     </thead>
                     <tbody id="timetable-body">
@@ -391,18 +411,18 @@
             }
         }
 
-        // --- 🐙 【大進化】ホーム画面連動ToDoシステム（5分後消滅仕様） ---
+        // --- 🐙 【最新版】引っ越し＆締め切り機能付きToDoシステム ---
         const defaultTodos = [
-            { id: 1, text: "クジラの生態を調べる", completed: false },
-            { id: 2, text: "単語帳を5個進める", completed: false }
+            { id: 1, text: "クジラの生態を調べる", completed: false, deadline: "2026-07-20" },
+            { id: 2, text: "単語帳を5個進める", completed: false, deadline: "" }
         ];
 
         let todos = localStorage.getItem('ocean_todo_list') ? JSON.parse(localStorage.getItem('ocean_todo_list')) : defaultTodos;
         
-        // アプリ起動時にリストを描画
-        renderHomeTodoList();
+        // 初回描画
+        renderScheduleTodoList();
 
-        // クイック入力フォームを開閉する
+        // ホーム画面の入力ボックスを開閉
         function toggleQuickTodoInput() {
             const form = document.getElementById('quick-todo-form');
             form.style.display = (form.style.display === 'flex') ? 'none' : 'flex';
@@ -411,13 +431,15 @@
             }
         }
 
-        // ホーム画面にToDoリストを描画する関数
-        function renderHomeTodoList() {
-            const container = document.getElementById('home-todo-list-container');
+        // 📅 スケジュール画面側にToDoを描画する関数
+        function renderScheduleTodoList() {
+            const container = document.getElementById('schedule-todo-list-container');
             const badge = document.getElementById('todo-count-badge');
+            if (!container) return; // スケジュール画面がまだ無い時のための安全策
+
             container.innerHTML = '';
 
-            // 未完了のミッション数をバッジに反映
+            // 未完了数をバッジに反映
             const incompleteCount = todos.filter(t => !t.completed).length;
             badge.innerText = incompleteCount;
 
@@ -430,9 +452,15 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.style.display = 'flex';
                 itemDiv.style.alignItems = 'center';
-                itemDiv.style.gap = '10px';
-                itemDiv.style.marginBottom = '10px';
+                itemDiv.style.justifyContent = 'space-between'; // 締め切りを右側に綺麗に並べる
+                itemDiv.style.marginBottom = '12px';
                 itemDiv.style.transition = 'opacity 0.6s, transform 0.6s';
+
+                // 左側：チェックボックスとテキストのセット
+                const leftSide = document.createElement('div');
+                leftSide.style.display = 'flex';
+                leftSide.style.alignItems = 'center';
+                leftSide.style.gap = '10px';
 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -450,20 +478,45 @@
                     textSpan.style.opacity = '0.4';
                 }
 
+                leftSide.appendChild(checkbox);
+                leftSide.appendChild(textSpan);
+                itemDiv.appendChild(leftSide);
+
+                // 右側：⏳ 締め切りバッジ（登録されている場合だけ表示）
+                if (todo.deadline) {
+                    const deadlineSpan = document.createElement('span');
+                    // 日付フォーマットを「MM/DD」に見やすくパース
+                    const dateObj = new Date(todo.deadline);
+                    const formattedDate = !isNaN(dateObj) ? `${dateObj.getMonth() + 1}/${dateObj.getDate()}` : todo.deadline;
+                    
+                    deadlineSpan.innerText = `⏳ ${formattedDate}`;
+                    deadlineSpan.style.fontSize = '0.7rem';
+                    deadlineSpan.style.background = 'rgba(255, 158, 0, 0.25)';
+                    deadlineSpan.style.color = '#ff9e00';
+                    deadlineSpan.style.padding = '2px 8px';
+                    deadlineSpan.style.borderRadius = '8px';
+                    deadlineSpan.style.fontWeight = 'bold';
+                    deadlineSpan.style.marginLeft = '10px';
+                    deadlineSpan.style.flexShrink = '0';
+                    
+                    if (todo.completed) deadlineSpan.style.opacity = '0.3';
+                    itemDiv.appendChild(deadlineSpan);
+                }
+
+                // チェック動作（5分後に消滅）
                 checkbox.onchange = function() {
                     todo.completed = checkbox.checked;
                     localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
                     
-                    // バッジの数をリアルタイム更新
                     badge.innerText = todos.filter(t => !t.completed).length;
 
                     if (checkbox.checked) {
                         textSpan.style.textDecoration = 'line-through';
                         textSpan.style.opacity = '0.4';
+                        if(itemDiv.lastChild && itemDiv.lastChild !== leftSide) itemDiv.lastChild.style.opacity = '0.3';
 
-                        // 💡【5分後（300,000ミリ秒）に自動消滅発動】
+                        // 💡【5分後（300,000ミリ秒）に自動消滅】
                         setTimeout(() => {
-                            // もし5分の間にチェックが外されていなければ消滅アニメーション開始
                             const currentTodo = todos.find(t => t.id === todo.id);
                             if (currentTodo && currentTodo.completed) {
                                 itemDiv.style.opacity = '0';
@@ -472,35 +525,50 @@
                                 setTimeout(() => {
                                     todos = todos.filter(t => t.id !== todo.id);
                                     localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-                                    renderHomeTodoList();
+                                    renderScheduleTodoList();
                                 }, 600);
                             }
-                        }, 300000); // 5分 = 300000ms
+                        }, 300000); // 5分
                     } else {
                         textSpan.style.textDecoration = 'none';
                         textSpan.style.opacity = '1';
+                        if(itemDiv.lastChild && itemDiv.lastChild !== leftSide) itemDiv.lastChild.style.opacity = '1';
                     }
                 };
 
-                itemDiv.appendChild(checkbox);
-                itemDiv.appendChild(textSpan);
                 container.appendChild(itemDiv);
             });
         }
 
-        // 新しいToDoを追加する
+        // ホーム画面から新しいToDo（締め切り付き）を追加する関数
         function addHomeTodo() {
             const input = document.getElementById('input-home-todo');
+            const deadlineInput = document.getElementById('input-todo-deadline');
             const val = input.value.trim();
+            const deadlineVal = deadlineInput.value; // "YYYY-MM-DD" 形式で取得
+
             if (!val) return;
 
-            const newTodo = { id: Date.now(), text: val, completed: false };
+            const newTodo = { 
+                id: Date.now(), 
+                text: val, 
+                completed: false,
+                deadline: deadlineVal // 締め切り日を保存
+            };
+            
             todos.push(newTodo);
             localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
 
+            // 入力欄をまっさらにリセット
             input.value = '';
-            document.getElementById('quick-todo-form').style.display = 'none'; // 追加したら閉じる
-            renderHomeTodoList();
+            deadlineInput.value = '';
+            document.getElementById('quick-todo-form').style.display = 'none'; // フォームを閉じる
+            
+            // リストを再描画（スケジュール画面側）
+            renderScheduleTodoList();
+            
+            // 親切心で、追加されたのがわかるようにスケジュールタブへ自動ジャンプ！
+            switchTab('schedule', document.querySelectorAll('nav button')[1]);
         }
 
 
