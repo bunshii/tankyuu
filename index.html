@@ -465,7 +465,7 @@
             changeAnalyticsView(viewType);
         }
 
-        // --- タイマー処理（自動POST・サボり回数連携強化版） ---
+        // --- タイマー処理 ---
         function changeTimerMode() {
             if(isTimerRunning) return;
             timerMode = document.getElementById('timer-mode-select').value;
@@ -585,7 +585,7 @@
                 console.error(err);
                 logStatus.innerText = "⚠️ 通信切断";
                 logBox.innerText = `【キャプテンより通信途絶】\n深度が深すぎるか、ネットワークの波が高いためログを自動生成できませんでした。\n(記録された時間: ${minutes}分, 離脱: ${distractions}回)`;
-            } finaly {
+            } finally {
                 logStatus.classList.remove('ai-loading-pulse');
                 logBox.style.opacity = "1.0";
             }
@@ -971,7 +971,7 @@
             renderWordList();
         }
 
-        // 🧠 AI翻訳連携関数のリライト修正版
+        // 🧠 AI翻訳連携関数
         async function askVercelCloudflareAiTranslate() {
             const enInput = document.getElementById('input-en');
             const jaInput = document.getElementById('input-ja');
@@ -987,7 +987,6 @@
             btn.classList.add('ai-loading-pulse');
             jaInput.value = "深海AIから翻訳データを抽出中...";
 
-            // 翻訳に最適な明確なプロンプトの組み立て
             const translationPrompt = `【AI英和辞書システム】\n対象の英語表現: "${textToTranslate}"\n\n上記表現に適合する、最も自然で簡潔な日本語の翻訳および意味だけを出力してください。余計な解説や前置きは一切不要です。`;
 
             try {
@@ -1000,7 +999,6 @@
                 if(!res.ok) throw new Error('API応答エラー');
                 const d = await res.json();
                 
-                // 応答テキストのクレンジング処理
                 let translatedResult = (d.response || d.text || "").trim();
                 if(!translatedResult) {
                     throw new Error('空の応答データ');
@@ -1016,7 +1014,7 @@
             }
         }
 
-        // --- 🌊 環境演出エフェクト（気泡＆深海生物出現ループ） ---
+        // --- 🌊 環境演出エフェクト ---
         function createBubble() {
             if(!isTimerRunning) return;
             const container = document.getElementById('bubble-container');
