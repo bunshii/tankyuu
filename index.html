@@ -87,12 +87,48 @@
         .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc7e00; }
 
         /* スケジュールテーブル */
-        table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px; text-align: center; }
+        table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th, td { border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        th { background: rgba(255, 255, 255, 0.15); font-weight: bold; }
+        td { background: rgba(255, 255, 255, 0.05); }
         
         /* 単語帳のモザイク効果 */
-        .blur-text { filter: blur(6px); cursor: pointer; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; transition: filter 0.2s; }
-        .blur-text.reveal { filter: none; }
+        .blur-text {
+            filter: blur(6px);
+            cursor: pointer;
+            background: rgba(255,255,255,0.15);
+            padding: 4px 10px;
+            border-radius: 8px;
+            transition: filter 0.15s, background 0.15s;
+        }
+        .blur-text.reveal {
+            filter: none;
+            background: transparent;
+        }
+
+        /* タイマー設定用のスタイル */
+        .timer-settings { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .timer-select, .timer-input { padding: 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.2); color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); font-size: 0.9rem; }
+        .timer-select option { color: #333; }
+        .timer-input { width: 60px; text-align: center; }
+
+        /* スケジュール入力グリッド */
+        .setting-grid-row { display: flex; gap: 5px; margin-bottom: 5px; }
+        .setting-grid-input { flex: 1; width: 100%; min-width: 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 4px; border-radius: 6px; font-size: 0.75rem; text-align: center; box-sizing: border-box; }
+
+        /* 単語入力フォーム */
+        .word-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .word-input-row { display: flex; gap: 8px; align-items: center; }
+        .word-field { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box; }
+        .word-field::placeholder { color: rgba(255,255,255,0.6); }
+        .btn-action { background: #3a0ca3; color: #fff; border: none; padding: 10px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; white-space: nowrap; box-shadow: 0 3px 0 #240046; }
+        .btn-action:active { transform: translateY(1px); box-shadow: 0 2px 0 #240046; }
+        .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00; }
+        .btn-add:active { transform: translateY(1px); box-shadow: 0 2px 0 #cc7e00; }
+
+        /* コントロールボタン */
+        .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
+        .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -121,10 +157,23 @@
                 </div>
             </div>
 
-            <div class="card" style="background: rgba(0,0,0,0.1); text-align: center; padding: 30px 20px;">
-                <div style="font-size: 3rem; font-weight: 100; margin-bottom: 5px;" id="timer-display">25:00</div>
-                <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 2px;">FOCUS TIMER</div>
-                <button class="btn-main" onclick="toggleTimer()" id="sync-btn">潜水開始</button>
+            <div class="card" style="background: rgba(0,0,0,0.1); padding: 25px 20px;">
+                <div class="timer-settings" id="timer-settings-box">
+                    <select class="timer-select" id="timer-mode-select" onchange="changeTimerMode()" style="flex: 1;">
+                        <option value="countdown">カウントダウン</option>
+                        <option value="countup">カウントアップ</option>
+                    </select>
+                    <div id="countdown-input-wrapper" style="display: flex; align-items: center; gap: 5px;">
+                        <input type="number" class="timer-input" id="timer-minutes-input" value="25" min="1" max="999" oninput="updateMinutes()">
+                        <span>分</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <div style="font-size: 3.5rem; font-weight: 100; margin-bottom: 5px;" id="timer-display">25:00</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 2px;" id="timer-status-label">FOCUS TIMER</div>
+                    <button class="btn-main" onclick="toggleTimer()" id="sync-btn">潜水開始</button>
+                </div>
             </div>
         </div>
 
@@ -135,31 +184,45 @@
                 <div style="margin-bottom: 10px;"><input type="checkbox"> <span>単語帳を5個進める</span></div>
                 <div><input type="checkbox"> <span>本日の振り返りを完了する</span></div>
             </div>
-            <div class="card" style="overflow-x: auto;">
+            
+            <div class="card" style="overflow-x: auto; padding: 15px 10px;">
+                <div style="font-size: 0.8rem; margin-bottom: 8px; opacity: 0.8; font-weight: bold;">⚓️ 週間潜水プラン（時間割）</div>
                 <table>
-                    <thead><tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th></tr></thead>
-                    <tbody>
-                        <tr><td>英語</td><td>数学</td><td>英語</td><td>プロ</td><td>数学</td><td>休み</td><td>休み</td></tr>
-                        <tr><td>国語</td><td>理科</td><td>社会</td><td>英語</td><td>理科</td><td>演習</td><td>復習</td></tr>
-                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="tab-word" class="tab-content">
             <h2 style="font-size: 1.2rem; margin-bottom: 15px;">深海単語帳</h2>
-            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Coral</span>
-                <span class="blur-text" onclick="this.classList.toggle('reveal')">珊瑚（サンゴ）</span>
+            
+            <div class="card">
+                <div style="font-size: 0.8rem; margin-bottom: 10px; opacity: 0.8; font-weight: bold;">🫧 AIで単語を追加</div>
+                <div class="word-form">
+                    <div class="word-input-row">
+                        <input type="text" id="input-en" class="word-field" placeholder="英語 (例: deep sea)">
+                        <button class="btn-action" onclick="askCloudflareTranslate()" id="btn-ai-translate">AI翻訳 🧠</button>
+                    </div>
+                    <div class="word-input-row">
+                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳（AIが自動生成します）">
+                        <button class="btn-add" onclick="addNewWord()">追加</button>
+                    </div>
+                    <div id="ai-status-tips" style="font-size: 0.7rem; color: #ff9e00; display: none; padding-left: 5px; font-weight: bold;"></div>
+                </div>
             </div>
-            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Current</span>
-                <span class="blur-text" onclick="this.classList.toggle('reveal')">海流</span>
+
+            <div class="control-btns">
+                <button class="btn-ctrl" onclick="setGlobalVisibility('hide-ja')">🇯🇵 訳を全隠し</button>
+                <button class="btn-ctrl" onclick="setGlobalVisibility('hide-en')">🇺🇸 英を全隠し</button>
+                <button class="btn-ctrl" onclick="setGlobalVisibility('reveal-all')">👁️ 全て表示</button>
             </div>
-            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Deep Sea</span>
-                <span class="blur-text" onclick="this.classList.toggle('reveal')">深海</span>
-            </div>
+
+            <div id="word-list-container"></div>
         </div>
 
         <div id="tab-friends" class="tab-content">
@@ -185,13 +248,23 @@
 
         <div id="tab-settings" class="tab-content">
             <h2 style="font-size: 1.2rem; margin-bottom: 15px;">システム設定</h2>
+            
             <div class="card">
                 <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 5px;">ダイバーネーム</label>
                 <input type="text" value="DIVER_01" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">
             </div>
+
+            <div class="card">
+                <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 10px; font-weight: bold;">📅 時間割の設定 (7時間×7日)</label>
+                <div style="display: flex; gap: 5px; margin-bottom: 5px; text-align: center; font-size: 0.65rem; opacity: 0.7; font-weight: bold;">
+                    <div style="flex:1;">日</div><div style="flex:1;">月</div><div style="flex:1;">火</div><div style="flex:1;">水</div><div style="flex:1;">木</div><div style="flex:1;">金</div><div style="flex:1;">土</div>
+                </div>
+                <div id="timetable-editor-box"></div>
+            </div>
+
             <div class="card" style="font-size: 0.8rem; opacity: 0.7;">
-                ベースシステム: Ocean Compass v2.0<br>
-                ローカル動作モード（データベース未接続）
+                ベースシステム: Ocean Compass v2.3<br>
+                環境: Cloudflare Workers 連動モード
             </div>
         </div>
     </div>
@@ -207,61 +280,116 @@
     <script>
         // タブ切り替えシステム
         function switchTab(tabId, button) {
-            // すべてのタブコンテンツを非表示にする
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
-            
-            // すべてのナビボタンの選択状態を解除
             const buttons = document.querySelectorAll('nav button');
             buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // 選択されたタブとボタンをアクティブにする
             document.getElementById('tab-' + tabId).classList.add('active');
             button.classList.add('active');
         }
 
-        // タイマーシステム
+        // --- タイマーシステム ---
         let timer = null;
-        let timeLeft = 25 * 60;
         let isRunning = false;
+        let currentMode = localStorage.getItem('ocean_timer_mode') || 'countdown';
+        let savedMinutes = parseInt(localStorage.getItem('ocean_timer_minutes')) || 25;
+        let secondsElapsed = 0;
+        let secondsRemaining = savedMinutes * 60;
+
+        document.getElementById('timer-mode-select').value = currentMode;
+        document.getElementById('timer-minutes-input').value = savedMinutes;
+        applyInitialDisplay();
+
+        function changeTimerMode() {
+            if (isRunning) return;
+            currentMode = document.getElementById('timer-mode-select').value;
+            localStorage.setItem('ocean_timer_mode', currentMode);
+            const inputWrapper = document.getElementById('countdown-input-wrapper');
+            inputWrapper.style.display = (currentMode === 'countdown') ? 'flex' : 'none';
+            resetTimerState();
+        }
+
+        function updateMinutes() {
+            if (isRunning) return;
+            let val = parseInt(document.getElementById('timer-minutes-input').value);
+            if (isNaN(val) || val < 1) val = 1;
+            savedMinutes = val;
+            localStorage.setItem('ocean_timer_minutes', savedMinutes);
+            resetTimerState();
+        }
+
+        function resetTimerState() {
+            secondsElapsed = 0;
+            secondsRemaining = savedMinutes * 60;
+            const display = document.getElementById('timer-display');
+            const label = document.getElementById('timer-status-label');
+            if (currentMode === 'countdown') {
+                display.innerText = formatTime(secondsRemaining);
+                label.innerText = "TIME REMAINING";
+            } else {
+                display.innerText = "00:00";
+                label.innerText = "TIME ELAPSED";
+            }
+        }
+
+        function applyInitialDisplay() {
+            const inputWrapper = document.getElementById('countdown-input-wrapper');
+            inputWrapper.style.display = (currentMode === 'countdown') ? 'flex' : 'none';
+            resetTimerState();
+        }
+
+        function formatTime(totalSeconds) {
+            let m = Math.floor(totalSeconds / 60);
+            let s = totalSeconds % 60;
+            return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+        }
 
         function toggleTimer() {
             const btn = document.getElementById('sync-btn');
             const display = document.getElementById('timer-display');
+            const settingsBox = document.getElementById('timer-settings-box');
             
             if (isRunning) {
-                // タイマー停止（浮上）
                 clearInterval(timer);
                 isRunning = false;
                 btn.innerText = "潜水開始";
                 btn.style.background = "#ff9e00";
-                timeLeft = 25 * 60;
-                display.innerText = "25:00";
-                alert("浅瀬に浮上しました。");
+                settingsBox.style.opacity = "1";
+                settingsBox.style.pointerEvents = "auto";
+                resetTimerState();
             } else {
-                // タイマー開始（潜水）
                 isRunning = true;
                 btn.innerText = "浮上する";
                 btn.style.background = "rgba(255,255,255,0.2)";
+                settingsBox.style.opacity = "0.4";
+                settingsBox.style.pointerEvents = "none";
                 
                 timer = setInterval(() => {
-                    timeLeft--;
-                    let minutes = Math.floor(timeLeft / 60);
-                    let seconds = timeLeft % 60;
-                    display.innerText = (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        isRunning = false;
-                        btn.innerText = "潜水開始";
-                        btn.style.background = "#ff9e00";
-                        timeLeft = 25 * 60;
-                        display.innerText = "25:00";
-                        alert("🎉 潜水ミッション完了！お疲れ様でした！");
+                    if (currentMode === 'countdown') {
+                        secondsRemaining--;
+                        display.innerText = formatTime(secondsRemaining);
+                        if (secondsRemaining <= 0) {
+                            clearInterval(timer);
+                            isRunning = false;
+                            btn.innerText = "潜水開始";
+                            btn.style.background = "#ff9e00";
+                            settingsBox.style.opacity = "1";
+                            settingsBox.style.pointerEvents = "auto";
+                            alert("🎉 カウントダウン終了！");
+                            resetTimerState();
+                        }
+                    } else {
+                        secondsElapsed++;
+                        display.innerText = formatTime(secondsElapsed);
                     }
                 }, 1000);
             }
         }
-    </script>
-</body>
-</html>
+
+        // --- スケジュールシステム ---
+        const ROWS = 7;
+        const COLS = 7;
+        const defaultTimetable = [
+            ["休み", "英語", "数学", "英語", "プロ", "数学", "休み"],
+            ["復習", "国語", "理科", "社会", "英語", "理科", "演習"],
+            ["-", "-", "-", "-", "-", "-", "-"], ["-", "-", "-", "-", "-
