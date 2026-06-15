@@ -470,7 +470,7 @@
 
         renderWordList();
 
-        // 単語リストを画面に描画する関数
+                // 🎨 【縦ライン整列版】単語リストを画面に描画する関数
         function renderWordList() {
             const container = document.getElementById('word-list-container');
             container.innerHTML = '';
@@ -483,20 +483,24 @@
             words.forEach(w => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                // 💡 space-between をやめて、左詰めの flex に変更！
                 card.style.display = 'flex';
-                card.style.justify = 'space-between';
+                card.style.justifyContent = 'flex-start'; 
                 card.style.alignItems = 'center';
                 card.style.padding = '18px 20px';
 
-                // 英語部分
+                // 🇺🇸 英語部分
                 const enSpan = document.createElement('span');
                 enSpan.innerText = w.en;
+                // 💡 英語エリアの幅を「120px」に固定して、長い単語もはみ出さないように調整！
+                enSpan.style.width = '120px';
+                enSpan.style.flexShrink = '0'; // 画面が狭くなっても英語が潰れないようにする
                 if (globalVisibilityMode === 'hide-en') {
                     enSpan.className = 'blur-text';
                     enSpan.onclick = function() { this.classList.toggle('reveal'); };
                 }
 
-                // 日本語部分
+                // 🇯🇵 日本語部分
                 const jaSpan = document.createElement('span');
                 jaSpan.innerText = w.ja;
                 if (globalVisibilityMode === 'hide-ja') {
@@ -504,29 +508,50 @@
                     jaSpan.onclick = function() { this.classList.toggle('reveal'); };
                 }
 
-                // 削除ボタン
+                                // ✕ 削除ボタン（押しやすさ超強化版）
                 const deleteBtn = document.createElement('span');
-                deleteBtn.innerHTML = ' ✕';
+                deleteBtn.innerHTML = '✕';
                 deleteBtn.style.color = 'rgba(255,255,255,0.4)';
                 deleteBtn.style.cursor = 'pointer';
-                deleteBtn.style.fontSize = '0.8rem';
-                deleteBtn.style.marginLeft = '10px';
+                
+                // 💡 文字サイズをガッツリ大きくして、太字に！
+                deleteBtn.style.fontSize = '1.2rem'; 
+                deleteBtn.style.fontWeight = 'bold';
+                
+                // 💡 ボタンの周りに広めの余白（パディング）を作って、タップできる面積を拡大！
+                deleteBtn.style.padding = '10px 15px'; 
+                // 💡 余白を広げた分、左側のマージンを微調整
+                deleteBtn.style.marginRight = '-10px'; 
+                
+                // タップした時にちょっとだけ不透明度を変えて、押した感を出す演出
+                deleteBtn.style.transition = 'opacity 0.1s';
+                deleteBtn.addEventListener('touchstart', () => deleteBtn.style.opacity = '0.5');
+                deleteBtn.addEventListener('touchend', () => deleteBtn.style.opacity = '1');
+
                 deleteBtn.onclick = function(e) {
-                    e.stopPropagation();
+                    e.stopPropagation(); // カード全体のクリックイベント（ぼかし解除など）が発動するのを防ぐ
                     words = words.filter(item => item.id !== w.id);
                     localStorage.setItem('ocean_words_list', JSON.stringify(words));
                     renderWordList();
                 };
 
+                // 右側のラッパー（日本語と削除ボタンを右端まで伸ばす）
                 const rightWrapper = document.createElement('div');
+                rightWrapper.style.flex = '1';
+                rightWrapper.style.display = 'flex';
+                rightWrapper.style.justifyContent = 'space-between';
+                rightWrapper.style.alignItems = 'center';
+                
                 rightWrapper.appendChild(jaSpan);
                 rightWrapper.appendChild(deleteBtn);
 
+                // カードにガチッと結合
                 card.appendChild(enSpan);
                 card.appendChild(rightWrapper);
                 container.appendChild(card);
             });
         }
+
 
         // 新しい単語を追加
         function addNewWord() {
