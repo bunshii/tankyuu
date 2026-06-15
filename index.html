@@ -122,10 +122,39 @@
         .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00; }
         .btn-add:active { transform: translateY(1px); box-shadow: 0 2px 0 #cc7e00; }
 
-        .quick-input-box { display: none; flex-direction: column; gap: 10px; margin-top: 10px; animation: slideDown 0.2s ease-out forwards; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .date-field { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; color-scheme: dark; }
+        /* 👑 【新設】画面中央ポップアップ（モーダル）用のスタイル */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(16, 0, 43, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            padding: 20px;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transform: scale(0.85);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
 
+        .date-field { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; color-scheme: dark; }
         .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
         .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
 
@@ -199,18 +228,31 @@
 
             <div class="card" style="padding: 15px 20px;" id="home-todo-card">
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn-action" onclick="toggleQuickTodoInput()" style="flex: 1; background: rgba(255,255,255,0.15); box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDo</button>
+                    <button class="btn-action" onclick="openTodoModal()" style="flex: 1; background: rgba(255,255,255,0.15); box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDo</button>
                     <button class="btn-action" style="flex: 1; background: #ffffff; color: #3a0ca3; box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">🧠 AI振り返り</button>
                 </div>
+            </div>
+        </div>
 
-                <div class="quick-input-box" id="quick-todo-form">
-                    <div style="font-size: 0.75rem; opacity: 0.8; font-weight: bold; margin-top: 5px;">🫧 新しいミッションを登録</div>
-                    <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 40px; border-radius: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 10px;">
-                        <span style="font-size: 0.75rem; opacity: 0.8;">⏳ 締め切り設定 (任意):</span>
-                        <input type="date" id="input-todo-deadline" class="date-field" style="flex: 1; height: 30px;">
+        <div class="modal-overlay" id="todo-modal-overlay" onclick="closeTodoModal(event)">
+            <div class="card modal-content" onclick="event.stopPropagation()">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;">🫧 新しいミッションを登録</div>
+                    <span onclick="closeTodoModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 45px; border-radius: 12px;">
+                    
+                    <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.15); padding: 10px 12px; border-radius: 12px;">
+                        <span style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px;">⏳ 締め切り設定 (任意):</span>
+                        <input type="date" id="input-todo-deadline" class="date-field" style="height: 35px;">
                     </div>
-                    <button class="btn-add" onclick="addHomeTodo()" style="height: 40px; padding: 0 15px; border-radius: 10px; font-size: 0.85rem; width: 100%;">ミッションを発動する 🚀</button>
+
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <button class="btn-ctrl" onclick="closeTodoModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">キャンセル</button>
+                        <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00;">ミッション発動 🚀</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -226,11 +268,9 @@
                     <span id="chart-period-title">直近1週間の推移</span>
                     <span style="font-size: 0.7rem; color: #ff9e00; background: rgba(255,158,0,0.15); padding: 2px 8px; border-radius: 6px;" id="chart-max-label">MAX: 0分</span>
                 </div>
-                
                 <div style="position: relative; width: 100%; height: 140px; margin-top: 15px;" id="line-chart-wrapper">
                     <svg id="svg-line-chart" style="width: 100%; height: 100%; overflow: visible;"></svg>
                 </div>
-                
                 <div id="line-chart-x-labels" style="display: flex; justify-content: space-between; padding: 5px 10px 0 10px; font-size: 0.6rem; opacity: 0.7; border-top: 1px solid rgba(255,255,255,0.1);">
                 </div>
             </div>
@@ -295,7 +335,7 @@
                         <input type="text" id="input-ja" class="word-field" placeholder="日本語訳">
                         <button class="btn-add" onclick="addNewWord()">追加</button>
                     </div>
-                    <div id="ai-status-tips" style="font-size: 0.7rem; color: #ff9e00; display: none; padding-left: 5px; font-weight: bold;"></div>
+                    <div id="ai-status-tips" style="font-size: 0.7 flex; color: #ff9e00; display: none; padding-left: 5px; font-weight: bold;"></div>
                 </div>
             </div>
             <div class="control-btns">
@@ -341,7 +381,7 @@
     </nav>
 
     <script>
-        let currentAnalyticsFilter = 'week'; // 'day', 'week', 'month'
+        let currentAnalyticsFilter = 'week';
 
         function switchTab(tabId, button) {
             if (isRunning) return;
@@ -357,12 +397,26 @@
             if (tabId === 'analytics') changeAnalyticsView(currentAnalyticsFilter);
         }
 
-        // ホームの棒グラフをタップしたとき
         function switchToAnalyticsTab(defaultView = 'week') {
             if (isRunning) return;
             currentAnalyticsFilter = defaultView;
             switchTab('analytics', null);
             document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // 👑 モーダル（中央ポップアップ）の開閉システム
+        function openTodoModal() {
+            const overlay = document.getElementById('todo-modal-overlay');
+            overlay.classList.add('open');
+            // 開いた瞬間に、自動でテキストボックスにフォーカスを合わせてすぐ打てるようにする親切設計
+            setTimeout(() => {
+                document.getElementById('input-home-todo').focus();
+            }, 100);
+        }
+
+        function closeTodoModal() {
+            const overlay = document.getElementById('todo-modal-overlay');
+            overlay.classList.remove('open');
         }
 
         // --- 📊 データ記録・集計コアシステム ---
@@ -422,7 +476,6 @@
             document.getElementById('home-today-total-label').innerText = `今日: ${timeLogs[getTodayString()] || 0}分`;
         }
 
-        // 📈 【今回の核心】動的にSVGで美しい折れ線グラフを描くシステム
         function drawLineChart(daysCount) {
             const svg = document.getElementById('svg-line-chart');
             const xLabelContainer = document.getElementById('line-chart-x-labels');
@@ -430,9 +483,8 @@
             xLabelContainer.innerHTML = '';
 
             let dataPoints = [];
-            let maxMins = 10; // Y軸の最小上限目安
+            let maxMins = 10;
 
-            // 指定された日数分の日付を遡ってデータを集める
             for (let i = daysCount - 1; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
@@ -441,7 +493,7 @@
                 
                 let xLabelText = `${d.getDate()}日`;
                 if (daysCount === 30 && i % 5 !== 0 && i !== 0 && i !== daysCount - 1) {
-                    xLabelText = ''; // 30日表示のときはラベルが被るので5日間隔にする
+                    xLabelText = '';
                 }
 
                 dataPoints.push({ label: xLabelText, val: mins });
@@ -450,7 +502,6 @@
 
             document.getElementById('chart-max-label').innerText = `MAX: ${maxMins}分`;
 
-            // SVG内での座標計算
             const svgWidth = svg.clientWidth || 420;
             const svgHeight = 140;
             const paddingRight = 10;
@@ -462,7 +513,6 @@
 
             dataPoints.forEach((pt, idx) => {
                 const x = paddingLeft + (idx / (dataPoints.length - 1 || 1)) * chartWidth;
-                // Y軸は上から下に進むので反転させる
                 const y = svgHeight - (pt.val / maxMins) * (svgHeight - 20) - 10;
 
                 if (idx === 0) {
@@ -471,7 +521,6 @@
                     pointsPath += ` L ${x} ${y}`;
                 }
 
-                // 7日間の時はドット（点）を強調して数字を上に浮かべる
                 if (daysCount <= 7) {
                     dotsHTML += `<circle cx="${x}" cy="${y}" r="4" fill="#ff9e00" stroke="#fff" stroke-width="1.5" />`;
                     if (pt.val > 0) {
@@ -479,7 +528,6 @@
                     }
                 }
 
-                // X軸のテキストラベルを追加
                 if (pt.label) {
                     const span = document.createElement('span');
                     span.innerText = pt.label;
@@ -493,7 +541,6 @@
                 }
             });
 
-            // 背景のグラデーション塗りつぶし用パス
             let areaPath = `${pointsPath} L ${paddingLeft + chartWidth} ${svgHeight} L ${paddingLeft} ${svgHeight} Z`;
 
             let svgContent = `
@@ -510,15 +557,11 @@
             svg.innerHTML = svgContent;
         }
 
-        // 集計ビュー切り替えトリガー
         function changeAnalyticsView(filterType) {
             currentAnalyticsFilter = filterType;
-            
-            // アクティブクラスの見た目リセット
             document.querySelectorAll('.stat-row-clickable').forEach(row => row.classList.remove('active-filter'));
             document.getElementById(`row-stat-${filterType}`).classList.add('active-filter');
 
-            // 統計数字の更新
             const todayStr = getTodayString();
             document.getElementById('stat-day').innerText = timeLogs[todayStr] || 0;
 
@@ -536,21 +579,19 @@
             }
             document.getElementById('stat-month').innerText = monthTotal;
 
-            // 折れ線グラフの再描画
             const title = document.getElementById('chart-period-title');
             if (filterType === 'day') {
                 title.innerText = "本日の潜水ログ（スポット値）";
-                drawLineChart(1); // 今日1日
+                drawLineChart(1);
             } else if (filterType === 'week') {
                 title.innerText = "直近1週間の集中トレンド (推移)";
-                drawLineChart(7);  // 過去7日間折れ線
+                drawLineChart(7);
             } else if (filterType === 'month') {
                 title.innerText = "直近30日間のディープマンスリー推移";
-                drawLineChart(30); // 過去30日間折れ線
+                drawLineChart(30);
             }
         }
 
-        // 画面リサイズ時にSVGグラフを綺麗に再追従させる
         window.addEventListener('resize', () => {
             if(document.getElementById('tab-analytics').classList.contains('active')) {
                 drawLineChart(currentAnalyticsFilter === 'week' ? 7 : (currentAnalyticsFilter === 'month' ? 30 : 1));
@@ -640,10 +681,10 @@
             }
         }
 
-        // --- 🐙 ToDo・時間割・単語帳システム（以下同等） ---
+        // --- 🐙 ToDoコアシステム ---
         const defaultTodos = [{ id: 1, text: "クジラの生態を調べる", completed: false, deadline: "2026-06-20" }, { id: 2, text: "単語帳を5個進める", completed: false, deadline: "" }];
         let todos = localStorage.getItem('ocean_todo_list') ? JSON.parse(localStorage.getItem('ocean_todo_list')) : defaultTodos;
-        function toggleQuickTodoInput() { const form = document.getElementById('quick-todo-form'); form.style.display = (form.style.display === 'flex') ? 'none' : 'flex'; if(form.style.display==='flex')document.getElementById('input-home-todo').focus(); }
+
         function renderScheduleTodoList() {
             const container = document.getElementById('schedule-todo-list-container'); const badge = document.getElementById('todo-count-badge'); if (!container) return; container.innerHTML = '';
             badge.innerText = todos.filter(t => !t.completed).length;
@@ -668,10 +709,16 @@
         function addHomeTodo() {
             const input = document.getElementById('input-home-todo'); const deadlineInput = document.getElementById('input-todo-deadline'); if (!input.value.trim()) return;
             todos.push({ id: Date.now(), text: input.value.trim(), completed: false, deadline: deadlineInput.value });
-            localStorage.setItem('ocean_todo_list', JSON.stringify(todos)); input.value = ''; deadlineInput.value = '';
-            document.getElementById('quick-todo-form').style.display = 'none'; switchTab('schedule', document.querySelectorAll('nav button')[1]);
+            localStorage.setItem('ocean_todo_list', JSON.stringify(todos)); 
+            
+            // 入力欄をクリアしてモーダルを閉じる
+            input.value = ''; deadlineInput.value = '';
+            closeTodoModal(); 
+            // そのままスケジュール画面へ移動
+            switchTab('schedule', document.querySelectorAll('nav button')[1]);
         }
 
+        // --- 時間割システム ---
         const ROWS = 7, COLS = 7;
         const defaultTimetable = [["邦楽", "英語", "数学", "英語", "プロ", "数学", "休み"],["復習", "国語", "理科", "社会", "英語", "理科", "演習"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"]];
         let timetableData = localStorage.getItem('ocean_timetable_data') ? JSON.parse(localStorage.getItem('ocean_timetable_data')) : defaultTimetable;
@@ -692,6 +739,7 @@
             }
         }
 
+        // --- 単語帳システム ---
         let words = localStorage.getItem('ocean_words_list') ? JSON.parse(localStorage.getItem('ocean_words_list')) : [{ id: 1, en: "Coral", ja: "珊瑚（サンゴ）" }];
         let globalVisibilityMode = 'hide-ja'; renderWordList();
         function renderWordList() {
