@@ -5,158 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OCEAN COMPASS</title>
     <style>
-        /* --- 全体のスタイル（深海グラデーション） --- */
+        /* --- 全体のスタイル（サイバー深海デザイン） --- */
         body {
             margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%);
+            /* 🎨 写真に合わせた美しい水中ディープブルーグラデーション */
+            background: linear-gradient(180deg, #0d1b2a 0%, #0b2545 40%, #134074 100%);
             min-height: 100vh; color: #ffffff;
             box-sizing: border-box; padding-bottom: 110px;
-            /* 🌊 潜水時の背景色変化を滑らかにする設定 */
             transition: background 1.5s ease-out;
             overflow-x: hidden;
         }
         input:focus, select:focus, textarea:focus { outline: none; }
         
-        /* --- グラスモーフィズム（ガラス調カード） --- */
+        /* --- サイバーネオン・グラスモーフィズム --- */
         .card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 28px; padding: 20px; margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            position: relative; z-index: 10; /* アニメーションの手前に出す */
+            background: rgba(11, 37, 69, 0.4);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; padding: 20px; margin-bottom: 15px;
+            /* 🔬 写真のようなネオンの繊細な光をまとう極細ボーダー */
+            border: 1px solid rgba(0, 180, 216, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 180, 216, 0.05);
+            position: relative; z-index: 10;
         }
         
-        /* 画面全体のコンテナ */
         .container { max-width: 500px; margin: 0 auto; padding: 20px; position: relative; }
-
-        /* タブの表示・非表示制御 */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* ナビゲーションバー */
+        /* サイバーボトムナビゲーション */
         nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 85px;
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(13, 27, 42, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-top: 1px solid rgba(0, 180, 216, 0.3);
             display: flex; align-items: center; z-index: 90;
             transition: transform 0.3s ease-out;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
         }
         nav.hidden { transform: translateY(100px); }
-        nav button { flex: 1; background: none; border: none; font-size: 1.8rem; cursor: pointer; opacity: 0.4; transition: opacity 0.2s, transform 0.2s; }
-        nav button.active { opacity: 1; transform: scale(1.1); }
+        nav button { flex: 1; background: none; border: none; font-size: 1.8rem; cursor: pointer; opacity: 0.35; transition: opacity 0.2s, transform 0.2s; }
+        nav button.active { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 8px #00b4d8); }
         nav button.home-btn { font-size: 2.2rem; }
 
-        /* ボタン */
+        /* サイバーオレンジボタン */
         .btn-main {
-            width: 100%; background: #ff9e00; border: none; color: #fff;
-            border-radius: 18px; font-weight: bold; height: 60px; font-size: 1.1rem;
-            cursor: pointer; box-shadow: 0 4px 0 #cc7e00;
+            width: 100%; background: linear-gradient(135deg, #ff9e00 0%, #ff6d00 100%); border: none; color: #fff;
+            border-radius: 16px; font-weight: bold; height: 60px; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(255, 110, 0, 0.3);
+            transition: all 0.2s;
         }
-        .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc7e00; }
+        .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(255, 110, 0, 0.3); }
 
         /* スケジュールテーブル */
         table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        th, td { border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        th { background: rgba(255, 255, 255, 0.15); font-weight: bold; }
-        
-        /* 時間割のマス */
-        td.timetable-cell { background: rgba(255, 255, 255, 0.08); cursor: pointer; transition: background 0.15s, transform 0.1s; }
-        td.timetable-cell:active { background: rgba(255, 158, 0, 0.3); transform: scale(0.95); }
+        th, td { border: 1px solid rgba(0, 180, 216, 0.2); padding: 8px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        th { background: rgba(0, 180, 216, 0.15); font-weight: bold; color: #00b4d8; }
+        td.timetable-cell { background: rgba(255, 255, 255, 0.03); cursor: pointer; transition: all 0.15s; }
+        td.timetable-cell:active { background: rgba(0, 180, 216, 0.2); transform: scale(0.95); }
         
         /* 単語帳のモザイク */
-        .blur-text { filter: blur(6px); cursor: pointer; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 8px; transition: filter 0.15s, background 0.15s; }
+        .blur-text { filter: blur(6px); cursor: pointer; background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 8px; transition: all 0.15s; }
         .blur-text.reveal { filter: none; background: transparent; }
 
         /* タイマー設定 */
         .timer-settings { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
-        .timer-select, .timer-input { padding: 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.2); color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); font-size: 0.9rem; }
+        .timer-select, .timer-input { padding: 10px; border-radius: 12px; background: rgba(13, 27, 42, 0.6); color: #fff; border: 1px solid rgba(0, 180, 216, 0.3); font-size: 0.9rem; }
         .timer-select option { color: #333; }
         .timer-input { width: 60px; text-align: center; }
 
         /* 入力フォーム */
         .word-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .word-input-row { display: flex; gap: 8px; align-items: center; }
-        .word-field { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box; }
-        .word-field::placeholder { color: rgba(255,255,255,0.6); }
-        .btn-action { background: #3a0ca3; color: #fff; border: none; padding: 10px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; white-space: nowrap; box-shadow: 0 3px 0 #240046; }
-        .btn-action:active { transform: translateY(1px); box-shadow: 0 2px 0 #240046; }
-        .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00; }
-        .btn-add:active { transform: translateY(1px); box-shadow: 0 2px 0 #cc7e00; }
+        .word-field { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(0, 180, 216, 0.25); color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box; transition: border-color 0.2s; }
+        .word-field:focus { border-color: #00b4d8; }
+        .word-field::placeholder { color: rgba(255,255,255,0.4); }
+        
+        .btn-action { background: #134074; color: #fff; border: none; padding: 10px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; white-space: nowrap; border: 1px solid rgba(0,180,216,0.2); }
+        .btn-action:active { transform: translateY(1px); }
+        .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .btn-add:active { transform: translateY(1px); }
 
-        /* 画面中央ポップアップ（モーダル）共通スタイル */
+        /* ポップアップ（モーダル） */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(16, 0, 43, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            background: rgba(10, 20, 30, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             z-index: 100; display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.25s ease; padding: 20px;
         }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
-        .modal-content { width: 100%; max-width: 400px; background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%); border: 1px solid rgba(255, 255, 255, 0.4); transform: scale(0.85); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal-content { width: 100%; max-width: 400px; background: linear-gradient(135deg, #0b2545 0%, #134074 100%); border: 1px solid rgba(0, 180, 216, 0.4); transform: scale(0.85); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .modal-overlay.open .modal-content { transform: scale(1); }
 
-        /* アイコン選択用のエモジグリッド */
+        /* アバターグリッド */
         .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
-        .avatar-option { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; font-size: 1.5rem; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-        .avatar-option:active { transform: scale(0.95); }
-        .avatar-option.selected { background: #ff9e00; border-color: #fff; box-shadow: 0 0 10px rgba(255, 158, 0, 0.6); }
+        .avatar-option { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0,180,216,0.15); border-radius: 14px; font-size: 1.5rem; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .avatar-option.selected { background: rgba(0, 180, 216, 0.2); border-color: #00b4d8; box-shadow: 0 0 10px rgba(0, 180, 216, 0.4); }
 
-        /* クイック単語選択用のチップ */
+        /* チップ */
         .subject-chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-        .subject-chip { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; transition: background 0.15s; }
-        .subject-chip:active { background: #ff9e00; }
+        .subject-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.2); border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; }
 
-        .date-field { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; color-scheme: dark; }
+        .date-field { background: rgba(255,255,255,0.07); border: 1px solid rgba(0,180,216,0.25); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; color-scheme: dark; }
         .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
-        .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
+        .btn-ctrl { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,180,216,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
 
-        /* 📊 動的グラフ用スタイル */
+        /* 📊 アナリティクス */
         .bar-container { flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
-        .bar-fill { background: rgba(255, 255, 255, 0.5); width: 65%; margin: 0 auto; border-radius: 4px; transition: height 0.5s ease-out, background 0.3s; height: 0px; min-height: 2px; }
-        .bar-fill.today-bar { background: #ff9e00 !important; }
-        .bar-label { font-size: 0.6rem; margin-top: 4px; display: block; }
+        .bar-fill { background: rgba(0, 180, 216, 0.4); width: 65%; margin: 0 auto; border-radius: 4px; transition: height 0.5s ease-out; height: 0px; min-height: 2px; }
+        .bar-fill.today-bar { background: linear-gradient(180deg, #ff9e00 0%, #ff6d00 100%) !important; box-shadow: 0 0 8px rgba(255,158,0,0.5); }
+        .bar-label { font-size: 0.6rem; margin-top: 4px; display: block; opacity: 0.7; }
         
-        /* 統計のサマリー数字 */
-        .stat-number { font-size: 1.6rem; font-weight: bold; color: #ff9e00; }
+        .stat-number { font-size: 1.6rem; font-weight: bold; color: #ff9e00; filter: drop-shadow(0 0 5px rgba(255,158,0,0.3)); }
         .stat-unit { font-size: 0.75rem; color: #fff; margin-left: 2px; opacity: 0.8; }
 
-        /* タップ可能な集計行 */
-        .stat-row-clickable { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); padding: 12px 18px; border-radius: 16px; cursor: pointer; transition: background 0.2s, transform 0.2s; }
-        .stat-row-clickable:hover { background: rgba(255,255,255,0.15); transform: scale(1.02); }
-        .stat-row-clickable.active-filter { background: rgba(255, 158, 0, 0.25); border: 1px solid rgba(255, 158, 0, 0.4); }
+        .stat-row-clickable { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 18px; border-radius: 16px; cursor: pointer; border: 1px solid rgba(0,180,216,0.1); transition: all 0.2s; }
+        .stat-row-clickable:hover { background: rgba(0,180,216,0.08); }
+        .stat-row-clickable.active-filter { background: rgba(0, 180, 216, 0.15); border: 1px solid #00b4d8; }
 
-        /* 🌊 潜水モード用エフェクトスタイル */
-        #bubble-container {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1; display: none;
-        }
+        /* 🌊 写真風・潜水環境エフェクト */
+        #bubble-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none; }
+        
+        /* 🫧 写真のようなリアルで美しい気泡デザイン */
         .bubble {
-            position: absolute; bottom: -20px; background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%; animation: bubbleUp 6s infinite ease-in;
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            position: absolute; bottom: -20px; 
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, rgba(0,180,216,0.2) 40%, rgba(255,255,255,0.05) 70%, rgba(255,255,255,0.4) 100%);
+            border-radius: 50%; animation: bubbleUp 5s infinite ease-in;
+            box-shadow: 0 0 6px rgba(0, 180, 216, 0.3), inset 0 0 4px rgba(255,255,255,0.6);
         }
         @keyframes bubbleUp {
-            0% { transform: translateY(0) translateX(0); opacity: 0; }
-            10% { opacity: 0.8; }
-            100% { transform: translateY(-110vh) translateX(20px); opacity: 0; }
+            0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; }
+            15% { opacity: 0.9; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-110vh) translateX(35px) scale(1.2); opacity: 0; }
         }
+
+        /* ☀️ 写真の左上から差し込む超リアルな光線（集光）エフェクト */
         #light-ray-effect {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% -20%, rgba(255,255,255,0.25) 0%, rgba(0,0,0,0) 60%);
-            pointer-events: none; z-index: 2; display: none; animation: lightPulse 8s infinite alternate;
+            background: 
+                radial-gradient(circle at 10% -10%, rgba(255,255,255,0.4) 0%, rgba(0,180,216,0.15) 30%, rgba(0,0,0,0) 70%),
+                linear-gradient(115deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 40%);
+            pointer-events: none; z-index: 2; display: none; animation: lightPulse 6s infinite alternate ease-in-out;
+            mix-blend-mode: overlay;
         }
-        @keyframes lightPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
-        .deep-sea-fish {
-            position: fixed; pointer-events: none; z-index: 3; font-size: 1.5rem;
-            opacity: 0; transition: opacity 1s, transform 3s linear;
-        }
-        .fish-swim { opacity: 0.7; }
-        
-        .diving-active-bg {
-            /* JavaScriptで色を動かすためのクラスですが、初期の深海ベースだけ入れておきます */
-            background: linear-gradient(180deg, #10002b 0%, #240046 50%, #3c096c 100%);
-        }
+        @keyframes lightPulse { 0% { opacity: 0.7; } 100% { opacity: 1.0; } }
+
+        /* 🐠 深海生物出現アニメーション */
+        .deep-sea-fish { position: fixed; pointer-events: none; z-index: 3; font-size: 1.8rem; opacity: 0; transition: opacity 1s, transform 4s linear; filter: drop-shadow(0 0 8px rgba(0,180,216,0.5)); mix-blend-mode: screen; }
+        .fish-swim { opacity: 0.75; }
+
+        /* 🤖 AI生成中のローディングアニメーション */
+        .ai-loading-pulse { animation: aiPulse 1.5s infinite alternate; }
+        @keyframes aiPulse { 0% { opacity: 0.4; filter: drop-shadow(0 0 2px #00b4d8); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00b4d8); } }
     </style>
 </head>
 <body>
@@ -166,25 +166,25 @@
 
     <div class="container">
         <div id="app-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: relative; z-index: 10;">
-            <div id="header-avatar-box" style="width: 45px; height: 45px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">🧑‍💻</div>
+            <div id="header-avatar-box" style="width: 45px; height: 45px; background: #0b2545; border: 1px solid #00b4d8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,180,216,0.3);">🧑‍💻</div>
             <div style="text-align: center;">
-                <div style="font-weight: 900; letter-spacing: 3px;" id="header-app-title">OCEAN COMPASS</div>
-                <div style="font-size: 0.65rem; background: rgba(0,0,0,0.15); padding: 2px 8px; border-radius: 10px; margin-top: 3px;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
+                <div style="font-weight: 900; letter-spacing: 3px; color: #00b4d8; text-shadow: 0 0 10px rgba(0,180,216,0.5);" id="header-app-title">OCEAN COMPASS</div>
+                <div style="font-size: 0.65rem; background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); padding: 2px 8px; border-radius: 10px; margin-top: 3px; color: #fff;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
             </div>
-            <span style="font-size: 1.2rem;">🐠</span>
+            <span style="font-size: 1.2rem; filter: drop-shadow(0 0 5px #00b4d8);">🐠</span>
         </div>
 
         <div id="tab-home" class="tab-content active">
-            <div class="card" onclick="switchToAnalyticsTab('week')" style="cursor: pointer; position: relative; transition: transform 0.2s;" id="home-graph-card">
+            <div class="card" onclick="switchToAnalyticsTab('week')" style="cursor: pointer;" id="home-graph-card">
                 <div style="font-size: 0.8rem; margin-bottom: 12px; opacity: 0.8; display: flex; justify-content: space-between;">
-                    <span>今週の潜水記録（分） <span style="font-size:0.7rem; opacity:0.6;">🔍 タップして詳細分析</span></span>
+                    <span>今週の潜水記録（分） <span style="font-size:0.7rem; color: #00b4d8;">🔍 詳細分析</span></span>
                     <span id="home-today-total-label" style="font-weight: bold; color: #ff9e00;">今日: 0分</span>
                 </div>
                 <div id="home-weekly-chart" style="display: flex; align-items: flex-end; justify-content: space-around; height: 80px; gap: 8px;">
                 </div>
             </div>
 
-            <div class="card" style="background: rgba(0,0,0,0.1); padding: 25px 20px; margin-bottom: 15px;" id="main-timer-card">
+            <div class="card" style="background: rgba(11, 37, 69, 0.6); padding: 25px 20px; border-color: rgba(0,180,216,0.4);" id="main-timer-card">
                 <div class="timer-settings" id="timer-settings-box">
                     <select class="timer-select" id="timer-mode-select" onchange="changeTimerMode()" style="flex: 1;">
                         <option value="countdown">カウントダウン</option>
@@ -197,19 +197,19 @@
                 </div>
 
                 <div style="text-align: center;">
-                    <div id="diving-animation" style="display:none; font-size: 2.5rem; margin-bottom: 10px; animation: float 3s ease-in-out infinite;">🤿 🫧 🐠</div>
-                    <style>@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>
+                    <div id="diving-animation" style="display:none; font-size: 2.2rem; margin-bottom: 15px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 10px #00b4d8);">🫧 🤿 🐠</div>
+                    <style>@keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.05); } }</style>
 
-                    <div style="font-size: 3.5rem; font-weight: 100; margin-bottom: 5px;" id="timer-display">25:00</div>
-                    <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 2px;" id="timer-status-label">FOCUS TIMER</div>
+                    <div style="font-size: 4rem; font-weight: 100; margin-bottom: 5px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(255,255,255,0.2);" id="timer-display">25:00</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 3px; color: #00b4d8;" id="timer-status-label">FOCUS TIMER</div>
                     <button class="btn-main" onclick="toggleTimer()" id="sync-btn">潜水開始</button>
                 </div>
             </div>
 
             <div class="card" style="padding: 15px 20px;" id="home-todo-card">
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn-action" onclick="openTodoModal()" style="flex: 1; background: rgba(255,255,255,0.15); box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDo</button>
-                    <button class="btn-action" style="flex: 1; background: #ffffff; color: #3a0ca3; box-shadow: none; height: 45px; border-radius: 14px; font-size: 0.9rem;">🧠 AI振り返り</button>
+                    <button class="btn-action" onclick="openTodoModal()" style="flex: 1; background: rgba(255,255,255,0.05); height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDo</button>
+                    <button class="btn-action" onclick="generateAiReview()" id="btn-ai-review" style="flex: 1; background: #ffffff; color: #0b2545; border: none; height: 45px; border-radius: 14px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;">🧠 AI振り返り</button>
                 </div>
             </div>
         </div>
@@ -222,15 +222,26 @@
                 </div>
                 <div style="flex-direction: column; display: flex; gap: 12px;">
                     <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 45px; border-radius: 12px;">
-                    <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.15); padding: 10px 12px; border-radius: 12px;">
-                        <span style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px;">⏳ 締め切り設定 (任意):</span>
+                    <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,180,216,0.15);">
+                        <span style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px; color: #00b4d8;">⏳ 締め切り設定 (任意):</span>
                         <input type="date" id="input-todo-deadline" class="date-field" style="height: 35px;">
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 5px;">
                         <button class="btn-ctrl" onclick="closeTodoModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">キャンセル</button>
-                        <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00;">ミッション発動 🚀</button>
+                        <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">ミッション発動 🚀</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="ai-modal-overlay" onclick="closeAiModal()">
+            <div class="card modal-content" onclick="event.stopPropagation()" style="border-color: #00b4d8; max-width: 420px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="font-size: 1rem; font-weight: bold; color: #00b4d8; display: flex; align-items: center; gap: 6px;">⚓️ 深海ログキャプテン</div>
+                    <span onclick="closeAiModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+                </div>
+                <div id="ai-response-box" style="font-size: 0.88rem; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px; max-height: 280px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap;">データ解析中...</div>
+                <button class="btn-main" onclick="closeAiModal()" style="height: 45px; margin-top: 15px; font-size: 0.95rem; background: #134074; box-shadow: none;">ログを閉じる</button>
             </div>
         </div>
 
@@ -240,7 +251,6 @@
                     <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;" id="timetable-modal-title">⏰ マスの編集</div>
                     <span onclick="closeTimetableModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
                 </div>
-                
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <span style="font-size: 0.75rem; opacity: 0.7;">タップで爆速入力:</span>
                     <div class="subject-chip-container">
@@ -253,12 +263,10 @@
                         <div class="subject-chip" onclick="selectSubjectChip('自習')">自習</div>
                         <div class="subject-chip" onclick="selectSubjectChip('-')">クリア ( - )</div>
                     </div>
-
                     <input type="text" id="input-timetable-subject" class="word-field" placeholder="自由に教科名を入力..." style="height: 45px; border-radius: 12px;">
-                    
                     <div style="display: flex; gap: 10px; margin-top: 5px;">
                         <button class="btn-ctrl" onclick="closeTimetableModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">閉じる</button>
-                        <button class="btn-add" onclick="saveTimetableModalValue()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00;">変更を確定 ✅</button>
+                        <button class="btn-add" onclick="saveTimetableModalValue()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">変更を確定 ✅</button>
                     </div>
                 </div>
             </div>
@@ -266,10 +274,10 @@
 
         <div id="tab-analytics" class="tab-content">
             <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <button onclick="switchTab('home', document.querySelectorAll('nav button')[2])" style="background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 14px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-right: 15px;">⬅ 戻る</button>
+                <button onclick="switchTab('home', document.querySelectorAll('nav button')[2])" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(0,180,216,0.2); color: #fff; padding: 8px 14px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-right: 15px;">⬅ 戻る</button>
                 <h2 style="font-size: 1.2rem; margin: 0;">📊 潜水アナリティクス（詳細）</h2>
             </div>
-            <div class="card" style="padding: 20px; background: rgba(0,0,0,0.15);">
+            <div class="card" style="padding: 20px; background: rgba(0,0,0,0.2);">
                 <div style="font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                     <span id="chart-period-title">直近1週間の推移</span>
                     <span style="font-size: 0.7rem; color: #ff9e00; background: rgba(255,158,0,0.15); padding: 2px 8px; border-radius: 6px;" id="chart-max-label">MAX: 0分</span>
@@ -277,7 +285,7 @@
                 <div style="position: relative; width: 100%; height: 140px; margin-top: 15px;" id="line-chart-wrapper">
                     <svg id="svg-line-chart" style="width: 100%; height: 100%; overflow: visible;"></svg>
                 </div>
-                <div id="line-chart-x-labels" style="display: flex; justify-content: space-between; padding: 5px 10px 0 10px; font-size: 0.6rem; opacity: 0.7; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                <div id="line-chart-x-labels" style="display: flex; justify-content: space-between; padding: 5px 10px 0 10px; font-size: 0.6rem; opacity: 0.7; border-top: 1px solid rgba(0,180,216,0.15);"></div>
             </div>
             <div class="card" style="padding: 20px;">
                 <div style="font-size: 0.75rem; margin-bottom: 12px; opacity: 0.6;">👇 タップすると上のグラフが切り替わります</div>
@@ -299,17 +307,17 @@
         </div>
 
         <div id="tab-schedule" class="tab-content">
-            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">スケジュール & ミッション</h2>
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">スケジュール & ミッション</h2>
             <div class="card" style="padding: 18px 20px;">
                 <div style="font-size: 0.85rem; margin-bottom: 15px; opacity: 0.8; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                     <span>⚓️ 現在のミッション一覧（ToDo）</span>
-                    <span id="todo-count-badge" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">0</span>
+                    <span id="todo-count-badge" style="background: rgba(0,180,216,0.2); border: 1px solid rgba(0,180,216,0.3); color:#00b4d8; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">0</span>
                 </div>
                 <div id="schedule-todo-list-container"></div>
             </div>
             
             <div class="card" style="overflow-x: auto; padding: 15px 10px;">
-                <div style="font-size: 0.8rem; margin-bottom: 4px; opacity: 0.8; font-weight: bold;">⚓️ 週間潜水プラン（時間割）</div>
+                <div style="font-size: 0.8rem; margin-bottom: 4px; opacity: 0.8; font-weight: bold; color: #00b4d8;">⚓️ 週間潜水プラン（時間割）</div>
                 <div style="font-size: 0.65rem; opacity: 0.6; margin-bottom: 10px; padding-left: 2px;">💡 マスをタップすると、その場で時間割をサクッと書き換えられます！</div>
                 <table>
                     <thead><tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr></thead>
@@ -319,15 +327,15 @@
         </div>
 
         <div id="tab-word" class="tab-content">
-            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">深海単語帳</h2>
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">深海単語帳</h2>
             <div class="card">
                 <div class="word-form">
                     <div class="word-input-row">
-                        <input type="text" id="input-en" class="word-field" placeholder="英語 (例: Ocean)">
-                        <button class="btn-action" onclick="askVercelAiTranslate()" id="btn-ai-translate">AI翻訳 🧠</button>
+                        <input type="text" id="input-en" class="word-field" placeholder="英語 (例: Abyss)">
+                        <button class="btn-action" onclick="askVercelCloudflareAiTranslate()" id="btn-ai-translate" style="background: #ffffff; color: #0b2545; border: none;">AI翻訳 🧠</button>
                     </div>
                     <div class="word-input-row">
-                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳">
+                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳（AIが自動生成も可能）">
                         <button class="btn-add" onclick="addNewWord()">追加</button>
                     </div>
                 </div>
@@ -341,25 +349,25 @@
         </div>
 
         <div id="tab-friends" class="tab-content">
-            <h2 style="font-size: 1.2rem; margin-bottom: 5px;">探索チーム</h2>
-            <p style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 15px;">※スタンドアロン（オフライン）稼働中</p>
+            <h2 style="font-size: 1.2rem; margin-bottom: 5px; color: #00b4d8;">探索チーム</h2>
+            <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 15px;">※スタンドアロン（オフライン）稼働中</p>
             <div class="card" style="display: flex; align-items: center; gap: 15px;">
-                <div style="width:45px; height:45px; background:rgba(255,255,255,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">🐳</div>
+                <div style="width:45px; height:45px; background:rgba(0,180,216,0.1); border: 1px solid #00b4d8; border-radius:50%; display:flex; align-items:center; justify-content:center;">🐳</div>
                 <div style="flex: 1;">
                     <div style="font-weight: bold;">TAKUYA</div>
-                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 |深度: 45m</div>
+                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
                 </div>
                 <span style="color: #4ade80; font-size: 0.8rem;">● 潜水中</span>
             </div>
         </div>
 
         <div id="tab-settings" class="tab-content">
-            <h2 style="font-size: 1.2rem; margin-bottom: 15px;">システム設定</h2>
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">システム設定</h2>
             <div class="card">
-                <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold;">🐋 ダイバープロフィール編集</label>
+                <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold; color: #00b4d8;">🐋 ダイバープロフィール編集</label>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <div id="settings-avatar-preview" style="width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🧑‍💻</div>
-                    <input type="text" id="input-diver-name" value="DIVER_01" oninput="updateProfileData()" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px 14px; border-radius: 14px; font-size: 1rem; box-sizing: border-box;">
+                    <div id="settings-avatar-preview" style="width: 50px; height: 50px; background: #0b2545; border: 1px solid #00b4d8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 4px 10px rgba(0,180,216,0.3);">🧑‍💻</div>
+                    <input type="text" id="input-diver-name" value="DIVER_01" oninput="updateProfileData()" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,180,216,0.3); color: #fff; padding: 10px 14px; border-radius: 14px; font-size: 1rem; box-sizing: border-box;">
                 </div>
                 <label style="font-size: 0.75rem; opacity: 0.7; display: block; margin-bottom: 5px;">👇 アバターアイコンを選択</label>
                 <div class="avatar-grid" id="avatar-selector-grid"></div>
@@ -376,9 +384,97 @@
     </nav>
 
     <script>
+        // ==========================================
+        // 📡 Vercel上の Cloudflare Workers AI 翻訳エンドポイント設定
+        // ==========================================
+        const VERCEL_CHAT_API_URL = "/api/chat";
+
+        // 🧠 1. 単語帳の「AI翻訳 🧠」：君の作った chat.js を完璧に呼び出す！
+        async function askVercelCloudflareAiTranslate() {
+            const enInput = document.getElementById('input-en').value.trim();
+            const jaInputField = document.getElementById('input-ja');
+            const btn = document.getElementById('btn-ai-translate');
+            
+            if (!enInput) { alert("英語を入力してください！"); return; }
+            
+            btn.innerText = "思考中...🧠";
+            btn.classList.add('ai-loading-pulse');
+            
+            try {
+                // 📡 君の chat.js の仕組み通り、messageキーに英単語を格納してPOST送信！
+                const response = await fetch(VERCEL_CHAT_API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: enInput })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.reply) {
+                    // chat.js 内の超強力な日本語抽出正規表現を通った綺麗な訳がそのまま入るぜ！
+                    jaInputField.value = data.reply.trim();
+                } else {
+                    alert(`APIエラー: ${data.reply || '翻訳に失敗しました'}`);
+                }
+            } catch (error) {
+                console.error("Vercel AI 接続エラー:", error);
+                alert("サーバーへの接続に失敗したぜ。URL（VERCEL_CHAT_API_URL）の設定を確認してくれ！");
+            } finally {
+                btn.innerText = "AI翻訳 🧠";
+                btn.classList.remove('ai-loading-pulse');
+            }
+        }
+
+    // 🧠 2. ホーム画面の「AI振り返り 🧠」（新設した review.js を叩く！）
+        async function generateAiReview() {
+            const overlay = document.getElementById('ai-modal-overlay');
+            const responseBox = document.getElementById('ai-response-box');
+            const btn = document.getElementById('btn-ai-review');
+            
+            overlay.classList.add('open');
+            responseBox.innerText = "本日のログデータを深海サーバーへアップロード中...🧭\nキャプテンAIが解析しています...";
+            
+            const todayStr = getTodayString();
+            const todayMins = timeLogs[todayStr] || 0;
+            const unfinishedTodosCount = todos.filter(t => !t.completed).length;
+
+            try {
+                // 📡 新しい review.js へ、今日の成果をPOSTで送りつける！
+                const response = await fetch(VERCEL_REVIEW_API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        minutes: todayMins, 
+                        todosCount: unfinishedTodosCount,
+                        diverName: currentDiverName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.reply) {
+                    // AIがガチで考えてくれたオリジナル応援ログを表示！
+                    responseBox.innerText = data.reply.trim();
+                } else {
+                    responseBox.innerText = `🚨 ログ解析エラー\nキャプテンAIとの通信に障害が発生したようだ。制限時間やトークンの設定を確認してくれ。`;
+                }
+            } catch (error) {
+                console.error("振り返りAPI接続エラー:", error);
+                responseBox.innerText = `🚨 接続失敗\nサーバーに届かなかったぜ。api/review.js が正しく配置されているか確認してくれ！`;
+            }
+        }
+
+        function closeAiModal() { document.getElementById('ai-modal-overlay').classList.remove('open'); }
+
+        function closeAiModal() { document.getElementById('ai-modal-overlay').classList.remove('open'); }
+
+
+        // ==========================================
+        // ⚙️ 以下、完全に維持されたアプリのベースシステム群
+        // ==========================================
         let currentAnalyticsFilter = 'week';
 
-        // --- プロフィール（名前＆アイコン）システム ---
+        // --- プロフィールシステム ---
         const avatarOptions = ['🧑‍💻', '🤿', '🐳', '🦈', '🐙', '🦀', '🐧', '🛸', '🤖', '👾'];
         let currentDiverName = localStorage.getItem('ocean_diver_name') || 'DIVER_01';
         let currentAvatar = localStorage.getItem('ocean_diver_avatar') || '🧑‍💻';
@@ -436,19 +532,16 @@
             document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
         }
 
-        // ToDoモーダル
-        function openTodoModal() { document.getElementById('todo-modal-overlay').classList.add('open');
-        setTimeout(() => { document.getElementById('input-home-todo').focus(); }, 100); }
-        function closeTodoModal() { document.getElementById('todo-modal-overlay').classList.remove('open');
+        function openTodoModal() { 
+            document.getElementById('todo-modal-overlay').classList.add('open');
+            setTimeout(() => { document.getElementById('input-home-todo').focus(); }, 100); 
         }
+        function closeTodoModal() { document.getElementById('todo-modal-overlay').classList.remove('open'); }
 
-        // 時間割のポップアップ編集システム
-        let targetEditRow = null;
-        let targetEditCol = null;
+        let targetEditRow = null; let targetEditCol = null;
 
         function openTimetableModal(row, col) {
-            targetEditRow = row;
-            targetEditCol = col;
+            targetEditRow = row; targetEditCol = col;
             const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
             document.getElementById('timetable-modal-title').innerText = `⏰ ${dayLabels[col]}曜日 / ${row + 1}時間目の編集`;
             const currentVal = timetableData[row][col] || '';
@@ -478,18 +571,17 @@
             initTimetable();
         }
 
-        // --- 📊 データ記録・集計コアシステム ---
-        let timeLogs = localStorage.getItem('ocean_time_logs') ?
-        JSON.parse(localStorage.getItem('ocean_time_logs')) : {};
-        function getTodayString() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
+        // --- 📊 データ記録・集計システム ---
+        let timeLogs = localStorage.getItem('ocean_time_logs') ? JSON.parse(localStorage.getItem('ocean_time_logs')) : {};
+        function getTodayString() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+        
         function addFocusTimeLog(minutes) {
             if (minutes <= 0) return;
             const todayStr = getTodayString(); if (!timeLogs[todayStr]) timeLogs[todayStr] = 0;
             timeLogs[todayStr] += minutes; localStorage.setItem('ocean_time_logs', JSON.stringify(timeLogs));
-            renderHomeWeeklyChart(); if (document.getElementById('tab-analytics').classList.contains('active')) { changeAnalyticsView(currentAnalyticsFilter);
-            }
+            renderHomeWeeklyChart(); if (document.getElementById('tab-analytics').classList.contains('active')) { changeAnalyticsView(currentAnalyticsFilter); }
         }
+
         function renderHomeWeeklyChart() {
             const chartContainer = document.getElementById('home-weekly-chart');
             if (!chartContainer) return; chartContainer.innerHTML = '';
@@ -513,6 +605,7 @@
             });
             document.getElementById('home-today-total-label').innerText = `今日: ${timeLogs[getTodayString()] || 0}分`;
         }
+
         function drawLineChart(daysCount) {
             const svg = document.getElementById('svg-line-chart');
             const xLabelContainer = document.getElementById('line-chart-x-labels'); svg.innerHTML = ''; xLabelContainer.innerHTML = '';
@@ -521,8 +614,7 @@
                 const d = new Date();
                 d.setDate(d.getDate() - i); const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                 const mins = timeLogs[dateKey] || 0;
-                let xLabelText = `${d.getDate()}日`; if (daysCount === 30 && i % 5 !== 0 && i !== 0 && i !== daysCount - 1) { xLabelText = '';
-                }
+                let xLabelText = `${d.getDate()}日`; if (daysCount === 30 && i % 5 !== 0 && i !== 0 && i !== daysCount - 1) { xLabelText = ''; }
                 dataPoints.push({ label: xLabelText, val: mins });
                 if (mins > maxMins) maxMins = mins;
             }
@@ -533,32 +625,28 @@
             dataPoints.forEach((pt, idx) => {
                 const x = paddingLeft + (idx / (dataPoints.length - 1 || 1)) * chartWidth; const y = svgHeight - (pt.val / maxMins) * (svgHeight - 20) - 10;
                 if (idx === 0) { pointsPath += `M ${x} ${y}`; } else { pointsPath += ` L ${x} ${y}`; }
-                if (daysCount <= 
-                7) {
-                    dotsHTML += `<circle cx="${x}" cy="${y}" r="4" fill="#ff9e00" stroke="#fff" stroke-width="1.5" />`;
+                if (daysCount <= 7) {
+                    dotsHTML += `<circle cx="${x}" cy="${y}" r="4" fill="#00b4d8" stroke="#fff" stroke-width="1.5" />`;
                     if (pt.val > 0) { dotsHTML += `<text x="${x}" y="${y - 8}" font-size="9" fill="#fff" font-weight="bold" text-anchor="middle">${pt.val}</text>`; }
                 }
-                if (pt.label) 
-                {
+                if (pt.label) {
                     const span = document.createElement('span'); span.innerText = pt.label; if(idx === 0) span.style.textAlign = 'left'; else if(idx === dataPoints.length - 1) span.style.textAlign = 'right'; else span.style.textAlign = 'center';
                     xLabelContainer.appendChild(span);
-                } else { const emptySpan = document.createElement('span');
-                xLabelContainer.appendChild(emptySpan); }
+                } else { const emptySpan = document.createElement('span'); xLabelContainer.appendChild(emptySpan); }
             });
             let areaPath = `${pointsPath} L ${paddingLeft + chartWidth} ${svgHeight} L ${paddingLeft} ${svgHeight} Z`;
-            let svgContent = `<defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff9e00" stop-opacity="0.4"/><stop offset="100%" stop-color="#ff9e00" stop-opacity="0.0"/></linearGradient></defs><path d="${areaPath}" fill="url(#chartGradient)" /><path d="${pointsPath}" fill="none" stroke="#ff9e00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /><${dotsHTML}>`;
+            let svgContent = `<defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00b4d8" stop-opacity="0.3"/><stop offset="100%" stop-color="#00b4d8" stop-opacity="0.0"/></linearGradient></defs><path d="${areaPath}" fill="url(#chartGradient)" /><path d="${pointsPath}" fill="none" stroke="#00b4d8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /><${dotsHTML}>`;
             svg.innerHTML = svgContent;
         }
+
         function changeAnalyticsView(filterType) {
             currentAnalyticsFilter = filterType;
             document.querySelectorAll('.stat-row-clickable').forEach(row => row.classList.remove('active-filter')); document.getElementById(`row-stat-${filterType}`).classList.add('active-filter');
             const todayStr = getTodayString(); document.getElementById('stat-day').innerText = timeLogs[todayStr] || 0;
             let weekTotal = 0;
-            for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i);
-            weekTotal += (timeLogs[`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`] || 0); }
+            for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); weekTotal += (timeLogs[`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`] || 0); }
             document.getElementById('stat-week').innerText = weekTotal;
-            let monthTotal = 0; for (let i = 0; i < 30; i++) { const d = new Date();
-            d.setDate(d.getDate() - i); monthTotal += (timeLogs[`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`] || 0); }
+            let monthTotal = 0; for (let i = 0; i < 30; i++) { const d = new Date(); d.setDate(d.getDate() - i); monthTotal += (timeLogs[`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`] || 0); }
             document.getElementById('stat-month').innerText = monthTotal;
             const title = document.getElementById('chart-period-title');
             if (filterType === 'day') { title.innerText = "本日の潜水ログ（スポット値）"; drawLineChart(1);
@@ -570,69 +658,60 @@
         renderHomeWeeklyChart();
 
         // --- 🌊 没入モード用エフェクト制御システム ---
-        let bubbleInterval = null;
-        let fishInterval = null;
+        let bubbleInterval = null; let fishInterval = null;
         const fishEmojis = ['🦑', '🐙', '🪼', '🦐', '🐡', '🦈', '🐋'];
 
         function startUnderwaterEffects() {
             document.getElementById('bubble-container').style.display = 'block';
             document.getElementById('light-ray-effect').style.display = 'block';
-            bubbleInterval = setInterval(createBubble, 400);
-            fishInterval = setInterval(spawnDeepSeaFish, 10000); // 10秒ごと
+            bubbleInterval = setInterval(createBubble, 350);
+            fishInterval = setInterval(spawnDeepSeaFish, 9000);
         }
 
         function stopUnderwaterEffects() {
             document.getElementById('bubble-container').style.display = 'none';
             document.getElementById('light-ray-effect').style.display = 'none';
-            clearInterval(bubbleInterval);
-            clearInterval(fishInterval);
+            clearInterval(bubbleInterval); clearInterval(fishInterval);
             document.querySelectorAll('.deep-sea-fish').forEach(f => f.remove());
         }
 
         function createBubble() {
-            const container = document.getElementById('bubble-container');
-            if(!container || container.style.display === 'none') return;
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            const size = Math.random() * 15 + 5 + 'px';
-            bubble.style.width = size;
-            bubble.style.height = size;
+            const container = document.getElementById('bubble-container'); if(!container || container.style.display === 'none') return;
+            const bubble = document.createElement('div'); bubble.className = 'bubble';
+            const size = Math.random() * 16 + 6 + 'px';
+            bubble.style.width = size; bubble.style.height = size;
             bubble.style.left = Math.random() * 100 + 'vw';
-            bubble.style.animationDuration = Math.random() * 3 + 4 + 's';
+            bubble.style.animationDuration = Math.random() * 2.5 + 3.5 + 's';
             container.appendChild(bubble);
-            setTimeout(() => bubble.remove(), 7000);
+            setTimeout(() => bubble.remove(), 6000);
         }
 
         function spawnDeepSeaFish() {
             if (document.getElementById('bubble-container').style.display === 'none') return;
-            const fish = document.createElement('div');
-            fish.className = 'deep-sea-fish';
+            const fish = document.createElement('div'); fish.className = 'deep-sea-fish';
             fish.innerText = fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
             const fromLeft = Math.random() > 0.5;
             fish.style.left = fromLeft ? '-50px' : '105vw';
-            fish.style.top = Math.random() * 70 + 10 + 'vh';
+            fish.style.top = Math.random() * 65 + 15 + 'vh';
             document.body.appendChild(fish);
             setTimeout(() => {
                 fish.classList.add('fish-swim');
-                fish.style.transform = `translateX(${fromLeft ? '120vw' : '-120vw'}) translateY(${Math.random()*100-50}px)`;
+                fish.style.transform = `translateX(${fromLeft ? '120vw' : '-120vw'}) translateY(${Math.random()*120-60}px)`;
             }, 100);
             setTimeout(() => fish.remove(), 15000);
         }
 
-        // グラデーション色変化用
         let originalTotalSeconds = 0;
 
         function updateDeepSeaGradient(remaining) {
             if (originalTotalSeconds <= 0) return;
             const progress = remaining / originalTotalSeconds;
-            // 明るい青から深海へ
-            const r1 = Math.floor(76 * progress + 0);
-            const g1 = Math.floor(201 * progress + 0);
-            const b1 = Math.floor(240 * progress + 5);
-            // 下部の色も漆黒へ
-            const r2 = Math.floor(51 * progress + 16);
-            const g2 = Math.floor(97 * progress + 0);
-            const b2 = Math.floor(195 * progress + 43);
+            const r1 = Math.floor(13 * progress + 2);
+            const g1 = Math.floor(27 * progress + 4);
+            const b1 = Math.floor(42 * progress + 12);
+            const r2 = Math.floor(19 * progress + 5);
+            const g2 = Math.floor(64 * progress + 10);
+            const b2 = Math.floor(116 * progress + 20);
             
             document.body.style.background = `linear-gradient(180deg, rgb(${r1},${g1},${b1}) 0%, rgb(${r2},${g2},${b2}) 100%)`;
         }
@@ -649,78 +728,70 @@
             if (activate) {
                 header.style.display = 'none'; graphCard.style.display = 'none'; todoCard.style.display = 'none';
                 navBar.classList.add('hidden'); settingsBox.style.display = 'none'; divingAnim.style.display = 'block';
-                timerCard.style.background = 'rgba(0, 0, 0, 0.3)'; timerCard.style.padding = '60px 20px';
+                timerCard.style.background = 'rgba(10, 25, 47, 0.5)'; timerCard.style.padding = '60px 20px';
             } else {
                 header.style.display = 'flex'; graphCard.style.display = 'block'; todoCard.style.display = 'block';
                 navBar.classList.remove('hidden'); settingsBox.style.display = 'flex'; divingAnim.style.display = 'none';
-                timerCard.style.background = 'rgba(0,0,0,0.1)'; timerCard.style.padding = '25px 20px';
+                timerCard.style.background = 'rgba(11, 37, 69, 0.4)'; timerCard.style.padding = '25px 20px';
             }
         }
 
-
         // --- 🧭 タイマーシステム ---
-        let timer = null;
-        let isRunning = false; let currentMode = localStorage.getItem('ocean_timer_mode') || 'countdown'; let savedMinutes = parseInt(localStorage.getItem('ocean_timer_minutes')) || 25; let secondsElapsed = 0;
-        let secondsRemaining = savedMinutes * 60;
-        document.getElementById('timer-mode-select').value = currentMode; document.getElementById('timer-minutes-input').value = savedMinutes; applyInitialDisplay();
-        function changeTimerMode() { if (isRunning) return;
-        currentMode = document.getElementById('timer-mode-select').value; localStorage.setItem('ocean_timer_mode', currentMode); document.getElementById('countdown-input-wrapper').style.display = (currentMode === 'countdown') ? 'flex' : 'none'; resetTimerState();
+        let timer = null; let isRunning = false; 
+        let currentMode = localStorage.getItem('ocean_timer_mode') || 'countdown'; 
+        let savedMinutes = parseInt(localStorage.getItem('ocean_timer_minutes')) || 25; 
+        let secondsElapsed = 0; let secondsRemaining = savedMinutes * 60;
+        
+        document.getElementById('timer-mode-select').value = currentMode; 
+        document.getElementById('timer-minutes-input').value = savedMinutes; 
+        applyInitialDisplay();
+
+        function changeTimerMode() { 
+            if (isRunning) return;
+            currentMode = document.getElementById('timer-mode-select').value; localStorage.setItem('ocean_timer_mode', currentMode); document.getElementById('countdown-input-wrapper').style.display = (currentMode === 'countdown') ? 'flex' : 'none'; resetTimerState();
         }
-        function updateMinutes() { if (isRunning) return; let val = parseInt(document.getElementById('timer-minutes-input').value);
-        if (isNaN(val) || val < 1) val = 1; savedMinutes = val; localStorage.setItem('ocean_timer_minutes', savedMinutes); resetTimerState();
+        function updateMinutes() { 
+            if (isRunning) return; let val = parseInt(document.getElementById('timer-minutes-input').value);
+            if (isNaN(val) || val < 1) val = 1; savedMinutes = val; localStorage.setItem('ocean_timer_minutes', savedMinutes); resetTimerState();
         }
-        function resetTimerState() { secondsElapsed = 0; secondsRemaining = savedMinutes * 60;
-        const display = document.getElementById('timer-display'); const label = document.getElementById('timer-status-label'); if (currentMode === 'countdown') { display.innerText = formatTime(secondsRemaining); label.innerText = "TIME REMAINING";
-        } else { display.innerText = "00:00"; label.innerText = "TIME ELAPSED";
-        } }
-        function applyInitialDisplay() { document.getElementById('countdown-input-wrapper').style.display = (currentMode === 'countdown') ?
-        'flex' : 'none'; resetTimerState(); }
-        function formatTime(totalSeconds) { let m = Math.floor(totalSeconds / 60);
-        let s = totalSeconds % 60; return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+        function resetTimerState() { 
+            secondsElapsed = 0; secondsRemaining = savedMinutes * 60;
+            const display = document.getElementById('timer-display'); const label = document.getElementById('timer-status-label'); if (currentMode === 'countdown') { display.innerText = formatTime(secondsRemaining); label.innerText = "TIME REMAINING";
+            } else { display.innerText = "00:00"; label.innerText = "TIME ELAPSED"; } 
         }
+        function applyInitialDisplay() { document.getElementById('countdown-input-wrapper').style.display = (currentMode === 'countdown') ? 'flex' : 'none'; resetTimerState(); }
+        function formatTime(totalSeconds) { let m = Math.floor(totalSeconds / 60); let s = totalSeconds % 60; return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; }
         
         function toggleTimer() {
             const btn = document.getElementById('sync-btn');
             const display = document.getElementById('timer-display');
             if (isRunning) { 
-                // 停止（浮上）
-                clearInterval(timer); isRunning = false; btn.innerText = "潜水開始"; btn.style.background = "#ff9e00";
+                clearInterval(timer); isRunning = false; btn.innerText = "潜水開始"; btn.style.background = "linear-gradient(135deg, #ff9e00 0%, #ff6d00 100%)";
                 if (currentMode === 'countdown') { 
                     const secondsActuallyFocused = (savedMinutes * 60) - secondsRemaining; 
                     if (secondsActuallyFocused >= 60) addFocusTimeLog(Math.floor(secondsActuallyFocused / 60));
                 } else if (currentMode === 'countup' && secondsElapsed >= 60) { 
                     addFocusTimeLog(Math.floor(secondsElapsed / 60)); 
                 } 
-                toggleDivingLayout(false); 
-                stopUnderwaterEffects();
-                document.body.style.background = "linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%)";
+                toggleDivingLayout(false); stopUnderwaterEffects();
+                document.body.style.background = "linear-gradient(180deg, #0d1b2a 0%, #0b2545 40%, #134074 100%)";
                 resetTimerState();
             } 
             else { 
-                // 開始
-                isRunning = true;
-                btn.innerText = "浮上する"; btn.style.background = "rgba(255,255,255,0.2)"; 
+                isRunning = true; btn.innerText = "浮上する"; btn.style.background = "rgba(255,255,255,0.15)"; 
                 originalTotalSeconds = currentMode === 'countdown' ? savedMinutes * 60 : 0;
-                
-                toggleDivingLayout(true); 
-                startUnderwaterEffects();
+                toggleDivingLayout(true); startUnderwaterEffects();
                 
                 timer = setInterval(() => { 
                     if (currentMode === 'countdown') { 
-                        secondsRemaining--; display.innerText = formatTime(secondsRemaining); 
-                        updateDeepSeaGradient(secondsRemaining);
-                        
+                        secondsRemaining--; display.innerText = formatTime(secondsRemaining); updateDeepSeaGradient(secondsRemaining);
                         if (secondsRemaining <= 0) { 
-                            clearInterval(timer); isRunning = false; btn.innerText = "潜水開始"; btn.style.background = "#ff9e00"; 
-                            addFocusTimeLog(savedMinutes); 
-                            toggleDivingLayout(false); 
-                            stopUnderwaterEffects();
-                            document.body.style.background = "linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%)";
+                            clearInterval(timer); isRunning = false; btn.innerText = "潜水開始"; btn.style.background = "linear-gradient(135deg, #ff9e00 0%, #ff6d00 100%)"; 
+                            addFocusTimeLog(savedMinutes); toggleDivingLayout(false); stopUnderwaterEffects();
+                            document.body.style.background = "linear-gradient(180deg, #0d1b2a 0%, #0b2545 40%, #134074 100%)";
                             resetTimerState(); 
                         } 
-                    } else { 
-                        secondsElapsed++; display.innerText = formatTime(secondsElapsed); 
-                    } 
+                    } else { secondsElapsed++; display.innerText = formatTime(secondsElapsed); } 
                 }, 1000);
             }
         }
@@ -729,57 +800,38 @@
         const defaultTodos = [{ id: 1, text: "クジラの生態を調べる", completed: false, deadline: "2026-06-20" }, { id: 2, text: "単語帳を5個進める", completed: false, deadline: "" }];
         let todos = localStorage.getItem('ocean_todo_list') ? JSON.parse(localStorage.getItem('ocean_todo_list')) : defaultTodos;
         
-        // 削除用タイマーIDの退避用
         let deleteTimers = {};
         function renderScheduleTodoList() {
             const container = document.getElementById('schedule-todo-list-container');
             const badge = document.getElementById('todo-count-badge'); if (!container) return; container.innerHTML = ''; badge.innerText = todos.filter(t => !t.completed).length;
-            if (todos.length === 0) { container.innerHTML = `<div style="text-align:center; font-size:0.8rem; opacity:0.5; padding:10px;">すべてのミッションクリア！</div>`; return;
-            }
+            if (todos.length === 0) { container.innerHTML = `<div style="text-align:center; font-size:0.8rem; opacity:0.5; padding:10px;">すべてのミッションクリア！</div>`; return; }
+            
             todos.forEach(todo => {
                 const itemDiv = document.createElement('div'); itemDiv.style.display = 'flex'; itemDiv.style.alignItems = 'center'; itemDiv.style.justifyContent = 'space-between'; itemDiv.style.marginBottom = '12px';
                 const leftSide = document.createElement('div'); leftSide.style.display = 'flex'; leftSide.style.alignItems = 'center'; leftSide.style.gap = '10px';
                 const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = todo.completed;
   
-                // 👑 【機能向上】期限（deadline）が設定されていたら横に表示するロジック
                 let deadlineStr = "";
                 if (todo.deadline) {
-                    deadlineStr = ` <span style="font-size:0.75rem; color:#ff9e00; opacity:0.85; margin-left: 5px;">(📅 ${todo.deadline})</span>`;
+                    deadlineStr = ` <span style="font-size:0.75rem; color:#ffffff; opacity:0.6; margin-left: 8px; background:rgba(255,255,255,0.1); padding:1px 6px; border-radius:6px;">📅 ${todo.deadline}</span>`;
                 }
 
-                const textSpan = document.createElement('span'); 
-                textSpan.innerHTML = todo.text + deadlineStr;
-                textSpan.style.fontSize = '0.9rem'; 
-                if (todo.completed) { textSpan.style.textDecoration = 'line-through'; textSpan.style.opacity = '0.4';
-                }
+                const textSpan = document.createElement('span'); textSpan.innerHTML = todo.text + deadlineStr; textSpan.style.fontSize = '0.9rem'; 
+                if (todo.completed) { textSpan.style.textDecoration = 'line-through'; textSpan.style.opacity = '0.4'; }
                 
-                leftSide.appendChild(checkbox);
-                leftSide.appendChild(textSpan); itemDiv.appendChild(leftSide);
+                leftSide.appendChild(checkbox); leftSide.appendChild(textSpan); itemDiv.appendChild(leftSide);
                 
                 checkbox.onchange = function() { 
-                    todo.completed = checkbox.checked;
-                    localStorage.setItem('ocean_todo_list', JSON.stringify(todos)); 
-                    
+                    todo.completed = checkbox.checked; localStorage.setItem('ocean_todo_list', JSON.stringify(todos)); 
                     if (checkbox.checked) { 
-                        textSpan.style.textDecoration = 'line-through';
-                        textSpan.style.opacity = '0.4'; 
-                        
-                        // 👑 【要望通り】チェックがついてから完全に消滅する時間を「30秒 (30000ms)」に延長！
+                        textSpan.style.textDecoration = 'line-through'; textSpan.style.opacity = '0.4'; 
                         deleteTimers[todo.id] = setTimeout(() => { 
-                            todos = todos.filter(t => t.id !== todo.id); 
-                            localStorage.setItem('ocean_todo_list', JSON.stringify(todos)); 
-
-                            delete deleteTimers[todo.id];
-                            renderScheduleTodoList(); 
+                            todos = todos.filter(t => t.id !== todo.id); localStorage.setItem('ocean_todo_list', JSON.stringify(todos)); 
+                            delete deleteTimers[todo.id]; renderScheduleTodoList(); 
                         }, 30000);
                     } else {
-                        // 30秒以内にチェックを外したら、タイマーを解除して復活させる
-                        if (deleteTimers[todo.id]) {
-                            clearTimeout(deleteTimers[todo.id]);
-                            delete deleteTimers[todo.id];
-                        }
-                        textSpan.style.textDecoration = 'none';
-                        textSpan.style.opacity = '1';
+                        if (deleteTimers[todo.id]) { clearTimeout(deleteTimers[todo.id]); delete deleteTimers[todo.id]; }
+                        textSpan.style.textDecoration = 'none'; textSpan.style.opacity = '1';
                         badge.innerText = todos.filter(t => !t.completed).length;
                     }
                 };
@@ -788,12 +840,9 @@
         }
         
         function addHomeTodo() {
-            const input = document.getElementById('input-home-todo');
-            const deadlineInput = document.getElementById('input-todo-deadline'); if (!input.value.trim()) return;
+            const input = document.getElementById('input-home-todo'); const deadlineInput = document.getElementById('input-todo-deadline'); if (!input.value.trim()) return;
             todos.push({ id: Date.now(), text: input.value.trim(), completed: false, deadline: deadlineInput.value }); localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-            input.value = ''; deadlineInput.value = ''; 
-            closeTodoModal(); 
-            switchTab('schedule', null);
+            input.value = ''; deadlineInput.value = ''; closeTodoModal(); switchTab('schedule', null);
         }
 
         // --- 時間割システム ---
@@ -801,23 +850,14 @@
         const defaultTimetable = [["国語", "英語", "数学", "英語", "プロ", "数学", "自習"],["自習", "国語", "理科", "社会", "英語", "理科", "演習"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"],["-","-","-","-","-","-","-"]];
         let timetableData = localStorage.getItem('ocean_timetable_data') ? JSON.parse(localStorage.getItem('ocean_timetable_data')) : defaultTimetable;
         
-        renderScheduleTodoList();
-        initTimetable();
+        renderScheduleTodoList(); initTimetable();
         function initTimetable() {
-            const tableBody = document.getElementById('timetable-body');
-            if (!tableBody) return;
-            tableBody.innerHTML = '';
+            const tableBody = document.getElementById('timetable-body'); if (!tableBody) return; tableBody.innerHTML = '';
             for (let r = 0; r < ROWS; r++) {
                 const tr = document.createElement('tr');
                 for (let c = 0; c < COLS; c++) {
-                    const text = timetableData[r][c] ||
-                    '-';
-                    const td = document.createElement('td');
-                    td.className = 'timetable-cell';
-                    td.innerText = text;
-                    td.onclick = (function(row, col) {
-                        return function() { openTimetableModal(row, col); };
-                    })(r, c);
+                    const text = timetableData[r][c] || '-'; const td = document.createElement('td'); td.className = 'timetable-cell'; td.innerText = text;
+                    td.onclick = (function(row, col) { return function() { openTimetableModal(row, col); }; })(r, c);
                     tr.appendChild(td);
                 }
                 tableBody.appendChild(tr);
@@ -825,31 +865,23 @@
         }
 
         // --- 単語帳システム ---
-        let words = localStorage.getItem('ocean_words_list') ?
-        JSON.parse(localStorage.getItem('ocean_words_list')) : [{ id: 1, en: "Coral", ja: "珊瑚（サンゴ）" }];
+        let words = localStorage.getItem('ocean_words_list') ? JSON.parse(localStorage.getItem('ocean_words_list')) : [{ id: 1, en: "Abyss", ja: "深海、深淵" }];
         let globalVisibilityMode = 'hide-ja'; renderWordList();
         function renderWordList() {
-            const container = document.getElementById('word-list-container');
-            container.innerHTML = '';
+            const container = document.getElementById('word-list-container'); container.innerHTML = '';
             words.forEach(w => {
                 const card = document.createElement('div'); card.className = 'card'; card.style.display = 'flex'; card.style.justifyContent = 'space-between'; card.style.alignItems = 'center';
                 const enSpan = document.createElement('span'); enSpan.innerText = w.en; if (globalVisibilityMode === 'hide-en') { enSpan.className = 'blur-text'; enSpan.onclick = function() { this.classList.toggle('reveal'); }; }
-                const jaSpan = document.createElement('span'); jaSpan.innerText = w.ja; if (globalVisibilityMode === 'hide-ja') 
-                { jaSpan.className = 'blur-text'; jaSpan.onclick = function() { this.classList.toggle('reveal'); }; }
+                const jaSpan = document.createElement('span'); jaSpan.innerText = w.ja; if (globalVisibilityMode === 'hide-ja') { jaSpan.className = 'blur-text'; jaSpan.onclick = function() { this.classList.toggle('reveal'); }; }
                 const del = document.createElement('span'); del.innerHTML = '✕'; del.style.cursor='pointer'; del.onclick = function() { words = words.filter(item => item.id !== w.id); localStorage.setItem('ocean_words_list', JSON.stringify(words)); renderWordList(); };
-                card.appendChild(enSpan); card.appendChild(jaSpan);
-                card.appendChild(del); container.appendChild(card);
+                card.appendChild(enSpan); card.appendChild(jaSpan); card.appendChild(del); container.appendChild(card);
             });
         }
         function addNewWord() {
-            const en = document.getElementById('input-en');
-            const ja = document.getElementById('input-ja'); if(!en.value||!ja.value) return;
-            words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() }); localStorage.setItem('ocean_words_list', JSON.stringify(words)); en.value = '';
-            ja.value = ''; renderWordList();
+            const en = document.getElementById('input-en'); const ja = document.getElementById('input-ja'); if(!en.value||!ja.value) return;
+            words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() }); localStorage.setItem('ocean_words_list', JSON.stringify(words)); en.value = ''; ja.value = ''; renderWordList();
         }
-        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList();
-        }
-        async function askVercelAiTranslate() { alert("AI機能をエミュレート中..."); }
+        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
     </script>
 </body>
 </html>
