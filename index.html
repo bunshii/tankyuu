@@ -123,9 +123,6 @@
         .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 3px 0 #cc7e00; }
         .btn-add:active { transform: translateY(1px); box-shadow: 0 2px 0 #cc7e00; }
 
-        .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
-        .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
-
         /* クイックToDo追加フォーム（ホーム用） */
         .quick-input-box {
             display: none;
@@ -139,7 +136,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 締め切り日入力欄のカスタム */
         .date-field {
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.25);
@@ -147,8 +143,21 @@
             padding: 8px 12px;
             border-radius: 10px;
             font-size: 0.85rem;
-            color-scheme: dark; /* カレンダーのポップアップをダークモード対応に */
+            color-scheme: dark;
         }
+
+        .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
+        .btn-ctrl { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
+
+        /* 📊 動的グラフ用スタイル */
+        .bar-container { flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+        .bar-fill { background: rgba(255,255,255,0.5); width: 65%; margin: 0 auto; border-radius: 4px; transition: height 0.5s ease-out, background 0.3s; height: 0px; min-height: 2px; }
+        .bar-fill.today-bar { background: #ff9e00 !important; }
+        .bar-label { font-size: 0.6rem; margin-top: 4px; display: block; }
+        
+        /* 統計のサマリー数字 */
+        .stat-number { font-size: 1.6rem; font-weight: bold; color: #ff9e00; }
+        .stat-unit { font-size: 0.75rem; color: #fff; margin-left: 2px; opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -165,15 +174,11 @@
 
         <div id="tab-home" class="tab-content active">
             <div class="card">
-                <div style="font-size: 0.8rem; margin-bottom: 12px; opacity: 0.8;">今週の潜水記録（分）</div>
-                <div style="display: flex; align-items: flex-end; justify-content: space-around; height: 80px; gap: 8px;">
-                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:20px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">月</span></div>
-                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:45px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">火</span></div>
-                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:30px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">水</span></div>
-                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:60px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">木</span></div>
-                    <div style="flex:1; text-align:center;"><div style="background:#ff9e00; height:75px; border-radius:4px;"></div><span style="font-size:0.6rem; font-weight:bold;">金</span></div>
-                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:10px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">土</span></div>
-                    <div style="flex:1; text-align:center;"><div style="background:#fff; height:5px; border-radius:4px; opacity:0.6;"></div><span style="font-size:0.6rem;">日</span></div>
+                <div style="font-size: 0.8rem; margin-bottom: 12px; opacity: 0.8; display: flex; justify-content: space-between;">
+                    <span>今週の潜水記録（分）</span>
+                    <span id="home-today-total-label" style="font-weight: bold; color: #ff9e00;">今日: 0分</span>
+                </div>
+                <div id="home-weekly-chart" style="display: flex; align-items: flex-end; justify-content: space-around; height: 80px; gap: 8px;">
                 </div>
             </div>
 
@@ -224,9 +229,36 @@
                     <span>⚓️ 現在のミッション一覧（ToDo）</span>
                     <span id="todo-count-badge" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">0</span>
                 </div>
-                
-                <div id="schedule-todo-list-container">
+                <div id="schedule-todo-list-container"></div>
+            </div>
+
+            <div class="card" style="padding: 20px;">
+                <div style="font-size: 0.85rem; margin-bottom: 15px; opacity: 0.8; font-weight: bold;">📊 潜水データ統計（アナリティクス）</div>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); padding: 12px 18px; border-radius: 16px;">
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: bold;">本日 (1日)</div>
+                            <div style="font-size: 0.65rem; opacity: 0.6;">今日1日の総潜水時間</div>
+                        </div>
+                        <div><span class="stat-number" id="stat-day">0</span><span class="stat-unit">分</span></div>
                     </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); padding: 12px 18px; border-radius: 16px;">
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: bold;">今週 (7日間)</div>
+                            <div style="font-size: 0.65rem; opacity: 0.6;">直近1週間の合計時間</div>
+                        </div>
+                        <div><span class="stat-number" id="stat-week">0</span><span class="stat-unit">分</span></div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); padding: 12px 18px; border-radius: 16px;">
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: bold;">今月 (30日間)</div>
+                            <div style="font-size: 0.65rem; opacity: 0.6;">直近30日間の合計時間</div>
+                        </div>
+                        <div><span class="stat-number" id="stat-month">0</span><span class="stat-unit">分</span></div>
+                    </div>
+                </div>
             </div>
             
             <div class="card" style="overflow-x: auto; padding: 15px 10px;">
@@ -245,7 +277,6 @@
 
         <div id="tab-word" class="tab-content">
             <h2 style="font-size: 1.2rem; margin-bottom: 15px;">深海単語帳</h2>
-            
             <div class="card">
                 <div style="font-size: 0.8rem; margin-bottom: 10px; opacity: 0.8; font-weight: bold;">🫧 新しい単語を追加</div>
                 <div class="word-form">
@@ -266,7 +297,6 @@
                 <button class="btn-ctrl" onclick="setGlobalVisibility('hide-en')">🇺🇸 英を全隠し</button>
                 <button class="btn-ctrl" onclick="setGlobalVisibility('reveal-all')">👁️ 全て表示</button>
             </div>
-
             <div id="word-list-container"></div>
         </div>
 
@@ -289,7 +319,6 @@
                 <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 5px;">ダイバーネーム</label>
                 <input type="text" value="DIVER_01" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">
             </div>
-
             <div class="card">
                 <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 10px; font-weight: bold;">📅 時間割の設定 (7時間×7日)</label>
                 <div id="timetable-editor-box"></div>
@@ -313,9 +342,112 @@
             buttons.forEach(btn => btn.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
             button.classList.add('active');
+            
+            if (tabId === 'schedule') {
+                renderScheduleTodoList();
+                updateAnalyticsDisplay();
+            }
         }
 
-        // --- タイマーシステム ---
+        // --- 📊 集中時間データ記録ログ・システム ---
+        let timeLogs = localStorage.getItem('ocean_time_logs') ? JSON.parse(localStorage.getItem('ocean_time_logs')) : {};
+
+        function getTodayString() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function addFocusTimeLog(minutes) {
+            if (minutes <= 0) return; // 1分未満は記録しない
+            const todayStr = getTodayString();
+            if (!timeLogs[todayStr]) {
+                timeLogs[todayStr] = 0;
+            }
+            timeLogs[todayStr] += minutes;
+            localStorage.setItem('ocean_time_logs', JSON.stringify(timeLogs));
+            
+            renderHomeWeeklyChart();
+            updateAnalyticsDisplay();
+        }
+
+        function renderHomeWeeklyChart() {
+            const chartContainer = document.getElementById('home-weekly-chart');
+            if (!chartContainer) return;
+            chartContainer.innerHTML = '';
+
+            const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
+            const today = new Date();
+            const currentDayIdx = today.getDay();
+
+            const sunday = new Date(today);
+            sunday.setDate(today.getDate() - currentDayIdx);
+
+            let weekData = [];
+            let maxMinutes = 30;
+
+            for (let i = 0; i < 7; i++) {
+                const targetDate = new Date(sunday);
+                targetDate.setDate(sunday.getDate() + i);
+                const dateKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+
+                const mins = timeLogs[dateKey] || 0;
+                weekData.push({ dayName: dayLabels[i], minutes: mins, isToday: (i === currentDayIdx) });
+                if (mins > maxMinutes) maxMinutes = mins;
+            }
+
+            weekData.forEach(data => {
+                const container = document.createElement('div');
+                container.className = 'bar-container';
+                const percent = (data.minutes / maxMinutes) * 100;
+
+                const bar = document.createElement('div');
+                bar.className = 'bar-fill' + (data.isToday ? ' today-bar' : '');
+                bar.style.height = `${percent}%`;
+                bar.title = `${data.minutes}分`;
+
+                const label = document.createElement('span');
+                label.className = 'bar-label';
+                label.innerText = data.dayName;
+                if(data.isToday) label.style.fontWeight = 'bold';
+
+                container.appendChild(bar);
+                container.appendChild(label);
+                chartContainer.appendChild(container);
+            });
+
+            const todayKey = getTodayString();
+            document.getElementById('home-today-total-label').innerText = `今日: ${timeLogs[todayKey] || 0}分`;
+        }
+
+        function updateAnalyticsDisplay() {
+            const todayStr = getTodayString();
+            
+            const dayTotal = timeLogs[todayStr] || 0;
+            document.getElementById('stat-day').innerText = dayTotal;
+
+            let weekTotal = 0;
+            for (let i = 0; i < 7; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                weekTotal += (timeLogs[k] || 0);
+            }
+            document.getElementById('stat-week').innerText = weekTotal;
+
+            let monthTotal = 0;
+            for (let i = 0; i < 30; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                monthTotal += (timeLogs[k] || 0);
+            }
+            document.getElementById('stat-month').innerText = monthTotal;
+        }
+
+        renderHomeWeeklyChart();
+
+
+        // --- 🧭 タイマーシステム（途中切り上げ対応版） ---
         let timer = null;
         let isRunning = false;
         let currentMode = localStorage.getItem('ocean_timer_mode') || 'countdown';
@@ -375,14 +507,36 @@
             const settingsBox = document.getElementById('timer-settings-box');
             
             if (isRunning) {
+                // 🛑 タイマーを途中で停止（浮上）させたとき
                 clearInterval(timer);
                 isRunning = false;
                 btn.innerText = "潜水開始";
                 btn.style.background = "#ff9e00";
                 settingsBox.style.opacity = "1";
                 settingsBox.style.pointerEvents = "auto";
+
+                // 💡 【大改造】カウントダウンを途中で止めた場合の引き算計算
+                if (currentMode === 'countdown') {
+                    const totalSecondsConfigured = savedMinutes * 60;
+                    const secondsActuallyFocused = totalSecondsConfigured - secondsRemaining;
+                    
+                    if (secondsActuallyFocused >= 60) {
+                        const minutesFocused = Math.floor(secondsActuallyFocused / 60);
+                        addFocusTimeLog(minutesFocused);
+                        alert(`⚓️ 緊急浮上！ですが、ここまで頑張った ${minutesFocused}分 をログにしっかり記録したぜ！`);
+                    } else {
+                        alert(`⚓️ 1分未満の潜水だったため、ログには記録されなかったよ。`);
+                    }
+                } 
+                // カウントアップを途中で止めた場合
+                else if (currentMode === 'countup' && secondsElapsed >= 60) {
+                    const minutesFocused = Math.floor(secondsElapsed / 60);
+                    addFocusTimeLog(minutesFocused);
+                    alert(`⚓️ 浮上完了！今回の潜水時間: ${minutesFocused}分 をログに記録したぜ！`);
+                }
                 resetTimerState();
             } else {
+                // 🚀 タイマー始動
                 isRunning = true;
                 btn.innerText = "浮上する";
                 btn.style.background = "rgba(255,255,255,0.2)";
@@ -393,6 +547,7 @@
                     if (currentMode === 'countdown') {
                         secondsRemaining--;
                         display.innerText = formatTime(secondsRemaining);
+                        
                         if (secondsRemaining <= 0) {
                             clearInterval(timer);
                             isRunning = false;
@@ -400,7 +555,9 @@
                             btn.style.background = "#ff9e00";
                             settingsBox.style.opacity = "1";
                             settingsBox.style.pointerEvents = "auto";
-                            alert("🎉 ミッション完了！");
+                            
+                            addFocusTimeLog(savedMinutes);
+                            alert(`🎉 ミッション完了！目標の ${savedMinutes}分 潜水成功だぜ！`);
                             resetTimerState();
                         }
                     } else {
@@ -411,18 +568,14 @@
             }
         }
 
-        // --- 🐙 【最新版】引っ越し＆締め切り機能付きToDoシステム ---
+        // --- 🐙 ToDoシステム ---
         const defaultTodos = [
-            { id: 1, text: "クジラの生態を調べる", completed: false, deadline: "2026-07-20" },
+            { id: 1, text: "クジラの生態を調べる", completed: false, deadline: "2026-06-20" },
             { id: 2, text: "単語帳を5個進める", completed: false, deadline: "" }
         ];
 
         let todos = localStorage.getItem('ocean_todo_list') ? JSON.parse(localStorage.getItem('ocean_todo_list')) : defaultTodos;
         
-        // 初回描画
-        renderScheduleTodoList();
-
-        // ホーム画面の入力ボックスを開閉
         function toggleQuickTodoInput() {
             const form = document.getElementById('quick-todo-form');
             form.style.display = (form.style.display === 'flex') ? 'none' : 'flex';
@@ -431,15 +584,12 @@
             }
         }
 
-        // 📅 スケジュール画面側にToDoを描画する関数
         function renderScheduleTodoList() {
             const container = document.getElementById('schedule-todo-list-container');
             const badge = document.getElementById('todo-count-badge');
-            if (!container) return; // スケジュール画面がまだ無い時のための安全策
+            if (!container) return;
 
             container.innerHTML = '';
-
-            // 未完了数をバッジに反映
             const incompleteCount = todos.filter(t => !t.completed).length;
             badge.innerText = incompleteCount;
 
@@ -452,11 +602,10 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.style.display = 'flex';
                 itemDiv.style.alignItems = 'center';
-                itemDiv.style.justifyContent = 'space-between'; // 締め切りを右側に綺麗に並べる
+                itemDiv.style.justifyContent = 'space-between';
                 itemDiv.style.marginBottom = '12px';
                 itemDiv.style.transition = 'opacity 0.6s, transform 0.6s';
 
-                // 左側：チェックボックスとテキストのセット
                 const leftSide = document.createElement('div');
                 leftSide.style.display = 'flex';
                 leftSide.style.alignItems = 'center';
@@ -482,10 +631,8 @@
                 leftSide.appendChild(textSpan);
                 itemDiv.appendChild(leftSide);
 
-                // 右側：⏳ 締め切りバッジ（登録されている場合だけ表示）
                 if (todo.deadline) {
                     const deadlineSpan = document.createElement('span');
-                    // 日付フォーマットを「MM/DD」に見やすくパース
                     const dateObj = new Date(todo.deadline);
                     const formattedDate = !isNaN(dateObj) ? `${dateObj.getMonth() + 1}/${dateObj.getDate()}` : todo.deadline;
                     
@@ -503,11 +650,9 @@
                     itemDiv.appendChild(deadlineSpan);
                 }
 
-                // チェック動作（5分後に消滅）
                 checkbox.onchange = function() {
                     todo.completed = checkbox.checked;
                     localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-                    
                     badge.innerText = todos.filter(t => !t.completed).length;
 
                     if (checkbox.checked) {
@@ -515,20 +660,18 @@
                         textSpan.style.opacity = '0.4';
                         if(itemDiv.lastChild && itemDiv.lastChild !== leftSide) itemDiv.lastChild.style.opacity = '0.3';
 
-                        // 💡【5分後（300,000ミリ秒）に自動消滅】
                         setTimeout(() => {
                             const currentTodo = todos.find(t => t.id === todo.id);
                             if (currentTodo && currentTodo.completed) {
                                 itemDiv.style.opacity = '0';
                                 itemDiv.style.transform = 'translateX(20px)';
-                                
                                 setTimeout(() => {
                                     todos = todos.filter(t => t.id !== todo.id);
                                     localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
                                     renderScheduleTodoList();
                                 }, 600);
                             }
-                        }, 300000); // 5分
+                        }, 300000);
                     } else {
                         textSpan.style.textDecoration = 'none';
                         textSpan.style.opacity = '1';
@@ -540,34 +683,21 @@
             });
         }
 
-        // ホーム画面から新しいToDo（締め切り付き）を追加する関数
         function addHomeTodo() {
             const input = document.getElementById('input-home-todo');
             const deadlineInput = document.getElementById('input-todo-deadline');
             const val = input.value.trim();
-            const deadlineVal = deadlineInput.value; // "YYYY-MM-DD" 形式で取得
+            const deadlineVal = deadlineInput.value;
 
             if (!val) return;
 
-            const newTodo = { 
-                id: Date.now(), 
-                text: val, 
-                completed: false,
-                deadline: deadlineVal // 締め切り日を保存
-            };
-            
+            const newTodo = { id: Date.now(), text: val, completed: false, deadline: deadlineVal };
             todos.push(newTodo);
             localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
 
-            // 入力欄をまっさらにリセット
-            input.value = '';
-            deadlineInput.value = '';
-            document.getElementById('quick-todo-form').style.display = 'none'; // フォームを閉じる
-            
-            // リストを再描画（スケジュール画面側）
+            input.value = ''; deadlineInput.value = '';
+            document.getElementById('quick-todo-form').style.display = 'none';
             renderScheduleTodoList();
-            
-            // 親切心で、追加されたのがわかるようにスケジュールタブへ自動ジャンプ！
             switchTab('schedule', document.querySelectorAll('nav button')[1]);
         }
 
@@ -642,7 +772,6 @@
 
         function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
 
-        // AI翻訳
         async function askVercelAiTranslate() {
             const enVal = document.getElementById('input-en').value.trim(); const jaInput = document.getElementById('input-ja'); const tips = document.getElementById('ai-status-tips');
             if (!enVal) { alert("英語を入力してください。"); return; }
