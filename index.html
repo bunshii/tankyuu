@@ -8,7 +8,7 @@
         /* --- 全体のスタイル（サイバー深海デザイン） --- */
         body {
             margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             /* 🎨 写真に合わせた美しい水中ディープブルーグラデーション */
             background: linear-gradient(180deg, #0d1b2a 0%, #0b2545 40%, #134074 100%);
             min-height: 100vh; color: #ffffff;
@@ -91,13 +91,13 @@
         }
         .input-cyber:focus { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,0.2); }
 
-        /* 🌫️ 単語帳目隠し（ブラー）効果 */
-        .blur-text { filter: blur(5px); cursor: pointer; transition: filter 0.3s; }
-        .blur-text.reveal { filter: blur(0); }
-
-        /* 🔄 ローディングアニメーション */
+        /* 🌌 特殊エフェクト */
+        .blur-text { filter: blur(4px); transition: filter 0.3s; }
+        .blur-text:hover { filter: blur(0); }
         .ai-loading-pulse { animation: aiPulse 1.5s infinite ease-in-out; }
         @keyframes aiPulse { 0% { opacity: 0.6; } 50% { opacity: 1; color: #00e5ff; } 100% { opacity: 0.6; } }
+
+        /* 🤖 AIモーダルウィンドウ（常設エリアへの切り替えに伴い、古いポップアップ用スタイルは不要になりました） */
     </style>
 </head>
 <body>
@@ -106,7 +106,7 @@
         <div id="view-home" class="app-view active">
             <h2 style="text-align: center; margin-bottom: 24px; color: #00e5ff; font-weight: 700;">OCEAN COMPASS</h2>
             
-            <div class="card" style="text-align: center; padding: 32px 24px;">
+            <div class="card" style="text-align: center; padding: 32px 24px; margin-bottom: 20px;">
                 <span id="diver-badge" style="background: rgba(0, 229, 255, 0.15); color: #00e5ff; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; border: 1px solid rgba(0, 229, 255, 0.3);">
                     ⚓ DEEP SEA DIVER
                 </span>
@@ -119,17 +119,14 @@
                 </div>
             </div>
 
-            <div id="ai-captain-log-container" class="card" style="margin-top: 24px; padding: 24px; border: 1px solid rgba(0, 229, 255, 0.2); background: rgba(11, 37, 69, 0.6);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h3 style="color: #00e5ff; margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-                        ⚓ キャプテンの航海日誌
-                    </h3>
-                    <button id="btn-ai-review" onclick="generateAiReview()" style="padding: 6px 12px; background: transparent; border: 1px solid #00e5ff; color: #00e5ff; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: all 0.3s; background: rgba(0,229,255,0.05);">
-                        ログを再解析 🧠
+            <div class="card" style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="color: #00e5ff; margin: 0; font-size: 1.1rem;">⚓ キャプテンの航海日誌</h3>
+                    <button id="btn-ai-review" onclick="generateAiReview()" style="padding: 6px 12px; background: rgba(0, 229, 255, 0.1); border: 1px solid #00e5ff; color: #00e5ff; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">
+                        ログを手動更新 🧠
                     </button>
                 </div>
-                
-                <div id="ai-response-box" style="color: #ffffff; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; min-height: 60px; background: rgba(13, 27, 42, 0.4); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <div id="ai-response-box" style="color: #ffffff; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; background: rgba(13, 27, 42, 0.4); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                     現在の潜水セッションのデータは未送信だ。タイマーを稼働させて深海へダイブせよ。
                 </div>
             </div>
@@ -187,32 +184,31 @@
 
     <script>
         // ==========================================
-        // 📡 Vercel上の Cloudflare Workers AI エンドポイント設定
+        // 📡 Vercel上の 各種AIエンドポイント設定
         // ==========================================
         const VERCEL_CHAT_API_URL = "/api/chat";
-        const VERCEL_REVIEW_API_URL = "/api/review"; // 👈 定義漏れを100%修正！
+        const VERCEL_REVIEW_API_URL = "/api/review"; // 👈 エラー回避のため確実に定義！
 
-        // --- アプリの基本状態管理 ---
+        // --- アプリの状態管理 ---
         let currentDiverName = "TAKUYA";
         let timerInterval = null;
         let isTimerRunning = false;
-        let totalSeconds = 25 * 60; // デフォルト25分
+        let totalSeconds = 25 * 60;
         let initialSeconds = 25 * 60;
         let globalVisibilityMode = "show-all";
         
-        // 🚨 【新設】潜水中に画面（別タブ）から目を離したサボり回数を数えるカウンター
+        // 🚨 【新設】潜水中に別のタブに逃げた回数を追跡
         let appDistractionCount = 0;
 
-        // 📡 ダイバーのアクティビティ（タブ切り替え）を自動で監視・カウント
+        // 📡 別タブへの離脱を自動カウント
         document.addEventListener('visibilitychange', () => {
-            // タイマーが作動している最中に画面が非表示（隠れた）になったらサボりと判定
             if (document.hidden && isTimerRunning) {
                 appDistractionCount++;
-                console.log(`🚨 キャプテン警告: 別海域（タブ）を覗き見たな！現在の累積サボり回数: ${appDistractionCount}回`);
+                console.log(`🚨 カウントアップ: サボり回数 = ${appDistractionCount}`);
             }
         });
 
-        // データローカル保存用
+        // データのローカルストレージ管理
         let timeLogs = JSON.parse(localStorage.getItem('ocean_time_logs')) || {};
         let words = JSON.parse(localStorage.getItem('ocean_words_list')) || [];
         let todos = JSON.parse(localStorage.getItem('ocean_todo_list')) || [
@@ -220,23 +216,20 @@
             { id: 2, text: "25分間ディープダイブ（集中）する", completed: false }
         ];
 
-        // 初期化処理
         window.onload = function() {
             renderWordList();
             renderTodoList();
         };
 
-        // 📱 タブ切り替え制御
         function switchView(viewId) {
             document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            
             document.getElementById(`view-${viewId}`).classList.add('active');
             document.getElementById(`nav-${viewId}`).classList.add('active');
         }
 
         // ==========================================
-        // ⏰ タイマーシステム（潜水コックピット）
+        // ⏰ タイマー制御ロジック
         // ==========================================
         function updateTimerDisplay() {
             const mins = Math.floor(totalSeconds / 60);
@@ -247,10 +240,15 @@
 
         function toggleTimer() {
             if (isTimerRunning) {
-                // 「潜水停止」ボタンを押して手動帰還したときの処理
-                stopTimer();
+                // 手動で潜水停止ボタンを押した瞬間
+                isTimerRunning = false;
+                clearInterval(timerInterval);
+                document.getElementById('start-btn').innerText = '潜水開始 🧭';
+                document.getElementById('start-btn').style.background = 'linear-gradient(135deg, #00b4d8 0%, #0077b6 100%)';
+                
+                // 🚀 【自動送信】手動で切り上げたときも、裏で自動解析！
+                generateAiReview();
             } else {
-                // 潜水開始時の処理
                 isTimerRunning = true;
                 document.getElementById('start-btn').innerText = '潜水停止 🛑';
                 document.getElementById('start-btn').style.background = 'linear-gradient(135deg, #e63946 0%, #d62828 100%)';
@@ -260,29 +258,21 @@
                         totalSeconds--;
                         updateTimerDisplay();
                     } else {
-                        // タイマーカウントダウンが 00:00 に到達して自動終了した時の処理
+                        // 00:00 まで完遂して自動終了した瞬間
+                        isTimerRunning = false;
+                        clearInterval(timerInterval);
+                        document.getElementById('start-btn').innerText = '潜水開始 🧭';
+                        document.getElementById('start-btn').style.background = 'linear-gradient(135deg, #00b4d8 0%, #0077b6 100%)';
+                        
                         const dMins = Math.floor(initialSeconds / 60);
                         saveDiveLog(dMins);
-                        stopTimer();
+                        
+                        // 🚀 【自動送信】完遂したときも、即座に裏で自動解析！
+                        generateAiReview();
                         alert("🧭 タイムアップ！無事深海から帰還したぞ！");
                     }
                 }, 1000);
             }
-        }
-
-        // ⏰ 【核心】潜水を安全に停止し、バックグラウンド自動AI解析をキックする関数
-        function stopTimer() {
-            if (!isTimerRunning) return;
-            
-            isTimerRunning = false;
-            clearInterval(timerInterval);
-            
-            // UIボタンの表示をもとに戻す
-            document.getElementById('start-btn').innerText = '潜水開始 🧭';
-            document.getElementById('start-btn').style.background = 'linear-gradient(135deg, #00b4d8 0%, #0077b6 100%)';
-            
-            // 🚀 【今回の目玉機能】潜水が終わったその瞬間に、裏で自動的にAI解析をスタートさせる！
-            generateAiReview();
         }
 
         function resetTimer() {
@@ -306,27 +296,25 @@
         }
 
         // ==========================================
-        // ⚓ 【大改造】常設型 AIキャプテン自動振り返りシステム
+        // 🧠 バックグラウンド自動AI振り返りロジック
         // ==========================================
         async function generateAiReview() {
             const responseBox = document.getElementById('ai-response-box');
             const btn = document.getElementById('btn-ai-review');
             if (!responseBox) return;
             
-            // 🔄 画面全体をロックする邪魔なポップアップは完全に廃止！
-            // 日誌エリアの内部だけをローディング状態に変えて、バックグラウンドでの執筆を表現
+            // 🔄 ポップアップ画面ロックは完全撤廃
             if (btn) {
-                btn.innerText = "解析中...🧭";
+                btn.innerText = "解析中...";
                 btn.disabled = true;
             }
-            responseBox.innerHTML = "<span style='color: #00e5ff; font-weight: bold;'>🧭 本日のログデータを深海サーバーへ自動アップロード中...<br>キャプテンAIが航海日誌を解析・執筆しています。そのままお待ちください...</span>";
+            responseBox.innerHTML = "<span style='color: #00e5ff; font-weight: bold;'>🧭 本日のログデータを深海サーバーへ自動アップロード中...<br>キャプテンAIがログを解析しています...</span>";
             
             const todayStr = getTodayString();
             const todayMins = timeLogs[todayStr] || 0;
             const unfinishedTodosCount = todos.filter(t => !t.completed).length;
 
             try {
-                // 📡 構造を統一した Vercel側 の新 review.js へデータを自動POST送信！
                 const response = await fetch(VERCEL_REVIEW_API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -334,32 +322,31 @@
                         minutes: todayMins, 
                         todosCount: unfinishedTodosCount,
                         diverName: currentDiverName,
-                        distractionCount: appDistractionCount // 👈 溜まったサボり回数も自動でここに封入して送信！
+                        distractionCount: appDistractionCount // 👈 溜まったサボり回数を自動で送信！
                     })
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.reply) {
-                    // 🎉 バックグラウンドで届いたキャプテンの熱い日誌ログをそのまま常設テキストエリアに書き込む！
+                    // 🎉 届いたメッセージを常設ボックスに表示！
                     responseBox.innerText = data.reply;
                 } else {
-                    responseBox.innerText = `🚨 ログ解析エラー\n${data.reply || 'キャプテンAIとの通信に障害が発生したようだ。'}`;
+                    responseBox.innerText = `🚨 ログ解析エラー\n${data.reply || 'キャプテンとの通信に障害が発生したようだ。'}`;
                 }
             } catch (error) {
                 console.error("振り返りAPI接続エラー:", error);
                 responseBox.innerText = `🚨 接続失敗\n深海通信プロトコルに失敗した。Vercelへのデプロイ状態やURL変数を確認してくれ！`;
             } finally {
-                // 解析終了後にボタンの状態を復帰させる
                 if (btn) {
-                    btn.innerText = "ログを再解析 🧠";
+                    btn.innerText = "ログを手動更新 🧠";
                     btn.disabled = false;
                 }
             }
         }
 
         // ==========================================
-        // 📝 AI翻訳 ＆ 単語帳アーカイブ ロジック
+        // 📝 AI翻訳 ＆ 単語帳管理
         // ==========================================
         async function askVercelCloudflareAiTranslate() {
             const enInput = document.getElementById('input-en').value.trim();
@@ -402,47 +389,31 @@
             words.forEach(w => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.style.display = 'flex'; card.style.justifyContent = 'space-between'; card.style.alignItems = 'center'; card.style.padding = '14px 20px';
+                card.style.display = 'flex'; card.style.justifyContent = 'space-between'; card.style.alignItems = 'center';
                 
-                const enSpan = document.createElement('span'); 
-                enSpan.innerText = w.en; 
-                if (globalVisibilityMode === 'hide-en') { enSpan.className = 'blur-text'; enSpan.onclick = function() { this.classList.toggle('reveal'); }; }
+                const enSpan = document.createElement('span'); enSpan.innerText = w.en; if (globalVisibilityMode === 'hide-en') { enSpan.className = 'blur-text'; enSpan.onclick = function() { this.classList.toggle('reveal'); }; }
+                const jaSpan = document.createElement('span'); jaSpan.innerText = w.ja; if (globalVisibilityMode === 'hide-ja') { jaSpan.className = 'blur-text'; jaSpan.onclick = function() { this.classList.toggle('reveal'); }; }
                 
-                const jaSpan = document.createElement('span'); 
-                jaSpan.innerText = w.ja; 
-                if (globalVisibilityMode === 'hide-ja') { jaSpan.className = 'blur-text'; jaSpan.onclick = function() { this.classList.toggle('reveal'); }; }
-                
-                const del = document.createElement('span'); 
-                del.innerHTML = '✕'; del.style.cursor='pointer'; del.style.color = 'rgba(255,255,255,0.3)';
+                const del = document.createElement('span'); del.innerHTML = '✕'; del.style.cursor='pointer'; del.style.color = 'rgba(255,255,255,0.3)';
                 del.onclick = function() { 
                     words = words.filter(item => item.id !== w.id); 
                     localStorage.setItem('ocean_words_list', JSON.stringify(words)); 
                     renderWordList(); 
                 };
                 
-                card.appendChild(enSpan); card.appendChild(jaSpan); card.appendChild(del); 
-                container.appendChild(card);
+                card.appendChild(enSpan); card.appendChild(jaSpan); card.appendChild(del); container.appendChild(card);
             });
         }
 
         function addNewWord() {
-            const en = document.getElementById('input-en'); 
-            const ja = document.getElementById('input-ja'); 
-            if(!en.value || !ja.value) return;
-            
-            words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() }); 
-            localStorage.setItem('ocean_words_list', JSON.stringify(words)); 
-            en.value = ''; ja.value = ''; 
-            renderWordList();
+            const en = document.getElementById('input-en'); const ja = document.getElementById('input-ja'); if(!en.value||!ja.value) return;
+            words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() }); localStorage.setItem('ocean_words_list', JSON.stringify(words)); en.value = ''; ja.value = ''; renderWordList();
         }
 
-        function setGlobalVisibility(mode) {
-            globalVisibilityMode = mode;
-            renderWordList();
-        }
+        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
 
         // ==========================================
-        // 🎯 ミッション（ToDo）管理ロジック
+        // 🎯 ミッション（ToDo）管理
         // ==========================================
         function renderTodoList() {
             const container = document.getElementById('todo-list');
@@ -452,7 +423,7 @@
             todos.forEach(t => {
                 const item = document.createElement('div');
                 item.className = 'card';
-                item.style.display = 'flex'; item.style.alignItems = 'center'; item.style.justifyContent = 'space-between'; item.style.padding = '14px 20px';
+                item.style.display = 'flex'; item.style.alignItems = 'center'; item.style.justifyContent = 'space-between';
                 if(t.completed) item.style.opacity = '0.5';
                 
                 const leftSide = document.createElement('div');
@@ -460,7 +431,6 @@
                 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox'; checkbox.checked = t.completed;
-                checkbox.style.cursor = 'pointer';
                 checkbox.onclick = function() {
                     t.completed = !t.completed;
                     localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
@@ -489,7 +459,6 @@
         function addTodo() {
             const input = document.getElementById('todo-input');
             if(!input.value.trim()) return;
-            
             todos.push({ id: Date.now(), text: input.value.trim(), completed: false });
             localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
             input.value = '';
