@@ -676,6 +676,34 @@
             }
         }
 
+        // オブジェクト内部から文字列型のテキスト資産を根こそぎ自動抽出する安全弁
+        function extractTextFromObject(obj) {
+            if (!obj) return "";
+            if (typeof obj === 'string') return obj;
+            
+            // 最もよく使われる既知のキーを最優先で探索
+            const topLevelKeys = ['response', 'text', 'content', 'result'];
+            for (let key of topLevelKeys) {
+                if (obj[key] && typeof obj[key] === 'string') return obj[key];
+                if (obj[key] && typeof obj[key] === 'object') {
+                    const deepText = extractTextFromObject(obj[key]);
+                    if (deepText) return deepText;
+                }
+            }
+            
+            // それでもダメな場合、全プロパティをスキャン
+            for (let key in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                    if (typeof obj[key] === 'string') return obj[key];
+                    if (typeof obj[key] === 'object') {
+                        const nested = extractTextFromObject(obj[key]);
+                        if (nested) return nested;
+                    }
+                }
+            }
+            return "";
+        }
+
         async function generateAiReview() {
             const overlay = document.getElementById('ai-modal-overlay');
             const box = document.getElementById('ai-response-box');
@@ -702,11 +730,14 @@
                 if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
                 
                 const d = await res.json();
-                // 柔軟なレスポンス抽出
-                let aiTxt = d.response || d.text || d.content || d.result || "";
-                if(!aiTxt && typeof d === 'string') aiTxt = d;
+                let aiTxt = extractTextFromObject(d);
                 
-                box.innerText = aiTxt.trim() || "データは取得できましたが、解析結果が空でした。";
+                // 完全な安全対策（何も文字が見つからない場合は生のJSONをダンプ）
+                if (!aiTxt && d) {
+                    aiTxt = typeof d === 'object' ? JSON.stringify(d, null, 2) : String(d);
+                }
+                
+                box.innerText = aiTxt.trim();
             } catch(e) {
                 box.innerText = `通信環境が悪化しています（エラー: ${e.message}）。一度浮上して、電波状況の良い場所で再度ログを同期させてください。`;
             } finally {
@@ -1064,7 +1095,6 @@
             renderWordList();
         }
 
-        // ★AI翻訳のレスポンス解析ロジックを大幅アップデート
         async function askVercelCloudflareAiTranslate() {
             const enInput = document.getElementById('input-en');
             const jaInput = document.getElementById('input-ja');
@@ -1092,13 +1122,11 @@
                 if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
                 
                 const d = await res.json();
+                let translatedResult = extractTextFromObject(d);
                 
-                // 柔軟にあらゆるレスポンス形式から文字列をサルベージする処理
-                let translatedResult = "";
-                if (d && typeof d === 'object') {
-                    translatedResult = d.response || d.text || d.content || d.result || "";
-                } else if (typeof d === 'string') {
-                    translatedResult = d;
+                // 完全な安全弁：もし全スキャンしても文字列型が見つからない場合はJSONをそのまま出す
+                if (!translatedResult && d) {
+                    translatedResult = typeof d === 'object' ? JSON.stringify(d) : String(d);
                 }
                 
                 translatedResult = translatedResult.trim();
@@ -1106,7 +1134,7 @@
                 if (translatedResult) {
                     jaInput.value = translatedResult;
                 } else {
-                    jaInput.value = "解析結果が空でした（手動入力してください）";
+                    jaInput.value = "解析結果が完全に空でした（手動入力してください）";
                 }
             } catch(e) {
                 jaInput.value = `翻訳エラー: ${e.message}（手動入力してください）`;
