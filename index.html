@@ -124,20 +124,113 @@
         .bubble { position: absolute; bottom: -20px; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, rgba(0,180,216,0.2) 40%, rgba(255,255,255,0.05) 70%, rgba(255,255,255,0.4) 100%); border-radius: 50%; animation: bubbleUp 5s infinite ease-in; box-shadow: 0 0 6px rgba(0, 180, 216, 0.3), inset 0 0 4px rgba(255,255,255,0.6); }
         @keyframes bubbleUp { 0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; } 15% { opacity: 0.9; } 90% { opacity: 0.8; } 100% { transform: translateY(-110vh) translateX(35px) scale(1.2); opacity: 0; } }
 
-        #light-ray-effect { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 10% -10%, rgba(255,255,255,0.4) 0%, rgba(0,180,216,0.15) 30%, rgba(0,0,0,0) 70%), linear-gradient(115deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 40%); pointer-events: none; z-index: 2; display: none; animation: lightPulse 6s infinite alternate ease-in-out; mix-blend-mode: overlay; }
-        @keyframes lightPulse { 0% { opacity: 0.7; } 100% { opacity: 1.0; } }
-
-        .deep-sea-fish { position: fixed; pointer-events: none; z-index: 3; font-size: 1.8rem; opacity: 0; transition: opacity 1s, transform 4s linear; filter: drop-shadow(0 0 8px rgba(0,180,216,0.5)); mix-blend-mode: screen; }
-        .fish-swim { opacity: 0.75; }
+        .deep-sea-fish { position: fixed; pointer-events: none; z-index: 98; font-size: 1.8rem; opacity: 0; transition: opacity 1s, transform 4s linear; filter: drop-shadow(0 0 8px rgba(0,180,216,0.5)); mix-blend-mode: screen; }
+        .fish-swim { opacity: 0.5; }
 
         .ai-loading-pulse { animation: aiPulse 1.5s infinite alternate; }
         @keyframes aiPulse { 0% { opacity: 0.4; filter: drop-shadow(0 0 2px #00b4d8); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00b4d8); } }
+
+        /* ==========================================================================
+           🤿 没入型フルスクリーン・ディープダイブ画面のスタイル (新設)
+           ========================================================================== */
+        #diving-fullscreen-mode {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(180deg, #051423 0%, #030b14 60%, #01050a 100%);
+            z-index: 9999; display: none; flex-direction: column; align-items: center;
+            justify-content: space-between; box-sizing: border-box; padding: 50px 20px 60px 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow: hidden;
+        }
+
+        /* 差し込む幻想的な光カーテン */
+        .light-rays {
+            position: absolute; top: -10%; left: -10%; width: 130%; height: 70%;
+            background: radial-gradient(circle at 50% -20%, rgba(0, 180, 216, 0.35) 0%, rgba(0, 180, 216, 0.1) 40%, rgba(0,0,0,0) 70%);
+            mix-blend-mode: screen; pointer-events: none; z-index: 1;
+            transform-origin: top center; animation: raySway 8s infinite alternate ease-in-out;
+        }
+        @keyframes raySway {
+            0% { transform: rotate(-3deg) scaleY(1); opacity: 0.8; }
+            100% { transform: rotate(3deg) scaleY(1.1); opacity: 1; }
+        }
+
+        /* 水色のサークルタイマー構造 */
+        .circle-timer-container {
+            position: relative; width: 260px; height: 260px;
+            display: flex; align-items: center; justify-content: center; z-index: 10;
+        }
+        .circle-timer-svg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            transform: rotate(-90deg); /* 12時の位置からスタートさせる */
+        }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.04); stroke-width: 10; }
+        .circle-progress {
+            fill: none; stroke: #00b4d8; stroke-width: 10;
+            stroke-linecap: round; transition: stroke-dashoffset 0.3s linear;
+            filter: drop-shadow(0 0 10px rgba(0, 180, 216, 0.8));
+        }
+
+        /* 円の内部テキスト */
+        .timer-internal-box { text-align: center; color: #ffffff; z-index: 12; }
+        .timer-time-text { font-size: 3.4rem; font-weight: 200; letter-spacing: 1px; margin: 0; line-shadow: 0 0 20px rgba(255,255,255,0.4); }
+        .timer-sub-text { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.6; margin-top: 2px; text-transform: uppercase; }
+        .timer-jp-text { font-size: 0.55rem; opacity: 0.4; letter-spacing: 1px; margin-top: 3px; }
+
+        /* 計器風ステータス行 */
+        .dive-stats-row {
+            display: flex; justify-content: space-between; width: 100%; max-width: 280px;
+            font-size: 0.72rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; z-index: 10;
+        }
+        .dive-stat-item { display: flex; align-items: center; gap: 5px; }
+
+        /* スマートな「浮上する」ボタン */
+        .btn-ascend {
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8); border-radius: 30px; padding: 12px 45px;
+            font-size: 0.85rem; font-weight: bold; cursor: pointer; z-index: 10;
+            transition: all 0.2s; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 1px;
+        }
+        .btn-ascend:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.96); }
     </style>
 </head>
 <body>
 
-    <div id="light-ray-effect"></div>
     <div id="bubble-container"></div>
+
+    <div id="diving-fullscreen-mode">
+        <div class="light-rays"></div>
+
+        <div style="font-size: 0.72rem; letter-spacing: 3px; opacity: 0.7; font-weight: bold; display: flex; align-items: center; gap: 6px; z-index: 10;">
+            🚢 DEEP DIVE
+        </div>
+
+        <div class="circle-timer-container">
+            <svg class="circle-timer-svg" viewBox="0 0 120 120">
+                <circle class="circle-bg" cx="60" cy="60" r="52"></circle>
+                <circle class="circle-progress" id="circle-gauge" cx="60" cy="60" r="52" stroke-dasharray="326.72" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="timer-internal-box">
+                <h1 class="timer-time-text" id="fullscreen-time-display">25:00</h1>
+                <div class="timer-sub-text">Submersion Mode</div>
+                <div class="timer-jp-text">潜水時間 (DIVING TIME)</div>
+            </div>
+        </div>
+
+        <div class="dive-stats-row">
+            <div class="dive-stat-item">
+                <span>↓</span> DEPTH: <span style="color:#fff; font-weight:bold;">45m</span>
+            </div>
+            <div class="dive-stat-item">
+                <span>🪔</span> AIR: <span style="color:#fff; font-weight:bold;">180 BAR</span>
+            </div>
+        </div>
+
+        <button class="btn-ascend" onclick="toggleTimer()">
+            浮上する (ASCEND DIVE) <span>↑</span>
+        </button>
+    </div>
+
 
     <div class="container">
         <div id="app-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: relative; z-index: 10;">
@@ -148,7 +241,7 @@
                     <div style="font-size: 0.6rem; background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); padding: 1px 6px; border-radius: 8px; margin-top: 2px; color: #fff; display: inline-block;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
                 </div>
             </div>
-            <button onclick="openSettingsModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.3); color: #fff; font-size: 1.3rem; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='#00b4d8'" onmouseout="this.style.borderColor='rgba(0,180,216,0.3)'">⚙️</button>
+            <button onclick="openSettingsModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.3); color: #fff; font-size: 1.3rem; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">⚙️</button>
         </div>
 
         <div id="tab-home" class="tab-content active">
@@ -173,11 +266,9 @@
                 </div>
 
                 <div style="text-align: center;">
-                    <div id="diving-animation" style="display:none; font-size: 2.2rem; margin-bottom: 15px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 10px #00b4d8);">🫧 🤿 🐠</div>
-                    <style>@keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.05); } }</style>
                     <div style="font-size: 4rem; font-weight: 100; margin-bottom: 5px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(255,255,255,0.2);" id="timer-display">25:00</div>
-                    <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 3px; color: #00b4d8;" id="timer-status-label">FOCUS TIMER</div>
-                    <button class="btn-main" onclick="toggleTimer()" id="sync-btn">潜水開始</button>
+                    <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 3px; color: #00b4d8;">FOCUS TIMER</div>
+                    <button class="btn-main" onclick="toggleTimer()">潜水開始</button>
                 </div>
             </div>
 
@@ -411,6 +502,7 @@
         let activeTimetableCellIndex = null;
 
         const avatars = ['🧑‍💻', '🤿', '🧜‍♂️', '🧜‍♀️', '🦈', '🐋', '🐙', '🦀', '🐧', '⚓️'];
+        const GAUGE_MAX = 326.72; // SVG円周の長さ
 
         window.onload = function() {
             updateDiverHeaderUI();
@@ -420,15 +512,14 @@
             renderTimetable();
             renderWordList();
 
-            // タブ離脱サボり検知
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden && isTimerRunning) {
                     distractionCount++;
                 }
             });
             
-            setInterval(createBubble, 400);
-            setTimeout(spawnFishLoop, 3000);
+            setInterval(createBubble, 450);
+            setTimeout(spawnFishLoop, 2000);
         };
 
         function updateDiverHeaderUI() {
@@ -462,7 +553,6 @@
             alert('ダイバープロフィールを更新しました ⚓️');
         }
 
-        // --- 設定モーダルの開閉処理 ---
         function openSettingsModal() {
             document.getElementById('settings-modal-overlay').classList.add('open');
         }
@@ -470,7 +560,6 @@
             document.getElementById('settings-modal-overlay').classList.remove('open');
         }
 
-        // --- タブ切り替え制御 ---
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
@@ -501,6 +590,7 @@
             if(timerMode === 'countup') {
                 wrapper.style.display = 'none';
                 document.getElementById('timer-display').innerText = "00:00";
+                document.getElementById('fullscreen-time-display').innerText = "00:00";
             } else {
                 wrapper.style.display = 'flex';
                 updateMinutes();
@@ -519,59 +609,75 @@
         function updateTimerDisplay(sec) {
             const mins = Math.floor(sec / 60);
             const secs = sec % 60;
-            document.getElementById('timer-display').innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            // 通常ホーム用のテキスト表示
+            document.getElementById('timer-display').innerText = formattedTime;
+            // 🤿 フルスクリーン潜水モード用のテキスト表示
+            document.getElementById('fullscreen-time-display').innerText = formattedTime;
+
+            // 水色サークルゲージの更新
+            const gauge = document.getElementById('circle-gauge');
+            if(gauge) {
+                if (timerMode === 'countdown') {
+                    // 残り時間比率で円周を減らす
+                    const pct = sec / totalSeconds;
+                    const offset = GAUGE_MAX * (1 - pct);
+                    gauge.style.strokeDashoffset = offset;
+                } else {
+                    // カウントアップ時は1分(60秒)ごとに円周が1周するアニメーション
+                    const pct = (sec % 60) / 60;
+                    const offset = GAUGE_MAX * (1 - pct);
+                    gauge.style.strokeDashoffset = offset;
+                }
+            }
         }
 
         function toggleTimer() {
-            const btn = document.getElementById('sync-btn');
-            const nav = document.getElementById('bottom-nav');
-            const anime = document.getElementById('diving-animation');
+            const fullscreenLayer = document.getElementById('diving-fullscreen-mode');
+            const documentContainer = document.querySelector('.container');
+            
             if (isTimerRunning) {
+                // 【浮上・終了処理】
                 clearInterval(timer);
                 isTimerRunning = false;
-                btn.innerText = "潜水開始";
-                btn.style.background = "linear-gradient(135deg, #ff9e00 0%, #ff6d00 100%)";
-                nav.classList.remove('hidden');
-                anime.style.display = 'none';
+                
+                // フルスクリーンを非表示にして通常画面へ
+                fullscreenLayer.style.display = 'none';
                 document.getElementById('bubble-container').style.display = 'none';
-                document.getElementById('light-ray-effect').style.display = 'none';
 
                 const recordedMins = Math.ceil(elapsedSeconds / 60);
                 if(recordedMins > 0) {
                     saveFocusRecord(recordedMins);
                 }
+                // 時間表示を初期リセット
+                if(timerMode === 'countdown') updateMinutes();
+                else updateTimerDisplay(0);
             } else {
+                // 【潜水開始・没入モード展開】
                 isTimerRunning = true;
                 distractionCount = 0;
-                btn.innerText = "浮上（停止）";
-                btn.style.background = "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)";
-                nav.classList.add('hidden');
-                anime.style.display = 'block';
+                
+                // フルスクリーン潜水画面をON
+                fullscreenLayer.style.display = 'flex';
                 document.getElementById('bubble-container').style.display = 'block';
-                document.getElementById('light-ray-effect').style.display = 'block';
 
                 if (timerMode === 'countdown') {
                     elapsedSeconds = 0;
                     let remaining = totalSeconds;
+                    updateTimerDisplay(remaining);
+                    
                     timer = setInterval(() => {
                         remaining--;
                         elapsedSeconds++;
                         updateTimerDisplay(remaining);
                         if (remaining <= 0) {
-                            clearInterval(timer);
-                            isTimerRunning = false;
-                            btn.innerText = "潜水開始";
-                            btn.style.background = "linear-gradient(135deg, #ff9e00 0%, #ff6d00 100%)";
-                            nav.classList.remove('hidden');
-                            anime.style.display = 'none';
-                            document.getElementById('bubble-container').style.display = 'none';
-                            document.getElementById('light-ray-effect').style.display = 'none';
-                            const recordedMins = Math.ceil(elapsedSeconds / 60);
-                            saveFocusRecord(recordedMins);
+                            toggleTimer(); // 自動浮上
                         }
                     }, 1000);
                 } else {
                     elapsedSeconds = 0;
+                    updateTimerDisplay(0);
                     timer = setInterval(() => {
                         elapsedSeconds++;
                         updateTimerDisplay(elapsedSeconds);
@@ -997,22 +1103,25 @@
             if(!container) return;
             const b = document.createElement('div');
             b.className = 'bubble';
-            const size = Math.random() * 14 + 6;
+            const size = Math.random() * 12 + 5;
             b.style.width = `${size}px`;
             b.style.height = `${size}px`;
             b.style.left = `${Math.random() * 100}%`;
-            b.style.animationDuration = `${Math.random() * 3 + 3}s`;
+            b.style.animationDuration = `${Math.random() * 3 + 2.5}s`;
             container.appendChild(b);
-            setTimeout(() => b.remove(), 6000);
+            setTimeout(() => b.remove(), 5500);
         }
 
         function spawnFishLoop() {
-            if(!isTimerRunning) return;
-            const fishes = ['🐠','🐡','🐙','🦑','🦈','🐋','🦐'];
+            if(!isTimerRunning) {
+                setTimeout(spawnFishLoop, 1000);
+                return;
+            }
+            const fishes = ['🐠','🐡','🐙','🦑','🦈','🐋','🦐','🪼'];
             const fish = document.createElement('div');
             fish.className = 'deep-sea-fish';
             fish.innerText = fishes[Math.floor(Math.random() * fishes.length)];
-            fish.style.top = (Math.random() * 60 + 20) + '%';
+            fish.style.top = (Math.random() * 65 + 15) + '%';
             
             const leftToRight = Math.random() > 0.5;
             if(leftToRight) {
@@ -1030,7 +1139,7 @@
             }
 
             document.body.appendChild(fish);
-            setTimeout(() => { fish.remove(); if(isTimerRunning) spawnFishLoop(); }, 5000);
+            setTimeout(() => { fish.remove(); spawnFishLoop(); }, 6000);
         }
 
         // --- データ初期化 ---
