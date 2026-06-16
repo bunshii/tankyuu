@@ -119,7 +119,7 @@
         .stat-row-clickable:hover { background: rgba(0,180,216,0.08); }
         .stat-row-clickable.active-filter { background: rgba(0, 180, 216, 0.15); border: 1px solid #00b4d8; }
 
-        /* 🌊 写真風・潜水環境エフェクト */
+        /* 🌊 環境エフェクト */
         #bubble-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none; }
         .bubble { position: absolute; bottom: -20px; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, rgba(0,180,216,0.2) 40%, rgba(255,255,255,0.05) 70%, rgba(255,255,255,0.4) 100%); border-radius: 50%; animation: bubbleUp 5s infinite ease-in; box-shadow: 0 0 6px rgba(0, 180, 216, 0.3), inset 0 0 4px rgba(255,255,255,0.6); }
         @keyframes bubbleUp { 0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; } 15% { opacity: 0.9; } 90% { opacity: 0.8; } 100% { transform: translateY(-110vh) translateX(35px) scale(1.2); opacity: 0; } }
@@ -152,7 +152,7 @@
         <div id="tab-home" class="tab-content active">
             <div class="card" onclick="switchToAnalyticsTab('week')" style="cursor: pointer;" id="home-graph-card">
                 <div style="font-size: 0.8rem; margin-bottom: 12px; opacity: 0.8; display: flex; justify-content: space-between;">
-                    <span>今週の潜水記録（分） <span style="font-size:0.7rem; color: #00b4d8;">🔍 詳細分析</span></span>
+                    <span>今週の潜水記録（分） <span style="font-size:0.7rem; color: #00b4d8;">🔍 タップして分析</span></span>
                     <span id="home-today-total-label" style="font-weight: bold; color: #ff9e00;">今日: 0分</span>
                 </div>
                 <div id="home-weekly-chart" style="display: flex; align-items: flex-end; justify-content: space-around; height: 80px; gap: 8px;"></div>
@@ -192,64 +192,6 @@
                     <span id="permanent-log-status" style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">通信待機中...</span>
                 </div>
                 <div id="permanent-log-box" style="font-size: 0.85rem; line-height: 1.6; background: rgba(0,0,0,0.25); padding: 15px; border-radius: 14px; min-height: 80px; max-height: 250px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap; color: rgba(255,255,255,0.9);">前回の潜水ログがここに自動同期されます。</div>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="todo-modal-overlay" onclick="closeTodoModal(event)">
-            <div class="card modal-content" onclick="event.stopPropagation()">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;">🫧 新しいミッションを登録</div>
-                    <span onclick="closeTodoModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
-                </div>
-                <div style="flex-direction: column; display: flex; gap: 12px;">
-                    <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 45px; border-radius: 12px;">
-                    <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,180,216,0.15);">
-                        <span style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px; color: #00b4d8;">⏳ 締め切り設定 (任意):</span>
-                        <input type="date" id="input-todo-deadline" class="date-field" style="height: 35px;">
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <button class="btn-ctrl" onclick="closeTodoModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">キャンセル</button>
-                        <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">ミッション発動 🚀</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="ai-modal-overlay" onclick="closeAiModal()">
-            <div class="card modal-content" onclick="event.stopPropagation()" style="border-color: #00b4d8; max-width: 420px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <div style="font-size: 1rem; font-weight: bold; color: #00b4d8; display: flex; align-items: center; gap: 6px;">⚓️ 深海ログキャプテン</div>
-                    <span onclick="closeAiModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
-                </div>
-                <div id="ai-response-box" style="font-size: 0.88rem; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px; max-height: 280px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap;">データ解析中...</div>
-                <button class="btn-main" onclick="closeAiModal()" style="height: 45px; margin-top: 15px; font-size: 0.95rem; background: #134074; box-shadow: none;">ログを閉じる</button>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="timetable-modal-overlay" onclick="closeTimetableModal()">
-            <div class="card modal-content" onclick="event.stopPropagation()">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;" id="timetable-modal-title">⏰ マスの編集</div>
-                    <span onclick="closeTimetableModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <span style="font-size: 0.75rem; opacity: 0.7;">タップで爆速入力:</span>
-                    <div class="subject-chip-container">
-                        <div class="subject-chip" onclick="selectSubjectChip('国語')">国語</div>
-                        <div class="subject-chip" onclick="selectSubjectChip('数学')">数学</div>
-                        <div class="subject-chip" onclick="selectSubjectChip('英語')">英語</div>
-                        <div class="subject-chip" onclick="selectSubjectChip('理科')">理科</div>
-                        <div class="subject-chip" onclick="selectSubjectChip('社会')">社会</div>
-                        <div class="subject-chip" onclick="selectSubjectChip('プロ')">プロ</div>
-                        <div class="subject-chip" onclick="selectSubjectChip('自習')">自習</div>
-                        <div class="subject-chip" onclick="selectSubjectChip('-')">クリア ( - )</div>
-                    </div>
-                    <input type="text" id="input-timetable-subject" class="word-field" placeholder="自由に教科名を入力..." style="height: 45px; border-radius: 12px;">
-                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <button class="btn-ctrl" onclick="closeTimetableModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">閉じる</button>
-                        <button class="btn-add" onclick="saveTimetableModalValue()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">変更を確定 ✅</button>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -335,13 +277,23 @@
         <div id="tab-friends" class="tab-content">
             <h2 style="font-size: 1.2rem; margin-bottom: 5px; color: #00b4d8;">探索チーム</h2>
             <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 15px;">※スタンドアロン（オフライン）稼働中</p>
-            <div class="card" style="display: flex; align-items: center; gap: 15px;">
-                <div style="width:45px; height:45px; background:rgba(0,180,216,0.1); border: 1px solid #00b4d8; border-radius:50%; display:flex; align-items:center; justify-content:center;">🐳</div>
-                <div style="flex: 1;">
-                    <div style="font-weight: bold;">TAKUYA</div>
-                    <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="card" style="display: flex; align-items: center; gap: 15px; margin-bottom: 0;">
+                    <div style="width:45px; height:45px; background:rgba(0,180,216,0.1); border: 1px solid #00b4d8; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size: 1.3rem;">🐳</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 0.95rem;">TAKUYA</div>
+                        <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
+                    </div>
+                    <span style="color: #4ade80; font-size: 0.8rem; font-weight: bold; background: rgba(74,222,128,0.1); padding: 4px 10px; border-radius: 12px;">● 潜水中</span>
                 </div>
-                <span style="color: #4ade80; font-size: 0.8rem;">● 潜水中</span>
+                <div class="card" style="display: flex; align-items: center; gap: 15px; margin-bottom: 0;">
+                    <div style="width:45px; height:45px; background:rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size: 1.3rem;">🐙</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 0.95rem; opacity: 0.6;">SARA</div>
+                        <div style="font-size: 0.7rem; opacity:0.5;">ID: D-1094 | 最終潜水: 3時間前</div>
+                    </div>
+                    <span style="color: rgba(255,255,255,0.4); font-size: 0.8rem; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px;">オフライン</span>
+                </div>
             </div>
         </div>
 
@@ -363,8 +315,66 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="todo-modal-overlay" onclick="closeTodoModal(event)">
+        <div class="card modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;">🫧 新しいミッションを登録</div>
+                <span onclick="closeTodoModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div style="flex-direction: column; display: flex; gap: 12px;">
+                <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 45px; border-radius: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,180,216,0.15);">
+                    <span style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px; color: #00b4d8;">⏳ 締め切り設定 (任意):</span>
+                    <input type="date" id="input-todo-deadline" class="date-field" style="height: 35px;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn-ctrl" onclick="closeTodoModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">キャンセル</button>
+                    <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">ミッション発動 🚀</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ai-modal-overlay" onclick="closeAiModal()">
+        <div class="card modal-content" onclick="event.stopPropagation()" style="border-color: #00b4d8; max-width: 420px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8; display: flex; align-items: center; gap: 6px;">⚓️ 深海ログキャプテン</div>
+                <span onclick="closeAiModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div id="ai-response-box" style="font-size: 0.88rem; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px; max-height: 280px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap;">データ解析中...</div>
+            <button class="btn-main" onclick="closeAiModal()" style="height: 45px; margin-top: 15px; font-size: 0.95rem; background: #134074; box-shadow: none;">ログを閉じる</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="timetable-modal-overlay" onclick="closeTimetableModal()">
+        <div class="card modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;" id="timetable-modal-title">⏰ マスの編集</div>
+                <span onclick="closeTimetableModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <span style="font-size: 0.75rem; opacity: 0.7;">タップで爆速入力:</span>
+                <div class="subject-chip-container">
+                    <div class="subject-chip" onclick="selectSubjectChip('国語')">国語</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('数学')">数学</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('英語')">英語</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('理科')">理科</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('社会')">社会</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('プロ')">プロ</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('自習')">自習</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('-')">クリア ( - )</div>
+                </div>
+                <input type="text" id="input-timetable-subject" class="word-field" placeholder="自由に教科名を入力..." style="height: 45px; border-radius: 12px;">
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn-ctrl" onclick="closeTimetableModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">閉じる</button>
+                    <button class="btn-add" onclick="saveTimetableModalValue()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">変更を確定 ✅</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <nav id="bottom-nav">
-        <button onclick="switchTab('analytics', this)">📊</button>
+        <button onclick="switchTab('friends', this)">👥</button>
         <button onclick="switchTab('schedule', this)">⏰</button>
         <button onclick="switchTab('home', this)" class="home-btn active">⚓</button>
         <button onclick="switchTab('words', this)">📖</button>
@@ -403,11 +413,10 @@
             document.getElementById('permanent-log-box').innerText = latestAiLog;
             document.getElementById('permanent-log-status').innerText = "✅ 同期中";
 
-            // サボり検知（タブ離脱）
+            // タブ離脱サボり検知
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden && isTimerRunning) {
                     distractionCount++;
-                    console.log(`[警報] シールド展開不良（離脱回数: ${distractionCount}回）`);
                 }
             });
             
@@ -449,19 +458,24 @@
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
+            
+            // ナビゲーション上のボタンのactive制御
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             if(btn) {
-                document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
                 btn.classList.add('active');
+            } else if(tabId === 'home') {
+                document.querySelectorAll('nav button')[2].classList.add('active'); // ホームボタンをアクティブに
             }
+
             if(tabId === 'analytics') {
                 drawAnalyticsChart(currentAnalyticsView);
             }
         }
 
+        // グラフカードをタップした際の専用遷移（引数に基づいたビューでアナリティクスを展開）
         function switchToAnalyticsTab(viewType) {
             currentAnalyticsView = viewType;
-            const analyticsBtn = document.querySelectorAll('nav button')[0];
-            switchTab('analytics', analyticsBtn);
+            switchTab('analytics', null); // 下部ナビ上のactiveはクリアして遷移
             changeAnalyticsView(viewType);
         }
 
@@ -499,7 +513,6 @@
             const nav = document.getElementById('bottom-nav');
             const anime = document.getElementById('diving-animation');
             if (isTimerRunning) {
-                // 手動潜水停止（早期浮上）
                 clearInterval(timer);
                 isTimerRunning = false;
                 btn.innerText = "潜水開始";
@@ -515,7 +528,6 @@
                     triggerBackgroundAiReview(recordedMins, distractionCount);
                 }
             } else {
-                // 潜水開始
                 isTimerRunning = true;
                 distractionCount = 0;
                 btn.innerText = "浮上（停止）";
@@ -565,7 +577,7 @@
 
             const activeMissions = todos.slice(0, 5).map(t => t.text).join(', ') || 'なし';
             const learnedWords = words.slice(0, 5).map(w => w.en).join(', ') || 'なし';
-            const rawPrompt = `【深海探究セッション完了レポート】\n潜水時間: ${minutes}分\n外部浮上（タブ離脱）回数: ${distractions}回\n現在のミッション: ${activeMissions}\n獲得した単語: ${learnedWords}\n\n上記データをもとに、深海のキャプテンとして、本日の航海日誌（振り返りと激励のメッセージ）を日本語で150文字程度で作成せよ。`;
+            const rawPrompt = `【深海探究セッション完了レポート】\n潜水時間: ${minutes}分\n外部浮上（タブ離脱）回数: ${distractions}回\n現在のミッション: ${activeMissions}\n獲得した単語: ${learnedWords}\n\n上記データをもとに、深海のキャプテンとして、本日の航海日誌（振り返りと激励 of メッセージ）を日本語で150文字程度で作成せよ。`;
 
             try {
                 const response = await fetch('/api/review', {
@@ -716,7 +728,6 @@
             document.getElementById('chart-max-label').innerText = `MAX: ${maxMins}分`;
             document.getElementById('chart-period-title').innerText = mode==='day' ? '本日の潜水記録' : (mode==='week' ? '直近1週間の推移' : '直近30日間の推移');
 
-            // 統計数値のバインド
             const todayStr = new Date().toISOString().split('T')[0];
             document.getElementById('stat-day').innerText = focusRecords.filter(r=>r.date===todayStr).reduce((sum,r)=>sum+r.minutes, 0);
             
@@ -746,7 +757,6 @@
                 points[1].x = width - paddingX;
             }
 
-            // グリッド線
             for(let l=0; l<=3; l++) {
                 const gy = paddingY + ((height - paddingY*2) / 3) * l;
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -757,7 +767,6 @@
                 svg.appendChild(line);
             }
 
-            // 折れ線パス
             let dAttr = `M ${points[0].x} ${points[0].y}`;
             for(let i=1; i<points.length; i++) {
                 dAttr += ` L ${points[i].x} ${points[i].y}`;
@@ -771,7 +780,6 @@
             polyline.setAttribute('stroke-linejoin', 'round');
             svg.appendChild(polyline);
 
-            // プロット点
             points.forEach((p, idx) => {
                 if(daysCount === 30 && idx % 3 !== 0 && idx !== points.length-1) return;
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -790,7 +798,7 @@
             });
         }
 
-        // --- クイックToDo (ミッション) ---
+        // --- クイックToDo ---
         function openTodoModal() {
             document.getElementById('todo-modal-overlay').classList.add('open');
         }
@@ -869,7 +877,7 @@
             });
         }
 
-        // --- 週間時間割（プラン）ロジック ---
+        // --- 週間時間割（プラン） ---
         function renderTimetable() {
             const body = document.getElementById('timetable-body');
             if(!body) return;
@@ -915,7 +923,7 @@
             closeTimetableModal();
         }
 
-        // --- 深海単語帳ロジック ---
+        // --- 深海単語帳 ---
         function renderWordList() {
             const container = document.getElementById('word-list-container');
             if(!container) return;
@@ -971,7 +979,6 @@
             renderWordList();
         }
 
-        // 🧠 AI翻訳連携関数
         async function askVercelCloudflareAiTranslate() {
             const enInput = document.getElementById('input-en');
             const jaInput = document.getElementById('input-ja');
@@ -995,18 +1002,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: translationPrompt })
                 });
-                
-                if(!res.ok) throw new Error('API応答エラー');
+                if(!res.ok) throw new Error();
                 const d = await res.json();
-                
-                let translatedResult = (d.response || d.text || "").trim();
-                if(!translatedResult) {
-                    throw new Error('空の応答データ');
-                }
-                
-                jaInput.value = translatedResult;
+                jaInput.value = (d.response || d.text || "").trim();
             } catch(e) {
-                console.error(e);
                 jaInput.value = "翻訳エラー（手動入力してください）";
             } finally {
                 btn.innerText = "AI翻訳 🧠";
@@ -1061,10 +1060,10 @@
         function clearAllSystemData() {
             if(confirm('潜水ログ、時間割、単語帳、すべての深海データが消失します。本当に実行しますか？')) {
                 localStorage.clear();
-                alert('すべてのシステムログが初期化されました。アプリを再読み込みします。');
+                alert('すべてのシステムログが初期化されました。');
                 window.location.reload();
             }
         }
     </script>
 </body>
-</html
+</html>
