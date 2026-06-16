@@ -131,7 +131,7 @@
         @keyframes aiPulse { 0% { opacity: 0.4; filter: drop-shadow(0 0 2px #00b4d8); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00b4d8); } }
 
         /* ==========================================================================
-           🤿 没入型フルスクリーン・ディープダイブ画面のスタイル (新設)
+           🤿 没入型フルスクリーン・ディープダイブ画面のスタイル
            ========================================================================== */
         #diving-fullscreen-mode {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -161,7 +161,7 @@
         }
         .circle-timer-svg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            transform: rotate(-90deg); /* 12時の位置からスタートさせる */
+            transform: rotate(-90deg);
         }
         .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.04); stroke-width: 10; }
         .circle-progress {
@@ -611,21 +611,16 @@
             const secs = sec % 60;
             const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             
-            // 通常ホーム用のテキスト表示
             document.getElementById('timer-display').innerText = formattedTime;
-            // 🤿 フルスクリーン潜水モード用のテキスト表示
             document.getElementById('fullscreen-time-display').innerText = formattedTime;
 
-            // 水色サークルゲージの更新
             const gauge = document.getElementById('circle-gauge');
             if(gauge) {
                 if (timerMode === 'countdown') {
-                    // 残り時間比率で円周を減らす
                     const pct = sec / totalSeconds;
                     const offset = GAUGE_MAX * (1 - pct);
                     gauge.style.strokeDashoffset = offset;
                 } else {
-                    // カウントアップ時は1分(60秒)ごとに円周が1周するアニメーション
                     const pct = (sec % 60) / 60;
                     const offset = GAUGE_MAX * (1 - pct);
                     gauge.style.strokeDashoffset = offset;
@@ -635,22 +630,21 @@
 
         function toggleTimer() {
             const fullscreenLayer = document.getElementById('diving-fullscreen-mode');
-            const documentContainer = document.querySelector('.container');
             
             if (isTimerRunning) {
                 // 【浮上・終了処理】
                 clearInterval(timer);
                 isTimerRunning = false;
                 
-                // フルスクリーンを非表示にして通常画面へ
                 fullscreenLayer.style.display = 'none';
                 document.getElementById('bubble-container').style.display = 'none';
 
-                const recordedMins = Math.ceil(elapsedSeconds / 60);
+                // ★修正箇所：1秒潜るだけで1分増えないよう、小数点以下を切り捨て（Math.floor）で秒ベースの計算に変更
+                const recordedMins = Math.floor(elapsedSeconds / 60);
                 if(recordedMins > 0) {
                     saveFocusRecord(recordedMins);
                 }
-                // 時間表示を初期リセット
+                
                 if(timerMode === 'countdown') updateMinutes();
                 else updateTimerDisplay(0);
             } else {
@@ -658,7 +652,6 @@
                 isTimerRunning = true;
                 distractionCount = 0;
                 
-                // フルスクリーン潜水画面をON
                 fullscreenLayer.style.display = 'flex';
                 document.getElementById('bubble-container').style.display = 'block';
 
@@ -727,7 +720,15 @@
         function saveFocusRecord(mins) {
             if (mins <= 0) return;
             const todayStr = new Date().toISOString().split('T')[0];
-            focusRecords.push({ id: Date.now(), date: todayStr, minutes: mins });
+            
+            // 同日の既存レコードがあれば合計を合算し、なければ新しく追加する仕組み
+            let existingRecord = focusRecords.find(r => r.date === todayStr);
+            if (existingRecord) {
+                existingRecord.minutes += mins;
+            } else {
+                focusRecords.push({ id: Date.now(), date: todayStr, minutes: mins });
+            }
+            
             localStorage.setItem('ocean_focus_records', JSON.stringify(focusRecords));
             renderWeeklyHomeChart();
         }
