@@ -184,14 +184,6 @@
             <div class="card" style="padding: 15px 20px;" id="home-todo-card">
                 <button class="btn-action" onclick="openTodoModal()" style="width: 100%; background: rgba(255,255,255,0.05); height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDoを登録する</button>
             </div>
-
-            <div class="card" style="padding: 20px; border-color: rgba(0, 180, 216, 0.4);" id="permanent-log-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-size: 0.95rem; font-weight: bold; color: #00b4d8; display: flex; align-items: center; gap: 6px;">⚓️ キャプテンの航海日誌（最新）</div>
-                    <span id="permanent-log-status" style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">通信待機中...</span>
-                </div>
-                <div id="permanent-log-box" style="font-size: 0.85rem; line-height: 1.6; background: rgba(0,0,0,0.25); padding: 15px; border-radius: 14px; min-height: 80px; max-height: 250px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap; color: rgba(255,255,255,0.9);">前回の潜水ログがここに自動同期されます。</div>
-            </div>
         </div>
 
         <div id="tab-analytics" class="tab-content">
@@ -407,7 +399,6 @@
         let timetableData = JSON.parse(localStorage.getItem('ocean_timetable_data')) || Array.from({ length: 7 }, () => Array(6).fill('-'));
         let words = JSON.parse(localStorage.getItem('ocean_words_list')) || [];
         let diverProfile = JSON.parse(localStorage.getItem('ocean_diver_profile')) || { name: 'DIVER_01', avatar: '🧑‍💻' };
-        let latestAiLog = localStorage.getItem('ocean_latest_ai_log') || "前回の潜水ログがここに自動同期されます。";
 
         let timer = null;
         let isTimerRunning = false;
@@ -428,9 +419,6 @@
             renderTodoList();
             renderTimetable();
             renderWordList();
-            
-            document.getElementById('permanent-log-box').innerText = latestAiLog;
-            document.getElementById('permanent-log-status').innerText = "✅ 同期中";
 
             // タブ離脱サボり検知
             document.addEventListener('visibilitychange', function() {
@@ -551,7 +539,6 @@
                 const recordedMins = Math.ceil(elapsedSeconds / 60);
                 if(recordedMins > 0) {
                     saveFocusRecord(recordedMins);
-                    triggerBackgroundAiReview(recordedMins, distractionCount);
                 }
             } else {
                 isTimerRunning = true;
@@ -581,7 +568,6 @@
                             document.getElementById('light-ray-effect').style.display = 'none';
                             const recordedMins = Math.ceil(elapsedSeconds / 60);
                             saveFocusRecord(recordedMins);
-                            triggerBackgroundAiReview(recordedMins, distractionCount);
                         }
                     }, 1000);
                 } else {
@@ -591,41 +577,6 @@
                         updateTimerDisplay(elapsedSeconds);
                     }, 1000);
                 }
-            }
-        }
-
-        async function triggerBackgroundAiReview(minutes, distractions) {
-            const logStatus = document.getElementById('permanent-log-status');
-            const logBox = document.getElementById('permanent-log-box');
-            logStatus.innerText = "📡 ログ自動送信中...";
-            logStatus.classList.add('ai-loading-pulse');
-            logBox.style.opacity = "0.6";
-
-            const activeMissions = todos.slice(0, 5).map(t => t.text).join(', ') || 'なし';
-            const learnedWords = words.slice(0, 5).map(w => w.en).join(', ') || 'なし';
-            const rawPrompt = `【深海探究セッション完了レポート】\n潜水時間: ${minutes}分\n外部浮上（タブ離脱）回数: ${distractions}回\n現在のミッション: ${activeMissions}\n獲得した単語: ${learnedWords}\n\n上記データをもとに、深海のキャプテンとして、本日の航海日誌（振り返りと激励のメッセージ）を日本語で150文字程度で作成せよ。`;
-
-            try {
-                const response = await fetch('/api/review', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: rawPrompt })
-                });
-                if (!response.ok) throw new Error('API通信エラー');
-                const data = await response.json();
-                const aiReply = data.response || data.text || "通信エラーによりログのサルベージに失敗しました。";
-
-                latestAiLog = aiReply;
-                localStorage.setItem('ocean_latest_ai_log', latestAiLog);
-                logBox.innerText = latestAiLog;
-                logStatus.innerText = "✅ 同期完了";
-            } catch (err) {
-                console.error(err);
-                logStatus.innerText = "⚠️ 通信切断";
-                logBox.innerText = `【キャプテンより通信途絶】\n深度が深すぎるか、ネットワークの波が高いためログを自動生成できませんでした。\n(記録された時間: ${minutes}分, 離脱: ${distractions}回)`;
-            } finally {
-                logStatus.classList.remove('ai-loading-pulse');
-                logBox.style.opacity = "1.0";
             }
         }
 
@@ -903,7 +854,7 @@
             });
         }
 
-        // --- 週間時間割（プラン） ---
+        // --- 週間時間割 ---
         function renderTimetable() {
             const body = document.getElementById('timetable-body');
             if(!body) return;
