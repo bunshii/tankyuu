@@ -632,14 +632,12 @@
             const fullscreenLayer = document.getElementById('diving-fullscreen-mode');
             
             if (isTimerRunning) {
-                // 【浮上・終了処理】
                 clearInterval(timer);
                 isTimerRunning = false;
                 
                 fullscreenLayer.style.display = 'none';
                 document.getElementById('bubble-container').style.display = 'none';
 
-                // ★修正箇所：1秒潜るだけで1分増えないよう、小数点以下を切り捨て（Math.floor）で秒ベースの計算に変更
                 const recordedMins = Math.floor(elapsedSeconds / 60);
                 if(recordedMins > 0) {
                     saveFocusRecord(recordedMins);
@@ -648,7 +646,6 @@
                 if(timerMode === 'countdown') updateMinutes();
                 else updateTimerDisplay(0);
             } else {
-                // 【潜水開始・没入モード展開】
                 isTimerRunning = true;
                 distractionCount = 0;
                 
@@ -665,7 +662,7 @@
                         elapsedSeconds++;
                         updateTimerDisplay(remaining);
                         if (remaining <= 0) {
-                            toggleTimer(); // 自動浮上
+                            toggleTimer();
                         }
                     }, 1000);
                 } else {
@@ -702,11 +699,16 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: systemPrompt })
                 });
-                if(!res.ok) throw new Error();
+                if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                
                 const d = await res.json();
-                box.innerText = d.response || d.text || "データサルベージに失敗しました。";
+                // 柔軟なレスポンス抽出
+                let aiTxt = d.response || d.text || d.content || d.result || "";
+                if(!aiTxt && typeof d === 'string') aiTxt = d;
+                
+                box.innerText = aiTxt.trim() || "データは取得できましたが、解析結果が空でした。";
             } catch(e) {
-                box.innerText = "通信環境が悪化しています。一度浮上して、電波状況の良い場所で再度ログを同期させてください。";
+                box.innerText = `通信環境が悪化しています（エラー: ${e.message}）。一度浮上して、電波状況の良い場所で再度ログを同期させてください。`;
             } finally {
                 btn.innerText = "マクロデータ解析を発動 🚀";
                 btn.style.opacity = "1";
@@ -721,7 +723,6 @@
             if (mins <= 0) return;
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // 同日の既存レコードがあれば合計を合算し、なければ新しく追加する仕組み
             let existingRecord = focusRecords.find(r => r.date === todayStr);
             if (existingRecord) {
                 existingRecord.minutes += mins;
@@ -1063,6 +1064,7 @@
             renderWordList();
         }
 
+        // ★AI翻訳のレスポンス解析ロジックを大幅アップデート
         async function askVercelCloudflareAiTranslate() {
             const enInput = document.getElementById('input-en');
             const jaInput = document.getElementById('input-ja');
@@ -1086,11 +1088,29 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: translationPrompt })
                 });
-                if(!res.ok) throw new Error();
+                
+                if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                
                 const d = await res.json();
-                jaInput.value = (d.response || d.text || "").trim();
+                
+                // 柔軟にあらゆるレスポンス形式から文字列をサルベージする処理
+                let translatedResult = "";
+                if (d && typeof d === 'object') {
+                    translatedResult = d.response || d.text || d.content || d.result || "";
+                } else if (typeof d === 'string') {
+                    translatedResult = d;
+                }
+                
+                translatedResult = translatedResult.trim();
+                
+                if (translatedResult) {
+                    jaInput.value = translatedResult;
+                } else {
+                    jaInput.value = "解析結果が空でした（手動入力してください）";
+                }
             } catch(e) {
-                jaInput.value = "翻訳エラー（手動入力してください）";
+                jaInput.value = `翻訳エラー: ${e.message}（手動入力してください）`;
+                console.error("AI Translation Error: ", e);
             } finally {
                 btn.innerText = "AI翻訳 🧠";
                 btn.classList.remove('ai-loading-pulse');
