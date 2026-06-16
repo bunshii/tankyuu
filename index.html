@@ -141,12 +141,14 @@
 
     <div class="container">
         <div id="app-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: relative; z-index: 10;">
-            <div id="header-avatar-box" style="width: 45px; height: 45px; background: #0b2545; border: 1px solid #00b4d8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,180,216,0.3);">🧑‍💻</div>
-            <div style="text-align: center;">
-                <div style="font-weight: 900; letter-spacing: 3px; color: #00b4d8; text-shadow: 0 0 10px rgba(0,180,216,0.5);" id="header-app-title">OCEAN COMPASS</div>
-                <div style="font-size: 0.65rem; background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); padding: 2px 8px; border-radius: 10px; margin-top: 3px; color: #fff;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="header-avatar-box" style="width: 45px; height: 45px; background: #0b2545; border: 1px solid #00b4d8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,180,216,0.3);">🧑‍💻</div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 900; letter-spacing: 2px; color: #00b4d8; text-shadow: 0 0 10px rgba(0,180,216,0.5); font-size: 0.95rem;" id="header-app-title">OCEAN COMPASS</div>
+                    <div style="font-size: 0.6rem; background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); padding: 1px 6px; border-radius: 8px; margin-top: 2px; color: #fff; display: inline-block;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
+                </div>
             </div>
-            <span style="font-size: 1.2rem; filter: drop-shadow(0 0 5px #00b4d8);">🐠</span>
+            <button onclick="openSettingsModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.3); color: #fff; font-size: 1.3rem; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='#00b4d8'" onmouseout="this.style.borderColor='rgba(0,180,216,0.3)'">⚙️</button>
         </div>
 
         <div id="tab-home" class="tab-content active">
@@ -180,10 +182,7 @@
             </div>
 
             <div class="card" style="padding: 15px 20px;" id="home-todo-card">
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-action" onclick="openTodoModal()" style="flex: 1; background: rgba(255,255,255,0.05); height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDo</button>
-                    <button class="btn-action" onclick="generateAiReview()" id="btn-ai-review" style="flex: 1; background: #ffffff; color: #0b2545; border: none; height: 45px; border-radius: 14px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;">🧠 AI振り返り</button>
-                </div>
+                <button class="btn-action" onclick="openTodoModal()" style="width: 100%; background: rgba(255,255,255,0.05); height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDoを登録する</button>
             </div>
 
             <div class="card" style="padding: 20px; border-color: rgba(0, 180, 216, 0.4);" id="permanent-log-card">
@@ -197,7 +196,7 @@
 
         <div id="tab-analytics" class="tab-content">
             <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <button onclick="switchTab('home', document.querySelectorAll('nav button')[2])" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(0,180,216,0.2); color: #fff; padding: 8px 14px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-right: 15px;">⬅ 戻る</button>
+                <button onclick="switchTab('home', document.getElementById('nav-btn-home'))" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(0,180,216,0.2); color: #fff; padding: 8px 14px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-right: 15px;">⬅ 戻る</button>
                 <h2 style="font-size: 1.2rem; margin: 0;">📊 潜水アナリティクス（詳細）</h2>
             </div>
             <div class="card" style="padding: 20px; background: rgba(0,0,0,0.2);">
@@ -297,20 +296,40 @@
             </div>
         </div>
 
-        <div id="tab-settings" class="tab-content">
-            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">システム設定</h2>
-            <div class="card">
-                <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold; color: #00b4d8;">🐋 ダイバープロフィール編集</label>
-                <div class="word-form">
-                    <input type="text" id="input-diver-name" class="word-field" placeholder="ダイバー名 (例: DIVER_01)">
-                    <button class="btn-add" onclick="saveDiverProfile()">プロフィール変更を確定</button>
-                </div>
-                <div class="avatar-grid" id="avatar-selector-grid"></div>
+        <div id="tab-ai-center" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">🧠 深海AI司令室</h2>
+            <div class="card" style="border-color: rgba(0,180,216,0.4); text-align: center; padding: 25px 20px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🤖</div>
+                <h3 style="margin: 0 0 8px 0; font-size: 1.05rem;">総合データマクロ解析</h3>
+                <p style="font-size: 0.75rem; opacity:0.7; line-height: 1.5; margin-bottom: 15px;">
+                    これまでの全潜水履歴、未完了ミッション、獲得した単語データをAIが多角的に分析し、効率的な探究プランやキャプテンからのアドバイスを導き出します。
+                </p>
+                <button class="btn-main" onclick="generateAiReview()" id="btn-ai-review" style="height: 50px;">マクロデータ解析を発動 🚀</button>
             </div>
-            <div class="card" style="border-color: rgba(239, 68, 68, 0.3);">
-                <div style="font-size: 0.85rem; font-weight: bold; color: #ef4444; margin-bottom: 5px;">⚠️ ログの緊急消去</div>
-                <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 12px; line-height: 1.5;">システムに不具合が生じた場合や、すべてのローカルデータを初期状態にリセットしてリフレッシュしたい場合に実行してください。</p>
-                <button class="btn-action" onclick="clearAllSystemData()" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); width: 100%; height: 45px; border-radius: 12px; font-size: 0.85rem;">全深海データの完全初期化</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal-overlay" onclick="closeSettingsModal(event)">
+        <div class="card modal-content" onclick="event.stopPropagation()" style="max-height: 85vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8;">⚙️ システム設定</div>
+                <span onclick="closeSettingsModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold; color: #00b4d8;">🐋 ダイバープロフィール編集</label>
+                    <div class="word-form">
+                        <input type="text" id="input-diver-name" class="word-field" placeholder="ダイバー名 (例: DIVER_01)">
+                        <button class="btn-add" onclick="saveDiverProfile()">変更を確定</button>
+                    </div>
+                    <div class="avatar-grid" id="avatar-selector-grid"></div>
+                </div>
+                <hr style="border: none; border-top: 1px solid rgba(0,180,216,0.2); margin: 5px 0;">
+                <div style="border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 14px; background: rgba(239,68,68,0.05);">
+                    <div style="font-size: 0.85rem; font-weight: bold; color: #ef4444; margin-bottom: 5px;">⚠️ データの完全初期化</div>
+                    <p style="font-size: 0.65rem; opacity: 0.6; margin-bottom: 10px; line-height: 1.4;">不具合発生時や、すべてのローカルデータを工場出荷状態にリセットしたい場合に使用してください。</p>
+                    <button class="btn-action" onclick="clearAllSystemData()" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); width: 100%; height: 38px; border-radius: 10px; font-size: 0.75rem;">全データを初期化</button>
+                </div>
             </div>
         </div>
     </div>
@@ -376,9 +395,9 @@
     <nav id="bottom-nav">
         <button onclick="switchTab('friends', this)">👥</button>
         <button onclick="switchTab('schedule', this)">⏰</button>
-        <button onclick="switchTab('home', this)" class="home-btn active">⚓</button>
+        <button onclick="switchTab('home', this)" class="home-btn active" id="nav-btn-home">⚓</button>
         <button onclick="switchTab('words', this)">📖</button>
-        <button onclick="switchTab('settings', this)">⚙️</button>
+        <button onclick="switchTab('ai-center', this)">🧠</button>
     </nav>
 
     <script>
@@ -432,6 +451,7 @@
 
         function initAvatarGrid() {
             const grid = document.getElementById('avatar-selector-grid');
+            if(!grid) return;
             grid.innerHTML = '';
             avatars.forEach(av => {
                 const opt = document.createElement('div');
@@ -454,17 +474,24 @@
             alert('ダイバープロフィールを更新しました ⚓️');
         }
 
+        // --- 設定モーダルの開閉処理 ---
+        function openSettingsModal() {
+            document.getElementById('settings-modal-overlay').classList.add('open');
+        }
+        function closeSettingsModal(e) {
+            document.getElementById('settings-modal-overlay').classList.remove('open');
+        }
+
         // --- タブ切り替え制御 ---
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
             
-            // ナビゲーション上のボタンのactive制御
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             if(btn) {
                 btn.classList.add('active');
             } else if(tabId === 'home') {
-                document.querySelectorAll('nav button')[2].classList.add('active'); // ホームボタンをアクティブに
+                document.getElementById('nav-btn-home').classList.add('active');
             }
 
             if(tabId === 'analytics') {
@@ -472,10 +499,9 @@
             }
         }
 
-        // グラフカードをタップした際の専用遷移（引数に基づいたビューでアナリティクスを展開）
         function switchToAnalyticsTab(viewType) {
             currentAnalyticsView = viewType;
-            switchTab('analytics', null); // 下部ナビ上のactiveはクリアして遷移
+            switchTab('analytics', null);
             changeAnalyticsView(viewType);
         }
 
@@ -577,7 +603,7 @@
 
             const activeMissions = todos.slice(0, 5).map(t => t.text).join(', ') || 'なし';
             const learnedWords = words.slice(0, 5).map(w => w.en).join(', ') || 'なし';
-            const rawPrompt = `【深海探究セッション完了レポート】\n潜水時間: ${minutes}分\n外部浮上（タブ離脱）回数: ${distractions}回\n現在のミッション: ${activeMissions}\n獲得した単語: ${learnedWords}\n\n上記データをもとに、深海のキャプテンとして、本日の航海日誌（振り返りと激励 of メッセージ）を日本語で150文字程度で作成せよ。`;
+            const rawPrompt = `【深海探究セッション完了レポート】\n潜水時間: ${minutes}分\n外部浮上（タブ離脱）回数: ${distractions}回\n現在のミッション: ${activeMissions}\n獲得した単語: ${learnedWords}\n\n上記データをもとに、深海のキャプテンとして、本日の航海日誌（振り返りと激励のメッセージ）を日本語で150文字程度で作成せよ。`;
 
             try {
                 const response = await fetch('/api/review', {
@@ -632,7 +658,7 @@
             } catch(e) {
                 box.innerText = "通信環境が悪化しています。一度浮上して、電波状況の良い場所で再度ログを同期させてください。";
             } finally {
-                btn.innerText = "🧠 AI振り返り";
+                btn.innerText = "マクロデータ解析を発動 🚀";
                 btn.style.opacity = "1";
             }
         }
@@ -1056,7 +1082,7 @@
             setTimeout(() => { fish.remove(); if(isTimerRunning) spawnFishLoop(); }, 5000);
         }
 
-        // --- 緊急リセット ---
+        // --- データ初期化 ---
         function clearAllSystemData() {
             if(confirm('潜水ログ、時間割、単語帳、すべての深海データが消失します。本当に実行しますか？')) {
                 localStorage.clear();
