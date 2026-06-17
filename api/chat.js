@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { message } = req.body; // フロントから届いた文字
+        const { message } = req.body; // フロントから届いた単語(例: fish)
         const cfToken = process.env.CF_TOKEN;
         const cfAccountId = process.env.CF_ACCOUNT_ID;
 
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             return res.status(500).json({ reply: "エラー：Vercelの環境変数（CF_TOKEN または CF_ACCOUNT_ID）が足りないぜ！" });
         }
 
-        // 🌟【超絶強化】AIに直前のログを忘れさせ、1単語だけの翻訳に集中させる超厳密プロンプト
+        // 🌟【絶対ルール】AIに一切の余計なノイズやPythonログを出させない
         const strictPrompt = `【絶対遵守のルール】
 あなたは翻訳システムです。今から送る英単語を日本語に直した「単語1語」だけを出力してください。
 挨拶、解説、カギカッコ、Pythonのコード、ログ、説明文などは一切出力してはいけません。
@@ -28,14 +28,14 @@ export default async function handler(req, res) {
 
 翻訳する英単語: ${message}`;
 
-        // 補完部分：CloudflareのAI GatewayやWorkers AIへのfetch処理
+        // ⭕ 途切れていたfetch処理を100%綺麗に繋ぎ直しました！
         const response = await fetch(
-            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/meta/llama-3-8b-instruct`, // 使用するモデル等に合わせて適宜変更してください
+            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
             {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${cfToken}`,
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     messages: [
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
                     ],
                     max_tokens: 15, 
                     temperature: 0.0
-                })
+                }),
             }
         );
 
