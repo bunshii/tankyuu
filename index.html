@@ -676,12 +676,14 @@
             }
         }
 
-        // オブジェクト内部から文字列型のテキスト資産を根こそぎ自動抽出する安全弁
+        // オブジェクト内部から文字列型のテキスト資産を自動抽出する安全弁
         function extractTextFromObject(obj) {
             if (!obj) return "";
             if (typeof obj === 'string') return obj;
             
-            // 最もよく使われる既知のキーを最優先で探索
+            // replyキーがある場合は最優先
+            if (obj.reply && typeof obj.reply === 'string') return obj.reply;
+            
             const topLevelKeys = ['response', 'text', 'content', 'result'];
             for (let key of topLevelKeys) {
                 if (obj[key] && typeof obj[key] === 'string') return obj[key];
@@ -691,7 +693,6 @@
                 }
             }
             
-            // それでもダメな場合、全プロパティをスキャン
             for (let key in obj) {
                 if (Object.prototype.hasOwnProperty.call(obj, key)) {
                     if (typeof obj[key] === 'string') return obj[key];
@@ -725,14 +726,15 @@
                 const res = await fetch('/api/review', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: systemPrompt })
+                    // ⭕ 修正: chat.jsに合わせてキー名を message に統一
+                    body: JSON.stringify({ message: systemPrompt })
                 });
                 if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
                 
                 const d = await res.json();
-                let aiTxt = extractTextFromObject(d);
+                // ⭕ 修正: バックエンドが返す reply キーから優先的に取得
+                let aiTxt = d.reply || extractTextFromObject(d);
                 
-                // 完全な安全対策（何も文字が見つからない場合は生のJSONをダンプ）
                 if (!aiTxt && d) {
                     aiTxt = typeof d === 'object' ? JSON.stringify(d, null, 2) : String(d);
                 }
@@ -1110,21 +1112,20 @@
             btn.classList.add('ai-loading-pulse');
             jaInput.value = "深海AIから翻訳データを抽出中...";
 
-            const translationPrompt = `【AI英和辞書システム】\n対象の英語表現: "${textToTranslate}"\n\n上記表現に適合する、最も自然で簡潔な日本語の翻訳および意味だけを出力してください。余計な解説や前置きは一切不要です。`;
-
             try {
                 const res = await fetch('/api/review', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: translationPrompt })
+                    // ⭕ 修正: chat.jsが期待する「message」という名前でデータを送る
+                    body: JSON.stringify({ message: textToTranslate })
                 });
                 
                 if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
                 
                 const d = await res.json();
-                let translatedResult = extractTextFromObject(d);
+                // ⭕ 修正: バックエンドが確定させた「reply」キーからデータを取得
+                let translatedResult = d.reply || extractTextFromObject(d);
                 
-                // 完全な安全弁：もし全スキャンしても文字列型が見つからない場合はJSONをそのまま出す
                 if (!translatedResult && d) {
                     translatedResult = typeof d === 'object' ? JSON.stringify(d) : String(d);
                 }
