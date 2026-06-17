@@ -130,9 +130,7 @@
         .ai-loading-pulse { animation: aiPulse 1.5s infinite alternate; }
         @keyframes aiPulse { 0% { opacity: 0.4; filter: drop-shadow(0 0 2px #00b4d8); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00b4d8); } }
 
-        /* ==========================================================================
-           🤿 没入型フルスクリーン・ディープダイブ画面のスタイル
-           ========================================================================== */
+        /* 🤿 没入型フルスクリーン・ディープダイブ画面のスタイル */
         #diving-fullscreen-mode {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(180deg, #051423 0%, #030b14 60%, #01050a 100%);
@@ -142,7 +140,6 @@
             overflow: hidden;
         }
 
-        /* 差し込む幻想的な光カーテン */
         .light-rays {
             position: absolute; top: -10%; left: -10%; width: 130%; height: 70%;
             background: radial-gradient(circle at 50% -20%, rgba(0, 180, 216, 0.35) 0%, rgba(0, 180, 216, 0.1) 40%, rgba(0,0,0,0) 70%);
@@ -154,7 +151,6 @@
             100% { transform: rotate(3deg) scaleY(1.1); opacity: 1; }
         }
 
-        /* 水色のサークルタイマー構造 */
         .circle-timer-container {
             position: relative; width: 260px; height: 260px;
             display: flex; align-items: center; justify-content: center; z-index: 10;
@@ -170,20 +166,17 @@
             filter: drop-shadow(0 0 10px rgba(0, 180, 216, 0.8));
         }
 
-        /* 円の内部テキスト */
         .timer-internal-box { text-align: center; color: #ffffff; z-index: 12; }
         .timer-time-text { font-size: 3.4rem; font-weight: 200; letter-spacing: 1px; margin: 0; line-shadow: 0 0 20px rgba(255,255,255,0.4); }
         .timer-sub-text { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.6; margin-top: 2px; text-transform: uppercase; }
         .timer-jp-text { font-size: 0.55rem; opacity: 0.4; letter-spacing: 1px; margin-top: 3px; }
 
-        /* 計器風ステータス行 */
         .dive-stats-row {
             display: flex; justify-content: space-between; width: 100%; max-width: 280px;
             font-size: 0.72rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; z-index: 10;
         }
         .dive-stat-item { display: flex; align-items: center; gap: 5px; }
 
-        /* スマートな「浮上する」ボタン */
         .btn-ascend {
             background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
             color: rgba(255, 255, 255, 0.8); border-radius: 30px; padding: 12px 45px;
@@ -200,11 +193,9 @@
 
     <div id="diving-fullscreen-mode">
         <div class="light-rays"></div>
-
         <div style="font-size: 0.72rem; letter-spacing: 3px; opacity: 0.7; font-weight: bold; display: flex; align-items: center; gap: 6px; z-index: 10;">
             🚢 DEEP DIVE
         </div>
-
         <div class="circle-timer-container">
             <svg class="circle-timer-svg" viewBox="0 0 120 120">
                 <circle class="circle-bg" cx="60" cy="60" r="52"></circle>
@@ -216,36 +207,27 @@
                 <div class="timer-jp-text">潜水時間 (DIVING TIME)</div>
             </div>
         </div>
-
         <div class="dive-stats-row">
-            <div class="dive-stat-item">
-                <span>↓</span> DEPTH: <span style="color:#fff; font-weight:bold;">45m</span>
-            </div>
-            <div class="dive-stat-item">
-                <span>🪔</span> AIR: <span style="color:#fff; font-weight:bold;">180 BAR</span>
-            </div>
+            <div class="dive-stat-item"><span>↓</span> DEPTH: <span style="color:#fff; font-weight:bold;">45m</span></div>
+            <div class="dive-stat-item"><span>🪔</span> AIR: <span style="color:#fff; font-weight:bold;">180 BAR</span></div>
         </div>
-
-        <button class="btn-ascend" onclick="toggleTimer()">
-            浮上する (ASCEND DIVE) <span>↑</span>
-        </button>
+        <button class="btn-ascend" onclick="toggleTimer()">浮上する (ASCEND DIVE) <span>↑</span></button>
     </div>
-
 
     <div class="container">
         <div id="app-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: relative; z-index: 10;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <div id="header-avatar-box" style="width: 45px; height: 45px; background: #0b2545; border: 1px solid #00b4d8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,180,216,0.3);">🧑‍💻</div>
                 <div style="text-align: left;">
-                    <div style="font-weight: 900; letter-spacing: 2px; color: #00b4d8; text-shadow: 0 0 10px rgba(0,180,216,0.5); font-size: 0.95rem;" id="header-app-title">OCEAN COMPASS</div>
+                    <div style="font-weight: 900; letter-spacing: 2px; color: #00b4d8; text-shadow: 0 0 10px rgba(0,180,216,0.5); font-size: 0.95rem;">OCEAN COMPASS</div>
                     <div style="font-size: 0.6rem; background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); padding: 1px 6px; border-radius: 8px; margin-top: 2px; color: #fff; display: inline-block;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
                 </div>
             </div>
-            <button onclick="openSettingsModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.3); color: #fff; font-size: 1.3rem; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">⚙️</button>
+            <button onclick="openSettingsModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.3); color: #fff; font-size: 1.3rem; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">⚙️</button>
         </div>
 
         <div id="tab-home" class="tab-content active">
-            <div class="card" onclick="switchToAnalyticsTab('week')" style="cursor: pointer;" id="home-graph-card">
+            <div class="card" onclick="switchToAnalyticsTab('week')" style="cursor: pointer;">
                 <div style="font-size: 0.8rem; margin-bottom: 12px; opacity: 0.8; display: flex; justify-content: space-between;">
                     <span>今週の潜水記録（分） <span style="font-size:0.7rem; color: #00b4d8;">🔍 タップして分析</span></span>
                     <span id="home-today-total-label" style="font-weight: bold; color: #ff9e00;">今日: 0分</span>
@@ -253,8 +235,8 @@
                 <div id="home-weekly-chart" style="display: flex; align-items: flex-end; justify-content: space-around; height: 80px; gap: 8px;"></div>
             </div>
 
-            <div class="card" style="background: rgba(11, 37, 69, 0.6); padding: 25px 20px; border-color: rgba(0,180,216,0.4);" id="main-timer-card">
-                <div class="timer-settings" id="timer-settings-box">
+            <div class="card" style="background: rgba(11, 37, 69, 0.6); padding: 25px 20px; border-color: rgba(0,180,216,0.4);">
+                <div class="timer-settings">
                     <select class="timer-select" id="timer-mode-select" onchange="changeTimerMode()" style="flex: 1;">
                         <option value="countdown">カウントダウン</option>
                         <option value="countup">カウントアップ</option>
@@ -264,7 +246,6 @@
                         <span>分</span>
                     </div>
                 </div>
-
                 <div style="text-align: center;">
                     <div style="font-size: 4rem; font-weight: 100; margin-bottom: 5px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(255,255,255,0.2);" id="timer-display">25:00</div>
                     <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 3px; color: #00b4d8;">FOCUS TIMER</div>
@@ -272,7 +253,7 @@
                 </div>
             </div>
 
-            <div class="card" style="padding: 15px 20px;" id="home-todo-card">
+            <div class="card" style="padding: 15px 20px;">
                 <button class="btn-action" onclick="openTodoModal()" style="width: 100%; background: rgba(255,255,255,0.05); height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDoを登録する</button>
             </div>
         </div>
@@ -287,7 +268,7 @@
                     <span id="chart-period-title">直近1週間の推移</span>
                     <span style="font-size: 0.7rem; color: #ff9e00; background: rgba(255,158,0,0.15); padding: 2px 8px; border-radius: 6px;" id="chart-max-label">MAX: 0分</span>
                 </div>
-                <div style="position: relative; width: 100%; height: 140px; margin-top: 15px;" id="line-chart-wrapper">
+                <div style="position: relative; width: 100%; height: 140px; margin-top: 15px;">
                     <svg id="svg-line-chart" style="width: 100%; height: 100%; overflow: visible;"></svg>
                 </div>
                 <div id="line-chart-x-labels" style="display: flex; justify-content: space-between; padding: 5px 10px 0 10px; font-size: 0.6rem; opacity: 0.7; border-top: 1px solid rgba(0,180,216,0.15);"></div>
@@ -325,9 +306,7 @@
                 <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 10px; margin-top: 2px;">マスをタップすると爆速で予定を書き込めます</p>
                 <table>
                     <thead>
-                        <tr>
-                            <th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th>
-                        </tr>
+                        <tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th></tr>
                     </thead>
                     <tbody id="timetable-body"></tbody>
                 </table>
@@ -339,11 +318,11 @@
             <div class="card">
                 <div class="word-form">
                     <div class="word-input-row">
-                        <input type="text" id="input-en" class="word-field" placeholder="英単語 / フレーズを入力...">
+                        <input type="text" id="input-en" class="word-field" placeholder="英単語を入力... (例: fish)">
                         <button class="btn-action" onclick="askVercelCloudflareAiTranslate()" id="btn-ai-translate" style="background: #ffffff; color: #0b2545; border: none;">AI翻訳 🧠</button>
                     </div>
                     <div class="word-input-row">
-                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳（AIが自動生成も可能）">
+                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳（AIが自動生成）">
                         <button class="btn-add" onclick="addNewWord()">追加</button>
                     </div>
                 </div>
@@ -358,23 +337,15 @@
 
         <div id="tab-friends" class="tab-content">
             <h2 style="font-size: 1.2rem; margin-bottom: 5px; color: #00b4d8;">探索チーム</h2>
-            <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 15px;">※スタンドアロン（オフライン）稼働中</p>
+            <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 15px;">※スタンドアロン稼働中</p>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <div class="card" style="display: flex; align-items: center; gap: 15px; margin-bottom: 0;">
                     <div style="width:45px; height:45px; background:rgba(0,180,216,0.1); border: 1px solid #00b4d8; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size: 1.3rem;">🐳</div>
                     <div style="flex: 1;">
                         <div style="font-weight: bold; font-size: 0.95rem;">TAKUYA</div>
-                        <div style="font-size: 0.7rem; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
+                        <div style="font-size: 0.7 some; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
                     </div>
                     <span style="color: #4ade80; font-size: 0.8rem; font-weight: bold; background: rgba(74,222,128,0.1); padding: 4px 10px; border-radius: 12px;">● 潜水中</span>
-                </div>
-                <div class="card" style="display: flex; align-items: center; gap: 15px; margin-bottom: 0;">
-                    <div style="width:45px; height:45px; background:rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size: 1.3rem;">🐙</div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: bold; font-size: 0.95rem; opacity: 0.6;">SARA</div>
-                        <div style="font-size: 0.7rem; opacity:0.5;">ID: D-1094 | 最終潜水: 3時間前</div>
-                    </div>
-                    <span style="color: rgba(255,255,255,0.4); font-size: 0.8rem; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px;">オフライン</span>
                 </div>
             </div>
         </div>
@@ -384,9 +355,7 @@
             <div class="card" style="border-color: rgba(0,180,216,0.4); text-align: center; padding: 25px 20px;">
                 <div style="font-size: 2.5rem; margin-bottom: 10px;">🤖</div>
                 <h3 style="margin: 0 0 8px 0; font-size: 1.05rem;">総合データマクロ解析</h3>
-                <p style="font-size: 0.75rem; opacity:0.7; line-height: 1.5; margin-bottom: 15px;">
-                    これまでの全潜水履歴、未完了ミッション、獲得した単語データをAIが多角的に分析し、効率的な探究プランやキャプテンからのアドバイスを導き出します。
-                </p>
+                <p style="font-size: 0.75rem; opacity:0.7; line-height: 1.5; margin-bottom: 15px;">これまでの全潜水履歴、未完了ミッション、獲得した単語データをAIが多角的に分析します。</p>
                 <button class="btn-main" onclick="generateAiReview()" id="btn-ai-review" style="height: 50px;">マクロデータ解析を発動 🚀</button>
             </div>
         </div>
@@ -395,24 +364,20 @@
     <div class="modal-overlay" id="settings-modal-overlay" onclick="closeSettingsModal(event)">
         <div class="card modal-content" onclick="event.stopPropagation()" style="max-height: 85vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8;">⚙️ システム設定</div>
+                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8;">⚙️ System Setting</div>
                 <span onclick="closeSettingsModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 <div>
-                    <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold; color: #00b4d8;">🐋 ダイバープロフィール編集</label>
+                    <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold; color: #00b4d8;">🐋 プロフィール編集</label>
                     <div class="word-form">
-                        <input type="text" id="input-diver-name" class="word-field" placeholder="ダイバー名 (例: DIVER_01)">
-                        <button class="btn-add" onclick="saveDiverProfile()">変更を確定</button>
+                        <input type="text" id="input-diver-name" class="word-field" placeholder="ダイバー名">
+                        <button class="btn-add" onclick="saveDiverProfile()">確定</button>
                     </div>
                     <div class="avatar-grid" id="avatar-selector-grid"></div>
                 </div>
                 <hr style="border: none; border-top: 1px solid rgba(0,180,216,0.2); margin: 5px 0;">
-                <div style="border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 14px; background: rgba(239,68,68,0.05);">
-                    <div style="font-size: 0.85rem; font-weight: bold; color: #ef4444; margin-bottom: 5px;">⚠️ データの完全初期化</div>
-                    <p style="font-size: 0.65rem; opacity: 0.6; margin-bottom: 10px; line-height: 1.4;">不具合発生時や、すべてのローカルデータを工場出荷状態にリセットしたい場合に使用してください。</p>
-                    <button class="btn-action" onclick="clearAllSystemData()" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); width: 100%; height: 38px; border-radius: 10px; font-size: 0.75rem;">全データを初期化</button>
-                </div>
+                <button class="btn-action" onclick="clearAllSystemData()" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); width: 100%; height: 38px; border-radius: 10px; font-size: 0.75rem;">全データを初期化</button>
             </div>
         </div>
     </div>
@@ -426,12 +391,11 @@
             <div style="flex-direction: column; display: flex; gap: 12px;">
                 <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 45px; border-radius: 12px;">
                 <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,180,216,0.15);">
-                    <span style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px; color: #00b4d8;">⏳ 締め切り設定 (任意):</span>
                     <input type="date" id="input-todo-deadline" class="date-field" style="height: 35px;">
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <button class="btn-ctrl" onclick="closeTodoModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">キャンセル</button>
-                    <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">ミッション発動 🚀</button>
+                    <button class="btn-ctrl" onclick="closeTodoModal()" style="height: 45px; border-radius: 12px;">キャンセル</button>
+                    <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px;">ミッション発動 🚀</button>
                 </div>
             </div>
         </div>
@@ -440,7 +404,7 @@
     <div class="modal-overlay" id="ai-modal-overlay" onclick="closeAiModal()">
         <div class="card modal-content" onclick="event.stopPropagation()" style="border-color: #00b4d8; max-width: 420px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8; display: flex; align-items: center; gap: 6px;">⚓️ 深海ログキャプテン</div>
+                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8;">⚓️ 深海ログキャプテン</div>
                 <span onclick="closeAiModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
             </div>
             <div id="ai-response-box" style="font-size: 0.88rem; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px; max-height: 280px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap;">データ解析中...</div>
@@ -451,26 +415,20 @@
     <div class="modal-overlay" id="timetable-modal-overlay" onclick="closeTimetableModal()">
         <div class="card modal-content" onclick="event.stopPropagation()">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;" id="timetable-modal-title">⏰ マスの編集</div>
+                <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;">⏰ マスの編集</div>
                 <span onclick="closeTimetableModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <span style="font-size: 0.75rem; opacity: 0.7;">タップで爆速入力:</span>
                 <div class="subject-chip-container">
                     <div class="subject-chip" onclick="selectSubjectChip('国語')">国語</div>
                     <div class="subject-chip" onclick="selectSubjectChip('数学')">数学</div>
                     <div class="subject-chip" onclick="selectSubjectChip('英語')">英語</div>
                     <div class="subject-chip" onclick="selectSubjectChip('理科')">理科</div>
                     <div class="subject-chip" onclick="selectSubjectChip('社会')">社会</div>
-                    <div class="subject-chip" onclick="selectSubjectChip('プロ')">プロ</div>
-                    <div class="subject-chip" onclick="selectSubjectChip('自習')">自習</div>
-                    <div class="subject-chip" onclick="selectSubjectChip('-')">クリア ( - )</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('-')">クリア</div>
                 </div>
-                <input type="text" id="input-timetable-subject" class="word-field" placeholder="自由に教科名を入力..." style="height: 45px; border-radius: 12px;">
-                <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <button class="btn-ctrl" onclick="closeTimetableModal()" style="height: 45px; font-size: 0.85rem; border-radius: 12px;">閉じる</button>
-                    <button class="btn-add" onclick="saveTimetableModalValue()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px; font-size: 0.9rem;">変更を確定 ✅</button>
-                </div>
+                <input type="text" id="input-timetable-subject" class="word-field" placeholder="教科名を入力...">
+                <button class="btn-add" onclick="saveTimetableModalValue()">変更を確定 ✅</button>
             </div>
         </div>
     </div>
@@ -496,13 +454,11 @@
         let timerMode = 'countdown';
         let totalSeconds = 25 * 60;
         let elapsedSeconds = 0;
-        let distractionCount = 0;
         let globalVisibilityMode = 'reveal-all';
         let currentAnalyticsView = 'week';
         let activeTimetableCellIndex = null;
 
-        const avatars = ['🧑‍💻', '🤿', '🧜‍♂️', '🧜‍♀️', '🦈', '🐋', '🐙', '🦀', '🐧', '⚓️'];
-        const GAUGE_MAX = 326.72; // SVG円周の長さ
+        const avatars = ['🧑‍💻', '🤿', '🧜‍♂️', '🧜‍♀️', '🦈', '🐋', '🐙'];
 
         window.onload = function() {
             updateDiverHeaderUI();
@@ -511,15 +467,7 @@
             renderTodoList();
             renderTimetable();
             renderWordList();
-
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden && isTimerRunning) {
-                    distractionCount++;
-                }
-            });
-            
             setInterval(createBubble, 450);
-            setTimeout(spawnFishLoop, 2000);
         };
 
         function updateDiverHeaderUI() {
@@ -550,36 +498,22 @@
             if(nameInput) diverProfile.name = nameInput;
             localStorage.setItem('ocean_diver_profile', JSON.stringify(diverProfile));
             updateDiverHeaderUI();
-            alert('ダイバープロフィールを更新しました ⚓️');
+            alert('更新しました ⚓️');
         }
 
-        function openSettingsModal() {
-            document.getElementById('settings-modal-overlay').classList.add('open');
-        }
-        function closeSettingsModal(e) {
-            document.getElementById('settings-modal-overlay').classList.remove('open');
-        }
+        function openSettingsModal() { document.getElementById('settings-modal-overlay').classList.add('open'); }
+        function closeSettingsModal() { document.getElementById('settings-modal-overlay').classList.remove('open'); }
 
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
-            
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
-            if(btn) {
-                btn.classList.add('active');
-            } else if(tabId === 'home') {
-                document.getElementById('nav-btn-home').classList.add('active');
-            }
-
-            if(tabId === 'analytics') {
-                drawAnalyticsChart(currentAnalyticsView);
-            }
+            if(btn) btn.classList.add('active');
         }
 
         function switchToAnalyticsTab(viewType) {
             currentAnalyticsView = viewType;
             switchTab('analytics', null);
-            changeAnalyticsView(viewType);
         }
 
         // --- タイマー処理 ---
@@ -590,7 +524,6 @@
             if(timerMode === 'countup') {
                 wrapper.style.display = 'none';
                 document.getElementById('timer-display').innerText = "00:00";
-                document.getElementById('fullscreen-time-display').innerText = "00:00";
             } else {
                 wrapper.style.display = 'flex';
                 updateMinutes();
@@ -602,7 +535,6 @@
             let m = parseInt(document.getElementById('timer-minutes-input').value);
             if (isNaN(m) || m < 1) m = 1;
             totalSeconds = m * 60;
-            elapsedSeconds = 0;
             updateTimerDisplay(totalSeconds);
         }
 
@@ -610,159 +542,113 @@
             const mins = Math.floor(sec / 60);
             const secs = sec % 60;
             const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            
             document.getElementById('timer-display').innerText = formattedTime;
             document.getElementById('fullscreen-time-display').innerText = formattedTime;
-
-            const gauge = document.getElementById('circle-gauge');
-            if(gauge) {
-                if (timerMode === 'countdown') {
-                    const pct = sec / totalSeconds;
-                    const offset = GAUGE_MAX * (1 - pct);
-                    gauge.style.strokeDashoffset = offset;
-                } else {
-                    const pct = (sec % 60) / 60;
-                    const offset = GAUGE_MAX * (1 - pct);
-                    gauge.style.strokeDashoffset = offset;
-                }
-            }
         }
 
         function toggleTimer() {
             const fullscreenLayer = document.getElementById('diving-fullscreen-mode');
-            
             if (isTimerRunning) {
                 clearInterval(timer);
                 isTimerRunning = false;
-                
                 fullscreenLayer.style.display = 'none';
                 document.getElementById('bubble-container').style.display = 'none';
-
-                const recordedMins = Math.floor(elapsedSeconds / 60);
-                if(recordedMins > 0) {
-                    saveFocusRecord(recordedMins);
-                }
-                
+                saveFocusRecord(Math.floor(elapsedSeconds / 60));
                 if(timerMode === 'countdown') updateMinutes();
-                else updateTimerDisplay(0);
             } else {
                 isTimerRunning = true;
-                distractionCount = 0;
-                
+                elapsedSeconds = 0;
                 fullscreenLayer.style.display = 'flex';
                 document.getElementById('bubble-container').style.display = 'block';
-
-                if (timerMode === 'countdown') {
-                    elapsedSeconds = 0;
-                    let remaining = totalSeconds;
-                    updateTimerDisplay(remaining);
-                    
-                    timer = setInterval(() => {
-                        remaining--;
-                        elapsedSeconds++;
-                        updateTimerDisplay(remaining);
-                        if (remaining <= 0) {
-                            toggleTimer();
-                        }
-                    }, 1000);
-                } else {
-                    elapsedSeconds = 0;
-                    updateTimerDisplay(0);
-                    timer = setInterval(() => {
-                        elapsedSeconds++;
+                timer = setInterval(() => {
+                    elapsedSeconds++;
+                    if(timerMode === 'countdown') {
+                        let rem = totalSeconds - elapsedSeconds;
+                        updateTimerDisplay(rem);
+                        if(rem <= 0) toggleTimer();
+                    } else {
                         updateTimerDisplay(elapsedSeconds);
-                    }, 1000);
-                }
-            }
-        }
-
-        // オブジェクト内部から文字列型のテキスト資産を自動抽出する安全弁
-        function extractTextFromObject(obj) {
-            if (!obj) return "";
-            if (typeof obj === 'string') return obj;
-            
-            // replyキーがある場合は最優先
-            if (obj.reply && typeof obj.reply === 'string') return obj.reply;
-            
-            const topLevelKeys = ['response', 'text', 'content', 'result'];
-            for (let key of topLevelKeys) {
-                if (obj[key] && typeof obj[key] === 'string') return obj[key];
-                if (obj[key] && typeof obj[key] === 'object') {
-                    const deepText = extractTextFromObject(obj[key]);
-                    if (deepText) return deepText;
-                }
-            }
-            
-            for (let key in obj) {
-                if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                    if (typeof obj[key] === 'string') return obj[key];
-                    if (typeof obj[key] === 'object') {
-                        const nested = extractTextFromObject(obj[key]);
-                        if (nested) return nested;
                     }
-                }
+                }, 1000);
             }
-            return "";
         }
 
+        // 🌟【超クリーンアップ】翻訳API専用のURL「/api/chat」に純粋に送るように完全修正！！
+        async function askVercelCloudflareAiTranslate() {
+            const enInput = document.getElementById('input-en');
+            const jaInput = document.getElementById('input-ja');
+            const btn = document.getElementById('btn-ai-translate');
+            
+            const textToTranslate = enInput.value.trim();
+            if(!textToTranslate) {
+                alert("翻訳したい英単語を入力してください 🇺🇸");
+                return;
+            }
+
+            btn.innerText = "⚡ 翻訳中";
+            btn.classList.add('ai-loading-pulse');
+            jaInput.value = "純粋データを抽出中...";
+
+            try {
+                // ⭕ /api/review ではなく、翻訳専用の /api/chat に送信！余計な文字列も一切混ぜない！
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: textToTranslate }) 
+                });
+                
+                if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                
+                const d = await res.json();
+                let translatedResult = d.reply || "";
+                
+                translatedResult = translatedResult.trim();
+                
+                if (translatedResult) {
+                    jaInput.value = translatedResult;
+                } else {
+                    jaInput.value = "翻訳が空でした。";
+                }
+            } catch(e) {
+                jaInput.value = "通信エラーが発生しました";
+                console.error(e);
+            } finally {
+                btn.innerText = "AI翻訳 🧠";
+                btn.classList.remove('ai-loading-pulse');
+            }
+        }
+
+        // 🚀【レビュー機能】マクロデータ解析は今まで通り /api/review を叩くように切り分け
         async function generateAiReview() {
             const overlay = document.getElementById('ai-modal-overlay');
             const box = document.getElementById('ai-response-box');
-            const btn = document.getElementById('btn-ai-review');
-            
-            box.innerText = "深海のアーカイブを解析中... 少々お待ちください。";
+            box.innerText = "深海データをマクロ解析中...";
             overlay.classList.add('open');
-            btn.innerText = "⚡ 解析中...";
-            btn.style.opacity = "0.6";
 
             const totalMins = focusRecords.reduce((sum, r) => sum + r.minutes, 0);
-            const doneCount = todos.filter(t => t.completed).length;
-            const pendingCount = todos.filter(t => !t.completed).length;
-            const wordCount = words.length;
-
-            const systemPrompt = `【OCEAN COMPASS 総合潜水アナリティクス】\n総潜水時間: ${totalMins}分\n完了ミッション: ${doneCount}件\n未完了ミッション: ${pendingCount}件\n登録単語数: ${wordCount}語\n\nこれまでの全データをマクロに解析し、今後の深海探索方針や学習の改善点をアドバイスしてください。口調は頼りになる「深海のキャプテン」として日本語で語りかけること。`;
+            const promptText = `【データマクロ解析】総潜水時間: ${totalMins}分。アドバイスを一言で。`;
 
             try {
                 const res = await fetch('/api/review', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // ⭕ 修正: chat.jsに合わせてキー名を message に統一
-                    body: JSON.stringify({ message: systemPrompt })
+                    body: JSON.stringify({ message: promptText })
                 });
-                if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-                
                 const d = await res.json();
-                // ⭕ 修正: バックエンドが返す reply キーから優先的に取得
-                let aiTxt = d.reply || extractTextFromObject(d);
-                
-                if (!aiTxt && d) {
-                    aiTxt = typeof d === 'object' ? JSON.stringify(d, null, 2) : String(d);
-                }
-                
-                box.innerText = aiTxt.trim();
+                box.innerText = d.reply || "解析完了！";
             } catch(e) {
-                box.innerText = `通信環境が悪化しています（エラー: ${e.message}）。一度浮上して、電波状況の良い場所で再度ログを同期させてください。`;
-            } finally {
-                btn.innerText = "マクロデータ解析を発動 🚀";
-                btn.style.opacity = "1";
+                box.innerText = "通信エラーが発生しました。";
             }
         }
 
-        function closeAiModal() {
-            document.getElementById('ai-modal-overlay').classList.remove('open');
-        }
+        function closeAiModal() { document.getElementById('ai-modal-overlay').classList.remove('open'); }
 
         function saveFocusRecord(mins) {
             if (mins <= 0) return;
             const todayStr = new Date().toISOString().split('T')[0];
-            
             let existingRecord = focusRecords.find(r => r.date === todayStr);
-            if (existingRecord) {
-                existingRecord.minutes += mins;
-            } else {
-                focusRecords.push({ id: Date.now(), date: todayStr, minutes: mins });
-            }
-            
+            if (existingRecord) existingRecord.minutes += mins;
+            else focusRecords.push({ id: Date.now(), date: todayStr, minutes: mins });
             localStorage.setItem('ocean_focus_records', JSON.stringify(focusRecords));
             renderWeeklyHomeChart();
         }
@@ -774,238 +660,53 @@
             
             const last7Days = [];
             for(let i=6; i>=0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
+                const d = new Date(); d.setDate(d.getDate() - i);
                 last7Days.push(d.toISOString().split('T')[0]);
             }
             
-            const dailyData = last7Days.map(dateStr => {
-                return focusRecords.filter(r=>r.date===dateStr).reduce((sum,r)=>sum+r.minutes, 0);
-            });
-            
-            const maxVal = Math.max(...dailyData, 1);
-            const todayStr = new Date().toISOString().split('T')[0];
-            
-            const todayMins = focusRecords.filter(r=>r.date===todayStr).reduce((sum,r)=>sum+r.minutes, 0);
-            document.getElementById('home-today-total-label').innerText = `今日: ${todayMins}分`;
-
-            last7Days.forEach((dateStr, index) => {
-                const mins = dailyData[index];
-                const hPct = (mins / maxVal) * 100;
+            last7Days.forEach((dateStr) => {
+                const mins = focusRecords.filter(r=>r.date===dateStr).reduce((sum,r)=>sum+r.minutes, 0);
                 const barContainer = document.createElement('div');
                 barContainer.className = 'bar-container';
                 const barFill = document.createElement('div');
-                barFill.className = 'bar-fill' + (dateStr === todayStr ? ' today-bar' : '');
-                barFill.style.height = '0px';
-                
+                barFill.className = 'bar-fill';
+                barFill.style.height = `${Math.max(mins * 2, 5)}px`;
                 const label = document.createElement('span');
-                label.className = 'bar-label';
-                const dObj = new Date(dateStr);
-                label.innerText = (dObj.getMonth()+1) + '/' + dObj.getDate();
-                
-                barContainer.appendChild(barFill);
-                barContainer.appendChild(label);
+                label.className = 'bar-label'; label.innerText = dateStr.split('-')[2];
+                barContainer.appendChild(barFill); barContainer.appendChild(label);
                 chartContainer.appendChild(barContainer);
-                
-                setTimeout(() => {
-                    barFill.style.height = `${Math.max(hPct, 3)}%`;
-                }, 60 + index*30);
             });
         }
 
-        function changeAnalyticsView(mode) {
-            currentAnalyticsView = mode;
-            document.querySelectorAll('.stat-row-clickable').forEach(el=>el.classList.remove('active-filter'));
-            document.getElementById('row-stat-' + mode).classList.add('active-filter');
-            drawAnalyticsChart(mode);
-        }
-
-        function drawAnalyticsChart(mode) {
-            const svg = document.getElementById('svg-line-chart');
-            const xLabelBox = document.getElementById('line-chart-x-labels');
-            if(!svg) return;
-            svg.innerHTML = '';
-            xLabelBox.innerHTML = '';
-
-            let daysCount = 7;
-            if(mode === 'day') daysCount = 1;
-            if(mode === 'month') daysCount = 30;
-
-            const targetDates = [];
-            for(let i = daysCount - 1; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                targetDates.push(d.toISOString().split('T')[0]);
-            }
-
-            const dailyMinutes = targetDates.map(dStr => {
-                return focusRecords.filter(r=>r.date===dStr).reduce((sum,r)=>sum+r.minutes, 0);
-            });
-
-            const maxMins = Math.max(...dailyMinutes, 1);
-            document.getElementById('chart-max-label').innerText = `MAX: ${maxMins}分`;
-            document.getElementById('chart-period-title').innerText = mode==='day' ? '本日の潜水記録' : (mode==='week' ? '直近1週間の推移' : '直近30日間の推移');
-
-            const todayStr = new Date().toISOString().split('T')[0];
-            document.getElementById('stat-day').innerText = focusRecords.filter(r=>r.date===todayStr).reduce((sum,r)=>sum+r.minutes, 0);
-            
-            const last7Str = [];
-            for(let i=0;i<7;i++) { const d=new Date(); d.setDate(d.getDate()-i); last7Str.push(d.toISOString().split('T')[0]); }
-            document.getElementById('stat-week').innerText = focusRecords.filter(r=>last7Str.includes(r.date)).reduce((sum,r)=>sum+r.minutes, 0);
-            
-            const last30Str = [];
-            for(let i=0;i<30;i++) { const d=new Date(); d.setDate(d.getDate()-i); last30Str.push(d.toISOString().split('T')[0]); }
-            document.getElementById('stat-month').innerText = focusRecords.filter(r=>last30Str.includes(r.date)).reduce((sum,r)=>sum+r.minutes, 0);
-
-            const width = svg.clientWidth || 340;
-            const height = 140;
-            const paddingX = 25;
-            const paddingY = 20;
-
-            const points = [];
-            targetDates.forEach((dateStr, idx) => {
-                const mins = dailyMinutes[idx];
-                const x = paddingX + ((width - paddingX * 2) / (daysCount === 1 ? 1 : daysCount - 1)) * idx;
-                const y = height - paddingY - ((height - paddingY * 2) * (mins / maxMins));
-                points.push({ x, y, mins, date: dateStr });
-            });
-
-            if(daysCount === 1) {
-                points.unshift({ x: paddingX, y: height - paddingY, mins: 0, date: todayStr });
-                points[1].x = width - paddingX;
-            }
-
-            for(let l=0; l<=3; l++) {
-                const gy = paddingY + ((height - paddingY*2) / 3) * l;
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', paddingX); line.setAttribute('y1', gy);
-                line.setAttribute('x2', width - paddingX); line.setAttribute('y2', gy);
-                line.setAttribute('stroke', 'rgba(0,180,216,0.08)');
-                line.setAttribute('stroke-width', '1');
-                svg.appendChild(line);
-            }
-
-            let dAttr = `M ${points[0].x} ${points[0].y}`;
-            for(let i=1; i<points.length; i++) {
-                dAttr += ` L ${points[i].x} ${points[i].y}`;
-            }
-            const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            polyline.setAttribute('d', dAttr);
-            polyline.setAttribute('fill', 'none');
-            polyline.setAttribute('stroke', '#00b4d8');
-            polyline.setAttribute('stroke-width', '3');
-            polyline.setAttribute('stroke-linecap', 'round');
-            polyline.setAttribute('stroke-linejoin', 'round');
-            svg.appendChild(polyline);
-
-            points.forEach((p, idx) => {
-                if(daysCount === 30 && idx % 3 !== 0 && idx !== points.length-1) return;
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', p.x);
-                circle.setAttribute('cy', p.y);
-                circle.setAttribute('r', '4');
-                circle.setAttribute('fill', p.mins > 0 ? '#ff9e00' : '#134074');
-                circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', '1');
-                svg.appendChild(circle);
-
-                const dObj = new Date(p.date);
-                const span = document.createElement('span');
-                span.innerText = (dObj.getMonth()+1) + '/' + dObj.getDate();
-                xLabelBox.appendChild(span);
-            });
-        }
-
-        // --- クイックToDo ---
-        function openTodoModal() {
-            document.getElementById('todo-modal-overlay').classList.add('open');
-        }
-        function closeTodoModal(e) {
-            document.getElementById('todo-modal-overlay').classList.remove('open');
-        }
+        function openTodoModal() { document.getElementById('todo-modal-overlay').classList.add('open'); }
+        function closeTodoModal() { document.getElementById('todo-modal-overlay').classList.remove('open'); }
         function addHomeTodo() {
             const txt = document.getElementById('input-home-todo').value.trim();
-            const dl = document.getElementById('input-todo-deadline').value;
             if(!txt) return;
-            todos.unshift({ id: Date.now(), text: txt, deadline: dl || null, completed: false });
+            todos.unshift({ id: Date.now(), text: txt, completed: false });
             localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
             document.getElementById('input-home-todo').value = '';
-            document.getElementById('input-todo-deadline').value = '';
-            closeTodoModal();
-            renderTodoList();
-        }
-
-        function toggleTodoComplete(id) {
-            todos = todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-            localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-            renderTodoList();
-        }
-
-        function deleteTodo(id) {
-            todos = todos.filter(t => t.id !== id);
-            localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-            renderTodoList();
+            closeTodoModal(); renderTodoList();
         }
 
         function renderTodoList() {
             const container = document.getElementById('schedule-todo-list-container');
-            const badge = document.getElementById('todo-count-badge');
-            if(!container) return;
-            container.innerHTML = '';
-            
-            const activeTodos = todos.filter(t => !t.completed);
-            badge.innerText = activeTodos.length;
-
-            if(todos.length === 0) {
-                container.innerHTML = `<p style="font-size:0.75rem; opacity:0.5; text-align:center; padding:20px 0;">ミッションは登録されていません。</p>`;
-                return;
-            }
-
+            if(!container) return; container.innerHTML = '';
             todos.forEach(t => {
-                const item = document.createElement('div');
-                item.style.display = 'flex'; item.style.alignItems = 'center'; item.style.justifyContent = 'space-between';
-                item.style.padding = '10px 0'; item.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-                
-                const left = document.createElement('div');
-                left.style.display = 'flex'; left.style.alignItems = 'center'; left.style.gap = '10px'; left.style.flex = '1';
-                
-                const chk = document.createElement('input');
-                chk.type = 'checkbox'; chk.checked = t.completed;
-                chk.onclick = () => toggleTodoComplete(t.id);
-                
-                const txtSpan = document.createElement('span');
-                txtSpan.innerText = t.text;
-                txtSpan.style.fontSize = '0.85rem';
-                if(t.completed) { txtSpan.style.textDecoration = 'line-through'; txtSpan.style.opacity = '0.4'; }
-                
-                left.appendChild(chk); left.appendChild(txtSpan);
-                if(t.deadline) {
-                    const dlSpan = document.createElement('span');
-                    dlSpan.innerText = `⏳${t.deadline.split('-').slice(1).join('/')}`;
-                    dlSpan.style.fontSize = '0.65rem'; dlSpan.style.color = '#ff9e00'; dlSpan.style.marginLeft = '8px';
-                    left.appendChild(dlSpan);
-                }
-
-                const del = document.createElement('span');
-                del.innerHTML = '✕'; del.style.cursor='pointer'; del.style.opacity='0.4'; del.style.padding='0 8px'; del.style.fontSize='0.85rem';
-                del.onclick = () => deleteTodo(t.id);
-
-                item.appendChild(left); item.appendChild(del);
-                container.appendChild(item);
+                const div = document.createElement('div');
+                div.style.padding = '8px 0'; div.style.fontSize = '0.85rem'; div.innerText = "・ " + t.text;
+                container.appendChild(div);
             });
         }
 
-        // --- 週間時間割 ---
         function renderTimetable() {
             const body = document.getElementById('timetable-body');
-            if(!body) return;
-            body.innerHTML = '';
+            if(!body) return; body.innerHTML = '';
             for(let h=0; h<6; h++) {
                 const tr = document.createElement('tr');
                 for(let d=0; d<7; d++) {
                     const td = document.createElement('td');
-                    td.className = 'timetable-cell';
-                    td.innerText = timetableData[d][h] || '-';
+                    td.className = 'timetable-cell'; td.innerText = timetableData[d][h];
                     td.onclick = function() { openTimetableModal(d, h); };
                     tr.appendChild(td);
                 }
@@ -1015,70 +716,33 @@
 
         function openTimetableModal(day, hour) {
             activeTimetableCellIndex = { day, hour };
-            const currentVal = timetableData[day][hour];
-            document.getElementById('input-timetable-subject').value = currentVal === '-' ? '' : currentVal;
             document.getElementById('timetable-modal-overlay').classList.add('open');
         }
-
-        function closeTimetableModal() {
-            document.getElementById('timetable-modal-overlay').classList.remove('open');
-            activeTimetableCellIndex = null;
-        }
-
-        function selectSubjectChip(sub) {
-            document.getElementById('input-timetable-subject').value = sub === '-' ? '' : sub;
-            saveTimetableModalValue(sub);
-        }
-
-        function saveTimetableModalValue(forcedValue) {
+        function closeTimetableModal() { document.getElementById('timetable-modal-overlay').classList.remove('open'); }
+        function selectSubjectChip(sub) { document.getElementById('input-timetable-subject').value = sub; }
+        function saveTimetableModalValue() {
             if(!activeTimetableCellIndex) return;
             const { day, hour } = activeTimetableCellIndex;
-            let val = forcedValue || document.getElementById('input-timetable-subject').value.trim();
-            if(!val) val = '-';
-            timetableData[day][hour] = val;
+            timetableData[day][hour] = document.getElementById('input-timetable-subject').value || '-';
             localStorage.setItem('ocean_timetable_data', JSON.stringify(timetableData));
-            renderTimetable();
-            closeTimetableModal();
+            renderTimetable(); closeTimetableModal();
         }
 
-        // --- 深海単語帳 ---
         function renderWordList() {
             const container = document.getElementById('word-list-container');
-            if(!container) return;
-            container.innerHTML = '';
-            if(words.length === 0) {
-                container.innerHTML = `<p style="font-size:0.75rem; opacity:0.5; text-align:center; padding:30px 0;">単語帳は空です。</p>`;
-                return;
-            }
+            if(!container) return; container.innerHTML = '';
             words.forEach(w => {
-                const card = document.createElement('div');
-                card.className = 'card'; card.style.padding = '12px 18px'; card.style.marginHeight = '8px';
-                card.style.display = 'flex'; card.style.justifyContent = 'space-between'; card.style.alignItems = 'center';
+                const div = document.createElement('div');
+                div.className = 'card'; div.style.padding = '12px 18px';
                 
-                const enSpan = document.createElement('span');
-                enSpan.innerText = w.en;
-                if (globalVisibilityMode === 'hide-en') {
-                    enSpan.className = 'blur-text';
-                    enSpan.onclick = function() { this.classList.toggle('reveal'); };
-                }
+                let enSpan = `<span style="font-weight:bold; color:#ff9e00;">${w.en}</span>`;
+                let jaSpan = `<span style="color:#00b4d8; margin-left:10px;">${w.ja}</span>`;
                 
-                const jaSpan = document.createElement('span');
-                jaSpan.innerText = w.ja;
-                if (globalVisibilityMode === 'hide-ja') {
-                    jaSpan.className = 'blur-text';
-                    jaSpan.onclick = function() { this.classList.toggle('reveal'); };
-                }
+                if(globalVisibilityMode === 'hide-en') enSpan = `<span class="blur-text" onclick="this.classList.toggle('reveal')">${w.en}</span>`;
+                if(globalVisibilityMode === 'hide-ja') jaSpan = `<span class="blur-text" onclick="this.classList.toggle('reveal')" style="margin-left:10px;">${w.ja}</span>`;
                 
-                const del = document.createElement('span');
-                del.innerHTML = '✕'; del.style.cursor='pointer';
-                del.onclick = function() {
-                    words = words.filter(item => item.id !== w.id);
-                    localStorage.setItem('ocean_words_list', JSON.stringify(words));
-                    renderWordList();
-                };
-                
-                card.appendChild(enSpan); card.appendChild(jaSpan); card.appendChild(del);
-                container.appendChild(card);
+                div.innerHTML = `${enSpan} : ${jaSpan}`;
+                container.appendChild(div);
             });
         }
 
@@ -1088,117 +752,26 @@
             if(!en.value || !ja.value) return;
             words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() });
             localStorage.setItem('ocean_words_list', JSON.stringify(words));
-            en.value = ''; ja.value = '';
-            renderWordList();
+            en.value = ''; ja.value = ''; renderWordList();
         }
 
-        function setGlobalVisibility(mode) {
-            globalVisibilityMode = mode;
-            renderWordList();
-        }
-
-        async function askVercelCloudflareAiTranslate() {
-            const enInput = document.getElementById('input-en');
-            const jaInput = document.getElementById('input-ja');
-            const btn = document.getElementById('btn-ai-translate');
-            
-            const textToTranslate = enInput.value.trim();
-            if(!textToTranslate) {
-                alert("翻訳したい英単語、または英文を先に入力してください 🇺🇸");
-                return;
-            }
-
-            btn.innerText = "⚡ 翻訳中";
-            btn.classList.add('ai-loading-pulse');
-            jaInput.value = "深海AIから翻訳データを抽出中...";
-
-            try {
-                const res = await fetch('/api/review', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // ⭕ 修正: chat.jsが期待する「message」という名前でデータを送る
-                    body: JSON.stringify({ message: textToTranslate })
-                });
-                
-                if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-                
-                const d = await res.json();
-                // ⭕ 修正: バックエンドが確定させた「reply」キーからデータを取得
-                let translatedResult = d.reply || extractTextFromObject(d);
-                
-                if (!translatedResult && d) {
-                    translatedResult = typeof d === 'object' ? JSON.stringify(d) : String(d);
-                }
-                
-                translatedResult = translatedResult.trim();
-                
-                if (translatedResult) {
-                    jaInput.value = translatedResult;
-                } else {
-                    jaInput.value = "解析結果が完全に空でした（手動入力してください）";
-                }
-            } catch(e) {
-                jaInput.value = `翻訳エラー: ${e.message}（手動入力してください）`;
-                console.error("AI Translation Error: ", e);
-            } finally {
-                btn.innerText = "AI翻訳 🧠";
-                btn.classList.remove('ai-loading-pulse');
-            }
-        }
-
-        // --- 🌊 環境演出エフェクト ---
+        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
+        
         function createBubble() {
-            if(!isTimerRunning) return;
             const container = document.getElementById('bubble-container');
-            if(!container) return;
+            if(!container || container.style.display === 'none') return;
             const b = document.createElement('div');
             b.className = 'bubble';
-            const size = Math.random() * 12 + 5;
-            b.style.width = `${size}px`;
-            b.style.height = `${size}px`;
-            b.style.left = `${Math.random() * 100}%`;
-            b.style.animationDuration = `${Math.random() * 3 + 2.5}s`;
+            const size = Math.random() * 14 + 6;
+            b.style.width = size + 'px'; b.style.height = size + 'px';
+            b.style.left = Math.random() * 100 + '%';
+            b.style.animationDuration = (Math.random() * 3 + 3) + 's';
             container.appendChild(b);
-            setTimeout(() => b.remove(), 5500);
+            setTimeout(() => b.remove(), 6000);
         }
-
-        function spawnFishLoop() {
-            if(!isTimerRunning) {
-                setTimeout(spawnFishLoop, 1000);
-                return;
-            }
-            const fishes = ['🐠','🐡','🐙','🦑','🦈','🐋','🦐','🪼'];
-            const fish = document.createElement('div');
-            fish.className = 'deep-sea-fish';
-            fish.innerText = fishes[Math.floor(Math.random() * fishes.length)];
-            fish.style.top = (Math.random() * 65 + 15) + '%';
-            
-            const leftToRight = Math.random() > 0.5;
-            if(leftToRight) {
-                fish.style.left = '-40px';
-                setTimeout(() => {
-                    fish.classList.add('fish-swim');
-                    fish.style.transform = `translateX(${window.innerWidth + 80}px) scaleX(-1)`;
-                }, 100);
-            } else {
-                fish.style.right = '-40px';
-                setTimeout(() => {
-                    fish.classList.add('fish-swim');
-                    fish.style.transform = `translateX(-${window.innerWidth + 80}px) scaleX(1)`;
-                }, 100);
-            }
-
-            document.body.appendChild(fish);
-            setTimeout(() => { fish.remove(); spawnFishLoop(); }, 6000);
-        }
-
-        // --- データ初期化 ---
-        function clearAllSystemData() {
-            if(confirm('潜水ログ、時間割、単語帳、すべての深海データが消失します。本当に実行しますか？')) {
-                localStorage.clear();
-                alert('すべてのシステムログが初期化されました。');
-                window.location.reload();
-            }
+        
+        function clearAllSystemData() { 
+            if(confirm('全データを削除しますか？')) { localStorage.clear(); window.location.reload(); }
         }
     </script>
 </body>
