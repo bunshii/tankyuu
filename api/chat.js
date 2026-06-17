@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { message } = req.body; // フロントから届いた英単語
+        const { message } = req.body; // フロントから届いた文字
         const cfToken = process.env.CF_TOKEN;
         const cfAccountId = process.env.CF_ACCOUNT_ID;
 
@@ -20,8 +20,10 @@ export default async function handler(req, res) {
             return res.status(500).json({ reply: "エラー：Vercelの環境変数（CF_TOKEN または CF_ACCOUNT_ID）が足りないぜ！" });
         }
 
-        // 🌟【改善点1】AIへの指示をよりシンプルに、余計な文章を一切省くよう超厳密に指定
-        const strictPrompt = `Translate the English text "${message}" into Japanese. Output ONLY the literal Japanese translation word/sentence. Do not include any explanations, markers, quotes, or introduction words.`;
+        // 🌟【超絶強化】AIに直前のログを忘れさせ、1単語だけの翻訳に集中させる超厳密プロンプト
+        const strictPrompt = `[System Instruction: Ignore all previous logs, codes, or contexts. You are an absolute one-word translator. Convert the input English word into Japanese. Never output explanations or python logs.]
+Input English word: "${message}"
+Output ONLY the single Japanese word:`;
 
         const response = await fetch(
             `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
@@ -37,7 +39,10 @@ export default async function handler(req, res) {
                             role: "user", 
                             content: strictPrompt
                         }
-                    ]
+                    ],
+                    // AIが余計な解説をダラダラ喋るのを物理的に禁止するパラメータ
+                    max_tokens: 15, 
+                    temperature: 0.0
                 }),
             }
         );
@@ -52,24 +57,22 @@ export default async function handler(req, res) {
 
         let replyText = data.result?.response || "返事が空っぽだぜ？";
 
-        // 🌟【改善点2】AIが親切心でカギカッコ「」やクォーテーション " " で囲んできた場合、先にそれを排除
-        replyText = replyText.replace(/["'「」『』()（）:：]/g, '').trim();
+        // AIの出力から前後の余計な記号、カッコ、クォーテーションを徹底排除
+        replyText = replyText.replace(/["'「」『』()（）:：=.\-\s]/g, '').trim();
 
-        // 🌟【改善点3】フィルターの調整
-        // 「fish」のように単語を投げられた場合は、最初の「漢字・ひらがな・カタカナのひとかたまり（単語）」だけを抜くようにします。
-        // 文章（例：I like fish.）が送られてきた場合は、句読点（。や？）も含めて抽出できるように対応しています。
-        const japaneseMatch = replyText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3001\u3002\uff01\uff1f]+/);
+        // 🌟【超力技フィルター】漢字・ひらがな・カタカナの「最初の塊」だけを抜く
+        const japaneseMatch = replyText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/);
         
         let finalReply = replyText;
         if (japaneseMatch) {
-            finalReply = japaneseMatch[0]; // 条件に合う最初の塊だけをセット
+            finalReply = japaneseMatch[0]; // 最初に見つかった日本語単語のみ
             
-            // もしAIが「魚です」と返して、フィルターを「魚です」で通過してしまった場合の保険
+            // 「魚です」などの語尾を抹殺する保険
             if (finalReply.endsWith("です") && finalReply.length > 2) {
                 finalReply = finalReply.slice(0, -2);
             }
         } else {
-            finalReply = replyText.trim(); // 日本語が見つからない時の保険
+            finalReply = replyText.trim();
         }
 
         return res.status(200).json({ reply: finalReply });
