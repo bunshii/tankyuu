@@ -20,8 +20,8 @@ export default async function handler(req, res) {
             return res.status(500).json({ reply: "エラー：Vercelの環境変数（CF_TOKEN または CF_ACCOUNT_ID）が足りないぜ！" });
         }
 
-        // AIへの指示文
-        const strictPrompt = `Translate the English word "${message}" into Japanese. Output ONLY the Japanese translation word.`;
+        // 🌟【改善点1】AIへの指示をよりシンプルに、余計な文章を一切省くよう超厳密に指定
+        const strictPrompt = `Translate the English text "${message}" into Japanese. Output ONLY the literal Japanese translation word/sentence. Do not include any explanations, markers, quotes, or introduction words.`;
 
         const response = await fetch(
             `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
@@ -50,17 +50,26 @@ export default async function handler(req, res) {
             });
         }
 
-        const replyText = data.result?.response || "返事が空っぽだぜ？";
+        let replyText = data.result?.response || "返事が空っぽだぜ？";
 
-        // 🌟【超力技フィルター】返ってきた文章から「日本語（漢字・ひらがな・カタカナ）」が連続している最初の部分だけを強引に抽出する
-        // これにより、後ろに続く「(yu) The character for...」などの英語解説をすべて完全にカットします
-        const japaneseMatch = replyText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/);
+        // 🌟【改善点2】AIが親切心でカギカッコ「」やクォーテーション " " で囲んできた場合、先にそれを排除
+        replyText = replyText.replace(/["'「」『』()（）:：]/g, '').trim();
+
+        // 🌟【改善点3】フィルターの調整
+        // 「fish」のように単語を投げられた場合は、最初の「漢字・ひらがな・カタカナのひとかたまり（単語）」だけを抜くようにします。
+        // 文章（例：I like fish.）が送られてきた場合は、句読点（。や？）も含めて抽出できるように対応しています。
+        const japaneseMatch = replyText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3001\u3002\uff01\uff1f]+/);
         
         let finalReply = replyText;
         if (japaneseMatch) {
-            finalReply = japaneseMatch[0]; // 最初に見つかった日本語の塊だけをセット（例: "魚"）
+            finalReply = japaneseMatch[0]; // 条件に合う最初の塊だけをセット
+            
+            // もしAIが「魚です」と返して、フィルターを「魚です」で通過してしまった場合の保険
+            if (finalReply.endsWith("です") && finalReply.length > 2) {
+                finalReply = finalReply.slice(0, -2);
+            }
         } else {
-            finalReply = replyText.replace(/["'「」]/g, '').trim(); // 日本語が見つからない時の保険
+            finalReply = replyText.trim(); // 日本語が見つからない時の保険
         }
 
         return res.status(200).json({ reply: finalReply });
