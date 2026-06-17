@@ -21,7 +21,6 @@ export default async function handler(req, res) {
         }
 
         // 🌟【超絶強化】AIに直前のログを忘れさせ、1単語だけの翻訳に集中させる超厳密プロンプト
-        // 🌟【最凶の絶対命令】システム用語を排除し、小学生でもわかるレベルで「翻訳だけをしろ」と命令
         const strictPrompt = `【絶対遵守のルール】
 あなたは翻訳システムです。今から送る英単語を日本語に直した「単語1語」だけを出力してください。
 挨拶、解説、カギカッコ、Pythonのコード、ログ、説明文などは一切出力してはいけません。
@@ -29,6 +28,15 @@ export default async function handler(req, res) {
 
 翻訳する英単語: ${message}`;
 
+        // 補完部分：CloudflareのAI GatewayやWorkers AIへのfetch処理
+        const response = await fetch(
+            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/meta/llama-3-8b-instruct`, // 使用するモデル等に合わせて適宜変更してください
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${cfToken}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     messages: [
                         { 
@@ -36,10 +44,9 @@ export default async function handler(req, res) {
                             content: strictPrompt
                         }
                     ],
-                    // AIが余計な解説をダラダラ喋るのを物理的に禁止するパラメータ
                     max_tokens: 15, 
                     temperature: 0.0
-                }),
+                })
             }
         );
 
