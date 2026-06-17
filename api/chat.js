@@ -21,18 +21,14 @@ export default async function handler(req, res) {
         }
 
         // 🌟【超絶強化】AIに直前のログを忘れさせ、1単語だけの翻訳に集中させる超厳密プロンプト
-        const strictPrompt = `[System Instruction: Ignore all previous logs, codes, or contexts. You are an absolute one-word translator. Convert the input English word into Japanese. Never output explanations or python logs.]
-Input English word: "${message}"
-Output ONLY the single Japanese word:`;
+        // 🌟【最凶の絶対命令】システム用語を排除し、小学生でもわかるレベルで「翻訳だけをしろ」と命令
+        const strictPrompt = `【絶対遵守のルール】
+あなたは翻訳システムです。今から送る英単語を日本語に直した「単語1語」だけを出力してください。
+挨拶、解説、カギカッコ、Pythonのコード、ログ、説明文などは一切出力してはいけません。
+例外はありません。ただの1語の日本語単語だけを返してください。
 
-        const response = await fetch(
-            `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/@cf/google/gemma-7b-it-lora`,
-            {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${cfToken}`,
-                    "Content-Type": "application/json",
-                },
+翻訳する英単語: ${message}`;
+
                 body: JSON.stringify({
                     messages: [
                         { 
