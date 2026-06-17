@@ -573,7 +573,7 @@
             }
         }
 
-        // 🌟【超クリーンアップ】翻訳API専用のURL「/api/chat」に純粋に送るように完全修正！！
+        // 翻訳API
         async function askVercelCloudflareAiTranslate() {
             const enInput = document.getElementById('input-en');
             const jaInput = document.getElementById('input-ja');
@@ -590,7 +590,6 @@
             jaInput.value = "純粋データを抽出中...";
 
             try {
-                // ⭕ /api/review ではなく、翻訳専用の /api/chat に送信！余計な文字列も一切混ぜない！
                 const res = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -618,7 +617,7 @@
             }
         }
 
-        // 🚀【レビュー機能】マクロデータ解析は今まで通り /api/review を叩くように切り分け
+        // マクロデータ解析
         async function generateAiReview() {
             const overlay = document.getElementById('ai-modal-overlay');
             const box = document.getElementById('ai-response-box');
@@ -728,12 +727,29 @@
             renderTimetable(); closeTimetableModal();
         }
 
+        // 🌟 単語リストの描画関数（チェック付き並び替え対応版）
         function renderWordList() {
             const container = document.getElementById('word-list-container');
-            if(!container) return; container.innerHTML = '';
-            words.forEach(w => {
+            if(!container) return; 
+            container.innerHTML = '';
+
+            // チェックが入っている単語を下に回すためにソート
+            const sortedWords = [...words].sort((w1, w2) => {
+                return (w1.checked === w2.checked) ? 0 : w1.checked ? 1 : -1;
+            });
+
+            sortedWords.forEach(w => {
                 const div = document.createElement('div');
-                div.className = 'card'; div.style.padding = '12px 18px';
+                div.className = 'card'; 
+                div.style.padding = '12px 18px';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.gap = '12px';
+                
+                // チェック済みの単語は少し薄くする
+                if (w.checked) {
+                    div.style.opacity = '0.5';
+                }
                 
                 let enSpan = `<span style="font-weight:bold; color:#ff9e00;">${w.en}</span>`;
                 let jaSpan = `<span style="color:#00b4d8; margin-left:10px;">${w.ja}</span>`;
@@ -741,18 +757,44 @@
                 if(globalVisibilityMode === 'hide-en') enSpan = `<span class="blur-text" onclick="this.classList.toggle('reveal')">${w.en}</span>`;
                 if(globalVisibilityMode === 'hide-ja') jaSpan = `<span class="blur-text" onclick="this.classList.toggle('reveal')" style="margin-left:10px;">${w.ja}</span>`;
                 
-                div.innerHTML = `${enSpan} : ${jaSpan}`;
+                // チェックボックスと単語レイアウトの挿入
+                div.innerHTML = `
+                    <input type="checkbox" 
+                           ${w.checked ? 'checked' : ''} 
+                           onchange="toggleWordCheck(${w.id})" 
+                           style="transform: scale(1.2); cursor: pointer; accent-color: #00b4d8;">
+                    <div style="flex: 1;">${enSpan} : ${jaSpan}</div>
+                `;
                 container.appendChild(div);
             });
         }
 
+        // 🌟 単語の新規登録（checkedフラグの初期化対応）
         function addNewWord() {
             const en = document.getElementById('input-en');
             const ja = document.getElementById('input-ja');
             if(!en.value || !ja.value) return;
-            words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() });
+            
+            words.unshift({ 
+                id: Date.now(), 
+                en: en.value.trim(), 
+                ja: ja.value.trim(),
+                checked: false // 初期状態は未チェック
+            });
+            
             localStorage.setItem('ocean_words_list', JSON.stringify(words));
-            en.value = ''; ja.value = ''; renderWordList();
+            en.value = ''; ja.value = ''; 
+            renderWordList();
+        }
+
+        // 🌟 チェックのオンオフを切り替える関数
+        function toggleWordCheck(wordId) {
+            const word = words.find(w => w.id === wordId);
+            if (word) {
+                word.checked = !word.checked;
+                localStorage.setItem('ocean_words_list', JSON.stringify(words));
+                renderWordList(); // 再描画して自動で下に移動させる
+            }
         }
 
         function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
