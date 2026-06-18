@@ -29,14 +29,13 @@
         
         .container { max-width: 500px; margin: 0 auto; padding: 20px; position: relative; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content.active { display: block; }
 
         /* サイバーボトムナビゲーション */
         nav {
             position: fixed;
             bottom: 0; left: 0; right: 0; height: 85px;
-            background: rgba(13, 27, 42, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            background: rgba(13, 27, 42, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-top: 1px solid rgba(0, 180, 216, 0.3);
             display: flex; align-items: center; z-index: 90;
             transition: transform 0.3s ease-out;
@@ -44,23 +43,9 @@
         }
         nav.hidden { transform: translateY(100px); }
         nav button { flex: 1; background: none; border: none; font-size: 1.8rem;
-            cursor: pointer; opacity: 0.35; transition: opacity 0.2s, transform 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
-        nav button.active { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 8px #00b4d8); color: #00b4d8; }
+            cursor: pointer; opacity: 0.35; transition: opacity 0.2s, transform 0.2s; }
+        nav button.active { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 8px #00b4d8); }
         nav button.home-btn { font-size: 2.2rem; }
-
-        /* ダイバーヘッダー */
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(13, 27, 42, 0.8);
-            border-bottom: 1px solid rgba(0, 180, 216, 0.2);
-            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
-        }
-        .diver-badge { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .avatar-box {
-            width: 40px; height: 40px; background: #0077b6; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
-            box-shadow: 0 0 10px #00b4d8;
-        }
 
         /* サイバーオレンジボタン */
         .btn-main {
@@ -77,7 +62,7 @@
         table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         th, td { border: 1px solid rgba(0, 180, 216, 0.2); padding: 8px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         th { background: rgba(0, 180, 216, 0.15); font-weight: bold; color: #00b4d8; }
-        td.timetable-cell { background: rgba(255, 255, 255, 0.03); cursor: pointer; transition: all 0.15s; color: #fff; }
+        td.timetable-cell { background: rgba(255, 255, 255, 0.03); cursor: pointer; transition: all 0.15s; }
         td.timetable-cell:active { background: rgba(0, 180, 216, 0.2); transform: scale(0.95); }
         
         /* 単語帳のモザイク */
@@ -85,7 +70,7 @@
         .blur-text.reveal { filter: none; background: transparent; }
 
         /* タイマー設定 */
-        .timer-settings { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; justify-content: center; }
+        .timer-settings { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .timer-select, .timer-input { padding: 10px; border-radius: 12px; background: rgba(13, 27, 42, 0.6); color: #fff; border: 1px solid rgba(0, 180, 216, 0.3); font-size: 0.9rem; }
         .timer-select option { color: #333; }
         .timer-input { width: 60px; text-align: center; }
@@ -99,233 +84,122 @@
         
         .btn-action { background: #134074; color: #fff; border: none; padding: 10px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; white-space: nowrap; border: 1px solid rgba(0,180,216,0.2); }
         .btn-action:active { transform: translateY(1px); }
-        .btn-add { background: #00b4d8; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .btn-add { background: #ff9e00; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
         .btn-add:active { transform: translateY(1px); }
 
         /* ポップアップ（モーダル） */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 30, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; padding: 20px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 30, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; padding: 20px; }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
-        .modal-content { width: 100%; max-width: 400px; background: linear-gradient(135deg, #0b2545 0%, #134074 100%); border: 1px solid rgba(0, 180, 216, 0.4); border-radius: 24px; padding: 25px; transform: scale(0.85); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal-content { width: 100%; max-width: 400px; background: linear-gradient(135deg, #0b2545 0%, #134074 100%); border: 1px solid rgba(0, 180, 216, 0.4); transform: scale(0.85); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .modal-overlay.open .modal-content { transform: scale(1); }
 
         /* アバターグリッド */
         .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
-        .avatar-option { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,180,216,0.2); border-radius: 12px; font-size: 1.8rem; text-align: center; padding: 5px; cursor: pointer; transition: all 0.15s; }
-        .avatar-option.selected { border-color: #00b4d8; background: rgba(0,180,216,0.2); transform: scale(1.05); }
+        .avatar-option { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0,180,216,0.15); border-radius: 14px; font-size: 1.5rem; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .avatar-option.selected { background: rgba(0, 180, 216, 0.2); border-color: #00b4d8; box-shadow: 0 0 10px rgba(0, 180, 216, 0.4); }
 
-        /* 潜水フルスクリーンモード */
+        /* チップ */
+        .subject-chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .subject-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.2); border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; }
+
+        .date-field { background: rgba(255,255,255,0.07); border: 1px solid rgba(0,180,216,0.25); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; color-scheme: dark; }
+        .control-btns { display: flex; gap: 8px; margin-bottom: 15px; justify-content: space-between; }
+        .btn-ctrl { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,180,216,0.2); color: #fff; padding: 8px 4px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
+
+        /* 📊 アナリティクス */
+        .bar-container { flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+        .bar-fill { background: rgba(0, 180, 216, 0.4); width: 65%; margin: 0 auto; border-radius: 4px; transition: height 0.5s ease-out; height: 0px; min-height: 2px; }
+        .bar-fill.today-bar { background: linear-gradient(180deg, #ff9e00 0%, #ff6d00 100%) !important; box-shadow: 0 0 8px rgba(255,158,0,0.5); }
+        .bar-label { font-size: 0.6rem; margin-top: 4px; display: block; opacity: 0.7; }
+        
+        .stat-number { font-size: 1.6rem; font-weight: bold; color: #ff9e00; filter: drop-shadow(0 0 5px rgba(255,158,0,0.3)); }
+        .stat-unit { font-size: 0.75rem; color: #fff; margin-left: 2px; opacity: 0.8; }
+
+        .stat-row-clickable { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 18px; border-radius: 16px; cursor: pointer; border: 1px solid rgba(0,180,216,0.1); transition: all 0.2s; }
+        .stat-row-clickable:hover { background: rgba(0,180,216,0.08); }
+        .stat-row-clickable.active-filter { background: rgba(0, 180, 216, 0.15); border: 1px solid #00b4d8; }
+
+        /* 🌊 環境エフェクト */
+        #bubble-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none; }
+        .bubble { position: absolute; bottom: -20px; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, rgba(0,180,216,0.2) 40%, rgba(255,255,255,0.05) 70%, rgba(255,255,255,0.4) 100%); border-radius: 50%; animation: bubbleUp 5s infinite ease-in; box-shadow: 0 0 6px rgba(0, 180, 216, 0.3), inset 0 0 4px rgba(255,255,255,0.6); }
+        @keyframes bubbleUp { 0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; } 15% { opacity: 0.9; } 90% { opacity: 0.8; } 100% { transform: translateY(-110vh) translateX(35px) scale(1.2); opacity: 0; } }
+
+        .deep-sea-fish { position: fixed; pointer-events: none; z-index: 98; font-size: 1.8rem; opacity: 0; transition: opacity 1s, transform 4s linear; filter: drop-shadow(0 0 8px rgba(0,180,216,0.5)); mix-blend-mode: screen; }
+        .fish-swim { opacity: 0.5; }
+
+        .ai-loading-pulse { animation: aiPulse 1.5s infinite alternate; }
+        @keyframes aiPulse { 0% { opacity: 0.4; filter: drop-shadow(0 0 2px #00b4d8); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00b4d8); } }
+
+        /* 🤿 没入型フルスクリーン・ディープダイブ画面のスタイル */
         #diving-fullscreen-mode {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(180deg, #051423 0%, #030b14 60%, #01050a 100%);
             z-index: 9999; display: none; flex-direction: column; align-items: center;
             justify-content: space-between; box-sizing: border-box; padding: 50px 20px 60px 20px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow: hidden;
         }
-        
-        /* 円形ゲージタイマー（フルスクリーン用） */
-        .circle-timer-wrap { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; margin: auto 0; }
-        .circle-bg-svg { position: absolute; top:0; left:0; width:100%; height:100%; transform: rotate(-90deg); }
-        .timer-internal-box { text-align: center; z-index: 10; }
-        .timer-time-text { font-size: 3.2rem; font-weight: 800; font-family: monospace; color: #90e0ef; margin: 0; letter-spacing: -1px; text-shadow: 0 0 15px rgba(0,180,216,0.6); }
-        .timer-sub-text { font-size: 0.65rem; color: #00b4d8; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
-        .timer-jp-text { font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 1px; }
 
-        .dive-stats-row { display: flex; gap: 25px; margin-bottom: 40px; background: rgba(255,255,255,0.03); padding: 10px 25px; border-radius: 30px; border: 1px solid rgba(0,180,216,0.15); backdrop-filter: blur(5px); }
-        .dive-stat-item { font-size: 0.8rem; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 6px; }
-        .btn-ascend { width: 100%; max-width: 280px; height: 54px; border-radius: 27px; background: rgba(230,57,70,0.15); border: 1px solid #e63946; color: #e63946; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(230,57,70,0.1); transition: all 0.2s; }
-        .btn-ascend:active { background: #e63946; color: #fff; }
-
-        /* リストレイアウト */
-        .list-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-
-        /* 泡の環境演出用アニメーション */
-        #bubble-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; display: none; }
-        .bubble {
-            position: absolute; bottom: -20px; background: rgba(144, 224, 239, 0.15);
-            border-radius: 50%; border: 1px solid rgba(255,255,255,0.3);
-            animation: floatUp 5s infinite linear;
+        .light-rays {
+            position: absolute; top: -10%; left: -10%; width: 130%; height: 70%;
+            background: radial-gradient(circle at 50% -20%, rgba(0, 180, 216, 0.35) 0%, rgba(0, 180, 216, 0.1) 40%, rgba(0,0,0,0) 70%);
+            mix-blend-mode: screen; pointer-events: none; z-index: 1;
+            transform-origin: top center; animation: raySway 8s infinite alternate ease-in-out;
         }
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-105vh) scale(1.3); opacity: 0; }
+        @keyframes raySway {
+            0% { transform: rotate(-3deg) scaleY(1); opacity: 0.8; }
+            100% { transform: rotate(3deg) scaleY(1.1); opacity: 1; }
         }
-        .btn-secondary { background: #134074; color: white; border: 1px solid rgba(0,180,216,0.3); padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
-        .btn-danger { background: rgba(230,57,70,0.2); border: 1px solid #e63946; color: #e63946; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+
+        .circle-timer-container {
+            position: relative; width: 260px; height: 260px;
+            display: flex; align-items: center; justify-content: center; z-index: 10;
+        }
+        .circle-timer-svg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            transform: rotate(-90deg);
+        }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.04); stroke-width: 10; }
+        .circle-progress {
+            fill: none; stroke: #00b4d8; stroke-width: 10;
+            stroke-linecap: round; transition: stroke-dashoffset 0.3s linear;
+            filter: drop-shadow(0 0 10px rgba(0, 180, 216, 0.8));
+        }
+
+        .timer-internal-box { text-align: center; color: #ffffff; z-index: 12; }
+        .timer-time-text { font-size: 3.4rem; font-weight: 200; letter-spacing: 1px; margin: 0; line-shadow: 0 0 20px rgba(255,255,255,0.4); }
+        .timer-sub-text { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.6; margin-top: 2px; text-transform: uppercase; }
+        .timer-jp-text { font-size: 0.55rem; opacity: 0.4; letter-spacing: 1px; margin-top: 3px; }
+
+        .dive-stats-row {
+            display: flex; justify-content: space-between; width: 100%; max-width: 280px;
+            font-size: 0.72rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; z-index: 10;
+        }
+        .dive-stat-item { display: flex; align-items: center; gap: 5px; }
+
+        .btn-ascend {
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8); border-radius: 30px; padding: 12px 45px;
+            font-size: 0.85rem; font-weight: bold; cursor: pointer; z-index: 10;
+            transition: all 0.2s; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 1px;
+        }
+        .btn-ascend:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.96); }
     </style>
 </head>
 <body>
 
     <div id="bubble-container"></div>
 
-    <header>
-        <div class="diver-badge" onclick="openSettingsModal()">
-            <div class="avatar-box" id="header-avatar-box">🧑‍💻</div>
-            <div>
-                <div style="font-size: 10px; color: #888; letter-spacing: 1px;">CURRENT DIVER</div>
-                <div style="font-size: 15px; font-weight: bold;" id="header-diver-name">DIVER_01</div>
-            </div>
-        </div>
-        <div style="font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
-            <span id="system-status-indicator" style="color: #4ade80; font-size: 0.8rem; font-weight: bold; background: rgba(74,222,128,0.1); padding: 4px 10px; border-radius: 12px;">● レーダー稼働中</span>
-        </div>
-    </header>
-
-    <div class="container">
-        <div id="tab-home" class="tab-content active">
-            <div class="card" style="text-align: center; padding: 30px 20px;">
-                <div class="timer-settings">
-                    <select id="timer-mode-select" class="timer-select" onchange="changeTimerMode()">
-                        <option value="countdown">カウントダウン (集中潜水)</option>
-                        <option value="countup">カウントアップ (調査潜水)</option>
-                    </select>
-                    <div id="countdown-input-wrapper">
-                        <input type="number" id="timer-minutes-input" class="timer-input" value="25" min="1" max="180" onchange="updateMinutes()">
-                        <span style="font-size: 0.85rem; color: #888; margin-left: 3px;">分</span>
-                    </div>
-                </div>
-                
-                <div style="font-size: 3.5rem; font-weight: bold; font-family: monospace; color: #90e0ef; margin: 25px 0; text-shadow: 0 0 15px rgba(144,224,239,0.3);" id="home-timer-display">25:00</div>
-                <button class="btn-main" onclick="toggleTimer()">潜水シークエンス開始 (START)</button>
-            </div>
-
-            <div class="card" style="padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="font-size: 0.75rem; color: #888;">TODAY'S RECORD</div>
-                    <div style="font-size: 1.4rem; font-weight: bold; color: #00b4d8;" id="home-today-total-label">今日: 0分</div>
-                </div>
-                <div style="display: flex; gap: 15px; font-size: 0.8rem; color: #ccc;">
-                    <div>本日: <span id="stat-day" style="color:#00b4d8; font-weight:bold;">0</span>分</div>
-                    <div>全潜水: <span id="stat-week" style="color:#00b4d8; font-weight:bold;">0</span>分</div>
-                </div>
-            </div>
-
-            <div class="card" style="background: rgba(10,25,47,0.4); padding: 15px; border-color: rgba(0,180,216,0.15);">
-                <div style="font-size: 0.85rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
-                    <span id="chart-period-title">直近1週間の推移</span>
-                    <span style="font-size: 0.7rem; color: #ff9e00; background: rgba(255,158,0,0.15); padding: 2px 8px; border-radius: 6px;" id="chart-max-label">MAX: 0分</span>
-                </div>
-                <div id="home-weekly-chart" style="display: flex; align-items: flex-end; justify-content: space-between; height: 120px; margin-top: 15px; padding: 0 5px; border-bottom: 1px solid rgba(0,180,216,0.2);"></div>
-            </div>
-        </div>
-
-        <div id="tab-schedule" class="tab-content">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin:0; font-size:1rem; color:#00b4d8;">作戦ミッション (TODOS)</h3>
-                    <button class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="openTodoModal()">＋ 新規</button>
-                </div>
-                <div class="list-container" id="schedule-todo-list-container"></div>
-            </div>
-
-            <div class="card">
-                <h3 style="margin:0 0 10px 0; font-size:1rem; color:#00b4d8;">航海時間割 (TIMETABLE)</h3>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th></tr>
-                        </thead>
-                        <tbody id="timetable-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-words" class="tab-content">
-            <div class="card">
-                <h3 style="margin:0 0 12px 0; font-size:1rem; color:#00b4d8;">深海単語採集 (WORD LOG)</h3>
-                <div class="word-form">
-                    <input type="text" id="input-en" class="word-field" placeholder="英単語 (例: submerge)">
-                    <div class="word-input-row">
-                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳 (空欄でAI自動翻訳)">
-                        <button id="btn-ai-translate" class="btn-action" onclick="askVercelCloudflareAiTranslate()">AI翻訳 🧠</button>
-                    </div>
-                    <button class="btn-add" style="margin-top: 5px;" onclick="addNewWord()">ログへ格納</button>
-                </div>
-
-                <div style="display: flex; gap: 8px; margin: 15px 0 10px; justify-content: flex-end;">
-                    <button class="btn-action" style="padding:4px 10px; font-size:0.75rem;" onclick="setWordVisibility('show-all')">すべて表示</button>
-                    <button class="btn-action" style="padding:4px 10px; font-size:0.75rem;" onclick="setWordVisibility('blur-ja')">訳を隠す</button>
-                    <button class="btn-action" style="padding:4px 10px; font-size:0.75rem;" onclick="setWordVisibility('blur-en')">単語を隠す</button>
-                </div>
-                <div class="list-container" id="word-list-container"></div>
-            </div>
-        </div>
-
-        <div id="tab-ai-center" class="tab-content">
-            <div class="card" style="border-color: rgba(0,180,216,0.4); text-align: center; padding: 25px 20px;">
-                <div style="font-size: 2.5rem; margin-bottom: 10px;">🤖</div>
-                <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">深海キャプテンAI分析レポ</h3>
-                <p style="font-size: 0.8rem; color: #a0aec0; margin: 0 0 20px 0; line-height: 1.5;">蓄積された潜水時間、完了したミッションからあなたの集中傾向を航海日誌風に解析します。</p>
-                <button class="btn-main" style="height: 50px;" onclick="generateAiReview()">AIデータ解析を実行</button>
-            </div>
-        </div>
-    </div>
-
-    <nav id="bottom-nav">
-        <button onclick="switchTab('schedule', this)">⏰<span style="font-size:0.6rem; opacity:0.7;">計画</span></button>
-        <button onclick="switchTab('home', this)" class="home-btn active" id="nav-btn-home">⚓<span style="font-size:0.6rem; opacity:0.7;">潜水</span></button>
-        <button onclick="switchTab('words', this)">📖<span style="font-size:0.6rem; opacity:0.7;">単語</span></button>
-        <button onclick="switchTab('ai-center', this)">🧠<span style="font-size:0.6rem; opacity:0.7;">AI</span></button>
-    </nav>
-
-    <div class="modal-overlay" id="settings-modal-overlay">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">潜水士データ同期設定</h3>
-            <div style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom:6px; font-size:0.8rem; color:#888;">ダイバー識別名</label>
-                <input type="text" id="input-diver-name" class="word-field">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; margin-bottom:6px; font-size:0.8rem; color:#888;">ホログラムアバター</label>
-                <div class="avatar-grid" id="avatar-selector-grid"></div>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:10px;">
-                <button class="btn-add" onclick="saveDiverProfile()">変更をメインログへ反映</button>
-                <button class="btn-action" onclick="closeSettingsModal()">閉じる</button>
-                <button class="btn-danger" style="margin-top: 15px; font-size:0.8rem;" onclick="clearAllSystemData()">全データパージ (初期化) ⚠️</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="todo-modal-overlay">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">新規作戦指令ミッション</h3>
-            <input type="text" id="input-home-todo" class="word-field" placeholder="ミッション内容を入力..." style="margin-bottom: 20px;">
-            <div style="display:flex; gap:10px;">
-                <button class="btn-add" style="flex:1;" onclick="addHomeTodo()">登録</button>
-                <button class="btn-action" style="flex:1;" onclick="closeTodoModal()">戻る</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="timetable-modal-overlay">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">航海スケジュール割当</h3>
-            <input type="text" id="input-timetable-subject" class="word-field" placeholder="科目名・タスク内容を入力..." style="margin-bottom: 20px;">
-            <div style="display:flex; gap:10px;">
-                <button class="btn-add" style="flex:1;" onclick="saveTimetableModalValue()">変更を確定</button>
-                <button class="btn-action" style="flex:1;" onclick="closeTimetableModal()">キャンセル</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="ai-modal-overlay">
-        <div class="modal-content" style="max-width: 450px;">
-            <h3 style="margin-top:0; color:#00b4d8;">CAPTAIN'S LOG (解析結果)</h3>
-            <div id="ai-response-box" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; font-size: 0.85rem; line-height: 1.6; max-height: 250px; overflow-y: auto; color:#e0f2fe; margin-bottom: 20px; border:1px solid rgba(0,180,216,0.2);"></div>
-            <button class="btn-add" style="width:100%;" onclick="closeAiModal()">了解、航海を続ける</button>
-        </div>
-    </div>
-
     <div id="diving-fullscreen-mode">
-        <div style="font-size: 0.75rem; color: #00b4d8; letter-spacing: 4px; animation: pulse 2s infinite; font-weight: bold;">SUBMERSION MODE ACTIVE</div>
-        
-        <div class="circle-timer-wrap">
-            <svg class="circle-bg-svg" viewBox="0 0 110 110">
-                <circle cx="55" cy="55" r="52" fill="none" stroke="rgba(0, 180, 216, 0.1)" stroke-width="3"></circle>
-                <circle id="fullscreen-svg-progress" cx="55" cy="55" r="52" fill="none" stroke="#00b4d8" stroke-width="4" stroke-linecap="round" stroke-dasharray="326.72" stroke-dashoffset="0"></circle>
+        <div class="light-rays"></div>
+        <div style="font-size: 0.72rem; letter-spacing: 3px; opacity: 0.7; font-weight: bold; display: flex; align-items: center; gap: 6px; z-index: 10;">
+            🚢 DEEP DIVE
+        </div>
+        <div class="circle-timer-container">
+            <svg class="circle-timer-svg" viewBox="0 0 120 120">
+                <circle class="circle-bg" cx="60" cy="60" r="52"></circle>
+                <circle class="circle-progress" id="circle-gauge" cx="60" cy="60" r="52" stroke-dasharray="326.72" stroke-dashoffset="0"></circle>
             </svg>
             <div class="timer-internal-box">
                 <h1 class="timer-time-text" id="fullscreen-time-display">25:00</h1>
@@ -333,93 +207,267 @@
                 <div class="timer-jp-text">潜水時間 (DIVING TIME)</div>
             </div>
         </div>
-
         <div class="dive-stats-row">
             <div class="dive-stat-item"><span>↓</span> DEPTH: <span style="color:#fff; font-weight:bold;">45m</span></div>
             <div class="dive-stat-item"><span>🪔</span> AIR: <span style="color:#fff; font-weight:bold;">180 BAR</span></div>
         </div>
-
-        <button class="btn-ascend" onclick="toggleTimer()">浮上する (ASCEND)</button>
+        <button class="btn-ascend" onclick="toggleTimer()">浮上する (ASCEND DIVE) <span>↑</span></button>
     </div>
 
+    <div class="container">
+        <div id="app-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: relative; z-index: 10;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="header-avatar-box" style="width: 45px; height: 45px; background: #0b2545; border: 1px solid #00b4d8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,180,216,0.3);">🧑‍💻</div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 900; letter-spacing: 2px; color: #00b4d8; text-shadow: 0 0 10px rgba(0,180,216,0.5); font-size: 0.95rem;">OCEAN COMPASS</div>
+                    <div style="font-size: 0.6rem; background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); padding: 1px 6px; border-radius: 8px; margin-top: 2px; color: #fff; display: inline-block;">ID: D-7732 ⚓️ <span id="header-diver-name">DIVER_01</span></div>
+                </div>
+            </div>
+            <button onclick="openSettingsModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(0,180,216,0.3); color: #fff; font-size: 1.3rem; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">⚙️</button>
+        </div>
 
-    <script type="importmap">
-      {
-        "imports": {
-          "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
-          "firebase/messaging": "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js"
-        }
-      }
-    </script>
+        <div id="tab-home" class="tab-content active">
+            <div class="card" onclick="switchToAnalyticsTab('week')" style="cursor: pointer;">
+                <div style="font-size: 0.8rem; margin-bottom: 12px; opacity: 0.8; display: flex; justify-content: space-between;">
+                    <span>今週の潜水記録（分） <span style="font-size:0.7rem; color: #00b4d8;">🔍 タップして分析</span></span>
+                    <span id="home-today-total-label" style="font-weight: bold; color: #ff9e00;">今日: 0分</span>
+                </div>
+                <div id="home-weekly-chart" style="display: flex; align-items: flex-end; justify-content: space-around; height: 80px; gap: 8px;"></div>
+            </div>
 
-    <script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getMessaging, getToken } from "firebase/messaging";
+            <div class="card" style="background: rgba(11, 37, 69, 0.6); padding: 25px 20px; border-color: rgba(0,180,216,0.4);">
+                <div class="timer-settings">
+                    <select class="timer-select" id="timer-mode-select" onchange="changeTimerMode()" style="flex: 1;">
+                        <option value="countdown">カウントダウン</option>
+                        <option value="countup">カウントアップ</option>
+                    </select>
+                    <div id="countdown-input-wrapper" style="display: flex; align-items: center; gap: 5px;">
+                        <input type="number" class="timer-input" id="timer-minutes-input" value="25" min="1" max="999" oninput="updateMinutes()">
+                        <span>分</span>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 4rem; font-weight: 100; margin-bottom: 5px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(255,255,255,0.2);" id="timer-display">25:00</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px; letter-spacing: 3px; color: #00b4d8;">FOCUS TIMER</div>
+                    <button class="btn-main" onclick="toggleTimer()">潜水開始</button>
+                </div>
+            </div>
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyBJtTQOLVM1pHKwBcGhQXrsxTlkvFkgG2o",
-          projectId: "oceancompass-58466",
-          messagingSenderId: "108644591634",
-          appId: "1:1086445991634:web:2c53f6b291a8504b021f0b"
-        };
+            <div class="card" style="padding: 15px 20px;">
+                <button class="btn-action" onclick="openTodoModal()" style="width: 100%; background: rgba(255,255,255,0.05); height: 45px; border-radius: 14px; font-size: 0.9rem;">＋ クイックToDoを登録する</button>
+            </div>
+        </div>
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === "granted") {
-                    console.log("通知権限: 許可を確認。");
-                    const app = initializeApp(firebaseConfig);
-                    const messaging = getMessaging(app);
+        <div id="tab-analytics" class="tab-content">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button onclick="switchTab('home', document.getElementById('nav-btn-home'))" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(0,180,216,0.2); color: #fff; padding: 8px 14px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-right: 15px;">⬅ 戻る</button>
+                <h2 style="font-size: 1.2rem; margin: 0;">📊 潜水アナリティクス（詳細）</h2>
+            </div>
+            <div class="card" style="padding: 20px; background: rgba(0,0,0,0.2);">
+                <div style="font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                    <span id="chart-period-title">直近1週間の推移</span>
+                    <span style="font-size: 0.7rem; color: #ff9e00; background: rgba(255,158,0,0.15); padding: 2px 8px; border-radius: 6px;" id="chart-max-label">MAX: 0分</span>
+                </div>
+                <div style="position: relative; width: 100%; height: 140px; margin-top: 15px;">
+                    <svg id="svg-line-chart" style="width: 100%; height: 100%; overflow: visible;"></svg>
+                </div>
+                <div id="line-chart-x-labels" style="display: flex; justify-content: space-between; padding: 5px 10px 0 10px; font-size: 0.6rem; opacity: 0.7; border-top: 1px solid rgba(0,180,216,0.15);"></div>
+            </div>
+            <div class="card" style="padding: 20px;">
+                <div style="font-size: 0.75rem; margin-bottom: 12px; opacity: 0.6;">👇 タップすると上のグラフが切り替わります</div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="stat-row-clickable" id="row-stat-day" onclick="changeAnalyticsView('day')">
+                        <div><div style="font-size: 0.8rem; font-weight: bold;">本日 (1日)</div><div style="font-size: 0.65rem; opacity: 0.6;">今日1日の総潜水時間</div></div>
+                        <div><span class="stat-number" id="stat-day">0</span><span class="stat-unit">分</span></div>
+                    </div>
+                    <div class="stat-row-clickable" id="row-stat-week" onclick="changeAnalyticsView('week')">
+                        <div><div style="font-size: 0.8rem; font-weight: bold;">今週 (7日間) 📈</div><div style="font-size: 0.65rem; opacity: 0.6;">直近7日間の折れ線グラフ</div></div>
+                        <div><span class="stat-number" id="stat-week">0</span><span class="stat-unit">分</span></div>
+                    </div>
+                    <div class="stat-row-clickable" id="row-stat-month" onclick="changeAnalyticsView('month')">
+                        <div><div style="font-size: 0.8rem; font-weight: bold;">今月 (30日間) 📈</div><div style="font-size: 0.65rem; opacity: 0.6;">直近30日間の長期トレンド</div></div>
+                        <div><span class="stat-number" id="stat-month">0</span><span class="stat-unit">分</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    const token = await getToken(messaging, {
-                        vapidKey: "BJ93qL2gC-P1yqB-BwbE-r6swD4IKx-9cZACMbEI2_Z5GhlvP17jKhrLu697XP9QulPuIxckJONlzeIwFovXnVI"
-                    });
-                    
-                    if (token) {
-                        console.log("FCMトークン取得成功:", token);
-                        // 画面左上のステータス欄を同期済みに変更
-                        const indicator = document.getElementById('system-status-indicator');
-                        if (indicator) {
-                            indicator.innerText = "● 通知レーダー同期済";
-                            indicator.style.color = "#38bdf8";
-                            indicator.style.background = "rgba(56,189,248,0.1)";
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error("通知の初期化エラー（クラッシュ防止ガード）:", error);
-            }
-        });
-    </script>
+        <div id="tab-schedule" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">スケジュール & ミッション</h2>
+            <div class="card" style="padding: 18px 20px;">
+                <div style="font-size: 0.85rem; margin-bottom: 15px; opacity: 0.8; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                    <span>⚓️ 現在のミッション一覧（ToDo）</span>
+                    <span id="todo-count-badge" style="background: rgba(0,180,216,0.2); border: 1px solid rgba(0,180,216,0.3); color:#00b4d8; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">0</span>
+                </div>
+                <div id="schedule-todo-list-container"></div>
+            </div>
+            <div class="card" style="overflow-x: auto; padding: 15px 10px;">
+                <div style="font-size: 0.8rem; margin-bottom: 4px; opacity: 0.8; font-weight: bold; color: #00b4d8;">⚓️ 週間潜水プラン（時間割）</div>
+                <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 10px; margin-top: 2px;">マスをタップすると爆速で予定を書き込めます</p>
+                <table>
+                    <thead>
+                        <tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th></tr>
+                    </thead>
+                    <tbody id="timetable-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-words" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">深海単語帳</h2>
+            <div class="card">
+                <div class="word-form">
+                    <div class="word-input-row">
+                        <input type="text" id="input-en" class="word-field" placeholder="英単語を入力... (例: fish)">
+                        <button class="btn-action" onclick="askVercelCloudflareAiTranslate()" id="btn-ai-translate" style="background: #ffffff; color: #0b2545; border: none;">AI翻訳 🧠</button>
+                    </div>
+                    <div class="word-input-row">
+                        <input type="text" id="input-ja" class="word-field" placeholder="日本語訳（AIが自動生成）">
+                        <button class="btn-add" onclick="addNewWord()">追加</button>
+                    </div>
+                </div>
+            </div>
+            <div class="control-btns">
+                <button class="btn-ctrl" onclick="setGlobalVisibility('hide-ja')">🇯🇵 訳を全隠し</button>
+                <button class="btn-ctrl" onclick="setGlobalVisibility('hide-en')">🇺🇸 英を全隠し</button>
+                <button class="btn-ctrl" onclick="setGlobalVisibility('reveal-all')">👁️ 全て表示</button>
+            </div>
+            <div id="word-list-container"></div>
+        </div>
+
+        <div id="tab-friends" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 5px; color: #00b4d8;">探索チーム</h2>
+            <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 15px;">※スタンドアロン稼働中</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="card" style="display: flex; align-items: center; gap: 15px; margin-bottom: 0;">
+                    <div style="width:45px; height:45px; background:rgba(0,180,216,0.1); border: 1px solid #00b4d8; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size: 1.3rem;">🐳</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 0.95rem;">TAKUYA</div>
+                        <div style="font-size: 0.7 some; opacity:0.7;">ID: D-4432 | 深度: 45m</div>
+                    </div>
+                    <span style="color: #4ade80; font-size: 0.8rem; font-weight: bold; background: rgba(74,222,128,0.1); padding: 4px 10px; border-radius: 12px;">● 潜水中</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-ai-center" class="tab-content">
+            <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: #00b4d8;">🧠 深海AI司令室</h2>
+            <div class="card" style="border-color: rgba(0,180,216,0.4); text-align: center; padding: 25px 20px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🤖</div>
+                <h3 style="margin: 0 0 8px 0; font-size: 1.05rem;">総合データマクロ解析</h3>
+                <p style="font-size: 0.75rem; opacity:0.7; line-height: 1.5; margin-bottom: 15px;">これまでの全潜水履歴、未完了ミッション、獲得した単語データをAIが多角的に分析します。</p>
+                <button class="btn-main" onclick="generateAiReview()" id="btn-ai-review" style="height: 50px;">マクロデータ解析を発動 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal-overlay" onclick="closeSettingsModal(event)">
+        <div class="card modal-content" onclick="event.stopPropagation()" style="max-height: 85vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8;">⚙️ System Setting</div>
+                <span onclick="closeSettingsModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 8px; font-weight: bold; color: #00b4d8;">🐋 プロフィール編集</label>
+                    <div class="word-form">
+                        <input type="text" id="input-diver-name" class="word-field" placeholder="ダイバー名">
+                        <button class="btn-add" onclick="saveDiverProfile()">確定</button>
+                    </div>
+                    <div class="avatar-grid" id="avatar-selector-grid"></div>
+                </div>
+                <hr style="border: none; border-top: 1px solid rgba(0,180,216,0.2); margin: 5px 0;">
+                <button class="btn-action" onclick="clearAllSystemData()" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); width: 100%; height: 38px; border-radius: 10px; font-size: 0.75rem;">全データを初期化</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="todo-modal-overlay" onclick="closeTodoModal(event)">
+        <div class="card modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;">🫧 新しいミッションを登録</div>
+                <span onclick="closeTodoModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div style="flex-direction: column; display: flex; gap: 12px;">
+                <input type="text" id="input-home-todo" class="word-field" placeholder="ミッションを入力..." style="height: 45px; border-radius: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,180,216,0.15);">
+                    <input type="date" id="input-todo-deadline" class="date-field" style="height: 35px;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn-ctrl" onclick="closeTodoModal()" style="height: 45px; border-radius: 12px;">キャンセル</button>
+                    <button class="btn-add" onclick="addHomeTodo()" style="flex: 2; height: 45px; padding: 0; border-radius: 12px;">ミッション発動 🚀</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ai-modal-overlay" onclick="closeAiModal()">
+        <div class="card modal-content" onclick="event.stopPropagation()" style="border-color: #00b4d8; max-width: 420px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-size: 1rem; font-weight: bold; color: #00b4d8;">⚓️ 深海ログキャプテン</div>
+                <span onclick="closeAiModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div id="ai-response-box" style="font-size: 0.88rem; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px; max-height: 280px; overflow-y: auto; border: 1px solid rgba(0,180,216,0.15); white-space: pre-wrap;">データ解析中...</div>
+            <button class="btn-main" onclick="closeAiModal()" style="height: 45px; margin-top: 15px; font-size: 0.95rem; background: #134074; box-shadow: none;">ログを閉じる</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="timetable-modal-overlay" onclick="closeTimetableModal()">
+        <div class="card modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 0.95rem; font-weight: bold; color: #ff9e00;">⏰ マスの編集</div>
+                <span onclick="closeTimetableModal()" style="cursor: pointer; font-size: 1.3rem; opacity: 0.6; padding: 5px;">✕</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="subject-chip-container">
+                    <div class="subject-chip" onclick="selectSubjectChip('国語')">国語</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('数学')">数学</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('英語')">英語</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('理科')">理科</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('社会')">社会</div>
+                    <div class="subject-chip" onclick="selectSubjectChip('-')">クリア</div>
+                </div>
+                <input type="text" id="input-timetable-subject" class="word-field" placeholder="教科名を入力...">
+                <button class="btn-add" onclick="saveTimetableModalValue()">変更を確定 ✅</button>
+            </div>
+        </div>
+    </div>
+
+    <nav id="bottom-nav">
+        <button onclick="switchTab('friends', this)">👥</button>
+        <button onclick="switchTab('schedule', this)">⏰</button>
+        <button onclick="switchTab('home', this)" class="home-btn active" id="nav-btn-home">⚓</button>
+        <button onclick="switchTab('words', this)">📖</button>
+        <button onclick="switchTab('ai-center', this)">🧠</button>
+    </nav>
 
     <script>
+        // --- 状態管理・初期化群 ---
         let focusRecords = JSON.parse(localStorage.getItem('ocean_focus_records')) || [];
         let todos = JSON.parse(localStorage.getItem('ocean_todo_list')) || [];
         let timetableData = JSON.parse(localStorage.getItem('ocean_timetable_data')) || Array.from({ length: 7 }, () => Array(6).fill('-'));
         let words = JSON.parse(localStorage.getItem('ocean_words_list')) || [];
         let diverProfile = JSON.parse(localStorage.getItem('ocean_diver_profile')) || { name: 'DIVER_01', avatar: '🧑‍💻' };
-        let globalVisibilityMode = localStorage.getItem('ocean_word_visibility') || 'show-all';
-        
+
         let timer = null;
         let isTimerRunning = false;
         let timerMode = 'countdown';
         let totalSeconds = 25 * 60;
         let elapsedSeconds = 0;
+        let globalVisibilityMode = 'reveal-all';
+        let currentAnalyticsView = 'week';
         let activeTimetableCellIndex = null;
-        const avatars = ['🧑‍💻', '🤿', '🧜‍♂️', '🧜‍♀️', '🦈', '🐋', '🐙', '🛸', '🧭', '⚓'];
+
+        const avatars = ['🧑‍💻', '🤿', '🧜‍♂️', '🧜‍♀️', '🦈', '🐋', '🐙'];
 
         window.onload = function() {
-            try {
-                updateDiverHeaderUI();
-                initAvatarGrid();
-                renderWeeklyChart();
-                renderTodoList();
-                renderTimetable();
-                renderWordList();
-                setInterval(createBubble, 400);
-            } catch (e) {
-                console.error("UI初期化エラー防止ガード:", e);
-            }
+            updateDiverHeaderUI();
+            initAvatarGrid();
+            renderWeeklyHomeChart();
+            renderTodoList();
+            renderTimetable();
+            renderWordList();
+            setInterval(createBubble, 450);
         };
 
         function updateDiverHeaderUI() {
@@ -430,16 +478,18 @@
 
         function initAvatarGrid() {
             const grid = document.getElementById('avatar-selector-grid');
-            if(!grid) return; grid.innerHTML = '';
+            if(!grid) return;
+            grid.innerHTML = '';
             avatars.forEach(av => {
-                const d = document.createElement('div');
-                d.className = 'avatar-option' + (diverProfile.avatar === av ? ' selected' : '');
-                d.innerText = av;
-                d.onclick = () => {
-                    document.querySelectorAll('.avatar-option').forEach(x=>x.classList.remove('selected'));
-                    d.classList.add('selected'); diverProfile.avatar = av;
+                const opt = document.createElement('div');
+                opt.className = 'avatar-option' + (diverProfile.avatar === av ? ' selected' : '');
+                opt.innerText = av;
+                opt.onclick = function() {
+                    document.querySelectorAll('.avatar-option').forEach(el=>el.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    diverProfile.avatar = av;
                 };
-                grid.appendChild(d);
+                grid.appendChild(opt);
             });
         }
 
@@ -447,339 +497,324 @@
             const nameInput = document.getElementById('input-diver-name').value.trim();
             if(nameInput) diverProfile.name = nameInput;
             localStorage.setItem('ocean_diver_profile', JSON.stringify(diverProfile));
-            updateDiverHeaderUI(); closeSettingsModal();
+            updateDiverHeaderUI();
+            alert('更新しました ⚓️');
         }
+
         function openSettingsModal() { document.getElementById('settings-modal-overlay').classList.add('open'); }
         function closeSettingsModal() { document.getElementById('settings-modal-overlay').classList.remove('open'); }
-        function clearAllSystemData() { if(confirm("全てのデータをパージします。よろしいですか？")) { localStorage.clear(); location.reload(); } }
 
-        function switchTab(tabId, btnEl) {
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(nb => nb.classList.remove('active'));
-            const targetTab = document.getElementById('tab-' + tabId);
-            if(targetTab) targetTab.classList.add('active');
-            if(btnEl) btnEl.classList.add('active');
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+            if(btn) btn.classList.add('active');
         }
 
+        function switchToAnalyticsTab(viewType) {
+            currentAnalyticsView = viewType;
+            switchTab('analytics', null);
+        }
+
+        // --- タイマー処理 ---
         function changeTimerMode() {
+            if(isTimerRunning) return;
             timerMode = document.getElementById('timer-mode-select').value;
-            document.getElementById('countdown-input-wrapper').style.display = timerMode === 'countup' ? 'none' : 'flex';
+            const wrapper = document.getElementById('countdown-input-wrapper');
             if(timerMode === 'countup') {
-                updateTimerDisplay(0);
+                wrapper.style.display = 'none';
+                document.getElementById('timer-display').innerText = "00:00";
             } else {
+                wrapper.style.display = 'flex';
                 updateMinutes();
             }
         }
 
         function updateMinutes() {
+            if(isTimerRunning) return;
             let m = parseInt(document.getElementById('timer-minutes-input').value);
-            totalSeconds = (isNaN(m) || m < 1) ? 60 : m * 60;
+            if (isNaN(m) || m < 1) m = 1;
+            totalSeconds = m * 60;
             updateTimerDisplay(totalSeconds);
         }
 
         function updateTimerDisplay(sec) {
-            const mins = Math.floor(sec / 60); const secs = sec % 60;
-            const fmt = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            document.getElementById('home-timer-display').innerText = fmt;
-            document.getElementById('fullscreen-time-display').innerText = fmt;
-
-            const progressCircle = document.getElementById('fullscreen-svg-progress');
-            if(progressCircle && timerMode === 'countdown') {
-                const totalDash = 326.72;
-                const ratio = Math.max(0, Math.min(1, sec / totalSeconds));
-                progressCircle.style.strokeDashoffset = totalDash * (1 - ratio);
-            } else if(progressCircle) {
-                progressCircle.style.strokeDashoffset = 0;
-            }
+            const mins = Math.floor(sec / 60);
+            const secs = sec % 60;
+            const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = formattedTime;
+            document.getElementById('fullscreen-time-display').innerText = formattedTime;
         }
 
         function toggleTimer() {
-            const fs = document.getElementById('diving-fullscreen-mode');
-            const nav = document.getElementById('bottom-nav');
+            const fullscreenLayer = document.getElementById('diving-fullscreen-mode');
             if (isTimerRunning) {
-                clearInterval(timer); isTimerRunning = false; fs.style.display = 'none';
-                if(nav) nav.classList.remove('hidden');
+                clearInterval(timer);
+                isTimerRunning = false;
+                fullscreenLayer.style.display = 'none';
                 document.getElementById('bubble-container').style.display = 'none';
-                
-                if(elapsedSeconds >= 10) {
-                    focusRecords.push({ date: new Date().toISOString().split('T')[0], minutes: Math.max(1, Math.floor(elapsedSeconds/60)) });
-                    localStorage.setItem('ocean_focus_records', JSON.stringify(focusRecords));
-                    renderWeeklyChart();
-                }
-                updateMinutes();
+                saveFocusRecord(Math.floor(elapsedSeconds / 60));
+                if(timerMode === 'countdown') updateMinutes();
             } else {
-                isTimerRunning = true; elapsedSeconds = 0; fs.style.display = 'flex';
-                if(nav) nav.classList.add('hidden');
+                isTimerRunning = true;
+                elapsedSeconds = 0;
+                fullscreenLayer.style.display = 'flex';
                 document.getElementById('bubble-container').style.display = 'block';
-                
                 timer = setInterval(() => {
                     elapsedSeconds++;
                     if(timerMode === 'countdown') {
-                        let rem = totalSeconds - elapsedSeconds; updateTimerDisplay(rem);
+                        let rem = totalSeconds - elapsedSeconds;
+                        updateTimerDisplay(rem);
                         if(rem <= 0) toggleTimer();
-                    } else { 
-                        updateTimerDisplay(elapsedSeconds); 
+                    } else {
+                        updateTimerDisplay(elapsedSeconds);
                     }
                 }, 1000);
             }
         }
 
-        function renderWeeklyChart() {
-            const container = document.getElementById('home-weekly-chart'); if(!container) return; container.innerHTML = '';
-            const todayStr = new Date().toISOString().split('T')[0];
-            
-            const last7Days = [];
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date(); d.setDate(d.getDate() - i);
-                last7Days.push(d.toISOString().split('T')[0]);
-            }
-
-            const dailyMins = last7Days.map(dateStr => {
-                return focusRecords.filter(r => r.date === dateStr).reduce((sum, r) => sum + r.minutes, 0);
-            });
-
-            const maxMin = Math.max(...dailyMins, 30);
-            document.getElementById('chart-max-label').innerText = `MAX: ${Math.max(...dailyMins)}分`;
-
-            const dayLabels = ['月','火','水','木','金','土','日'];
-            const adjustedLabels = [];
-            for (let i = 6; i >= 0; i--) {
-                const targetDate = new Date(); targetDate.setDate(targetDate.getDate() - i);
-                let dayNum = targetDate.getDay();
-                adjustedLabels.push(dayLabels[dayNum === 0 ? 6 : dayNum - 1]);
-            }
-
-            dailyMins.forEach((min, idx) => {
-                const barContainer = document.createElement('div');
-                barContainer.style.cssText = "display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end;";
-                
-                const bar = document.createElement('div');
-                const heightPercent = (min / maxMin) * 90;
-                bar.style.cssText = `width: 14px; height: ${heightPercent}%; background: linear-gradient(0deg, #0077b6 0%, #00b4d8 100%); border-radius: 4px 4px 0 0; transition: height 0.5s ease-out; position:relative;`;
-                if(last7Days[idx] === todayStr) {
-                    bar.style.background = "linear-gradient(0deg, #ff6d00 0%, #ff9e00 100%)";
-                }
-
-                const valLabel = document.createElement('span');
-                valLabel.innerText = min > 0 ? min : '';
-                valLabel.style.cssText = "font-size: 0.65rem; color: #fff; margin-bottom: 2px; font-family: monospace;";
-                
-                const label = document.createElement('span');
-                label.innerText = adjustedLabels[idx];
-                label.style.cssText = "font-size: 0.65rem; color: #888; margin-top: 4px;";
-                if(last7Days[idx] === todayStr) label.style.color = "#ff9e00";
-
-                barContainer.appendChild(valLabel);
-                barContainer.appendChild(bar);
-                barContainer.appendChild(label);
-                container.appendChild(barContainer);
-            });
-
-            const todayTotal = focusRecords.filter(r => r.date === todayStr).reduce((sum, r) => sum + r.minutes, 0);
-            const absoluteTotal = focusRecords.reduce((sum, r) => sum + r.minutes, 0);
-            document.getElementById('home-today-total-label').innerText = `今日: ${todayTotal}分`;
-            document.getElementById('stat-day').innerText = todayTotal;
-            document.getElementById('stat-week').innerText = absoluteTotal;
-        }
-
-        function openTodoModal() { document.getElementById('todo-modal-overlay').classList.add('open'); }
-        function closeTodoModal() { document.getElementById('todo-modal-overlay').classList.remove('open'); }
-        function addHomeTodo() {
-            const txt = document.getElementById('input-home-todo').value.trim(); if(!txt) return;
-            todos.unshift({ id: Date.now(), text: txt, completed: false });
-            localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-            document.getElementById('input-home-todo').value = ''; closeTodoModal(); renderTodoList();
-        }
-        function toggleTodoComplete(id) {
-            todos = todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-            localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-            renderTodoList();
-        }
-        function renderTodoList() {
-            const c = document.getElementById('schedule-todo-list-container'); if(!c) return; c.innerHTML = '';
-            if(todos.length === 0) {
-                c.innerHTML = '<div style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">現在指令ミッションはありません</div>';
-                return;
-            }
-            todos.forEach(t => { 
-                const d = document.createElement('div'); 
-                d.style.cssText = "background: rgba(255,255,255,0.04); padding: 10px 15px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid #00b4d8;";
-                if(t.completed) {
-                    d.style.opacity = 0.4; d.style.borderLeftColor = "#4ade80";
-                }
-                
-                const span = document.createElement('span');
-                span.innerText = (t.completed ? "✓ " : "・ ") + t.text;
-                span.style.cursor = "pointer"; span.style.fontSize = "0.85rem";
-                if(t.completed) span.style.textDecoration = "line-through";
-                span.onclick = () => toggleTodoComplete(t.id);
-                
-                const delBtn = document.createElement('span');
-                delBtn.innerText = "✕"; delBtn.style.cssText = "color:#e63946; cursor:pointer; font-size:0.8rem; margin-left:10px;";
-                delBtn.onclick = () => {
-                    todos = todos.filter(x => x.id !== t.id);
-                    localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
-                    renderTodoList();
-                };
-
-                d.appendChild(span); d.appendChild(delBtn); c.appendChild(d); 
-            });
-        }
-
-        function renderTimetable() {
-            const b = document.getElementById('timetable-body'); if(!b) return; b.innerHTML = '';
-            for(let h=0; h<6; h++) {
-                const tr = document.createElement('tr');
-                for(let d=0; d<7; d++) {
-                    const td = document.createElement('td'); 
-                    td.className = 'timetable-cell';
-                    td.innerText = timetableData[d][h];
-                    if(timetableData[d][h] !== '-') {
-                        td.style.background = "rgba(0,180,216,0.15)";
-                        td.style.color = "#90e0ef";
-                    }
-                    td.onclick = () => { activeTimetableCellIndex = { d, h }; document.getElementById('timetable-modal-overlay').classList.add('open'); };
-                    tr.appendChild(td);
-                }
-                b.appendChild(tr);
-            }
-        }
-        function closeTimetableModal() { document.getElementById('timetable-modal-overlay').classList.remove('open'); }
-        function saveTimetableModalValue() {
-            if(!activeTimetableCellIndex) return;
-            timetableData[activeTimetableCellIndex.d][activeTimetableCellIndex.h] = document.getElementById('input-timetable-subject').value.trim() || '-';
-            localStorage.setItem('ocean_timetable_data', JSON.stringify(timetableData));
-            document.getElementById('input-timetable-subject').value = '';
-            closeTimetableModal(); renderTimetable();
-        }
-
-        function setWordVisibility(mode) {
-            globalVisibilityMode = mode;
-            localStorage.setItem('ocean_word_visibility', mode);
-            renderWordList();
-        }
-
-        function addNewWord() {
-            const en = document.getElementById('input-en'); const ja = document.getElementById('input-ja');
-            if(!en.value) return;
-            words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() || "未翻訳" });
-            localStorage.setItem('ocean_words_list', JSON.stringify(words));
-            en.value = ''; ja.value = ''; renderWordList();
-        }
-
-        function renderWordList() {
-            const container = document.getElementById('word-list-container'); if(!container) return; container.innerHTML = '';
-            if(words.length === 0) {
-                container.innerHTML = '<div style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">採集された深海単語はありません</div>';
-                return;
-            }
-            words.forEach(w => { 
-                const card = document.createElement('div'); 
-                card.className = 'card';
-                card.style.cssText = "padding:12px 15px; margin:0; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03);";
-                
-                const left = document.createElement('div');
-                left.style.fontSize = "0.9rem";
-                
-                const enSpan = document.createElement('span');
-                enSpan.innerText = w.en + " ";
-                enSpan.style.fontWeight = 'bold';
-                if(globalVisibilityMode === 'blur-en') {
-                    enSpan.className = 'blur-text';
-                    enSpan.onclick = () => enSpan.classList.toggle('reveal');
-                }
-                
-                const arrow = document.createElement('span');
-                arrow.innerText = " → "; arrow.style.color = "#00b4d8";
-
-                const jaSpan = document.createElement('span');
-                jaSpan.innerText = w.ja;
-                jaSpan.style.color = '#90e0ef';
-                if(globalVisibilityMode === 'blur-ja') {
-                    jaSpan.className = 'blur-text';
-                    jaSpan.onclick = () => jaSpan.classList.toggle('reveal');
-                }
-
-                left.appendChild(enSpan); left.appendChild(arrow); left.appendChild(jaSpan);
-
-                const del = document.createElement('span');
-                del.innerText = "✕"; del.style.cssText = "color:#e63946; cursor:pointer; font-size:0.8rem;";
-                del.onclick = () => {
-                    words = words.filter(x => x.id !== w.id);
-                    localStorage.setItem('ocean_words_list', JSON.stringify(words));
-                    renderWordList();
-                };
-
-                card.appendChild(left); card.appendChild(del); container.appendChild(card);
-            });
-        }
-
+        // 翻訳API
         async function askVercelCloudflareAiTranslate() {
             const enInput = document.getElementById('input-en');
             const jaInput = document.getElementById('input-ja');
             const btn = document.getElementById('btn-ai-translate');
-            const word = enInput.value.trim();
-            if(!word) return;
             
-            btn.innerText = "深度通信中..."; btn.disabled = true;
+            const textToTranslate = enInput.value.trim();
+            if(!textToTranslate) {
+                alert("翻訳したい英単語を入力してください 🇺🇸");
+                return;
+            }
+
+            btn.innerText = "⚡ 翻訳中";
+            btn.classList.add('ai-loading-pulse');
+            jaInput.value = "純粋データを抽出中...";
+
             try {
                 const res = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: word })
+                    body: JSON.stringify({ message: textToTranslate }) 
                 });
-                if(!res.ok) throw new Error("応答なし");
-                const data = await res.json();
-                jaInput.value = data.reply || "";
+                
+                if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                
+                const d = await res.json();
+                let translatedResult = d.reply || "";
+                
+                translatedResult = translatedResult.trim();
+                
+                if (translatedResult) {
+                    jaInput.value = translatedResult;
+                } else {
+                    jaInput.value = "翻訳が空でした。";
+                }
             } catch(e) {
-                alert("AI翻訳サーバー接続エラー: " + e.message);
+                jaInput.value = "通信エラーが発生しました";
+                console.error(e);
             } finally {
-                btn.innerText = "AI翻訳 🧠"; btn.disabled = false;
+                btn.innerText = "AI翻訳 🧠";
+                btn.classList.remove('ai-loading-pulse');
             }
         }
 
+        // マクロデータ解析
         async function generateAiReview() {
-            const modal = document.getElementById('ai-modal-overlay');
+            const overlay = document.getElementById('ai-modal-overlay');
             const box = document.getElementById('ai-response-box');
-            modal.classList.add('open'); box.innerText = "キャプテンAIが深海データを解析中...";
+            box.innerText = "深海データをマクロ解析中...";
+            overlay.classList.add('open');
 
-            const todayStr = new Date().toISOString().split('T')[0];
-            const todayMins = focusRecords.filter(r=>r.date===todayStr).reduce((sum,r)=>sum+r.minutes, 0);
-            const uncompletedCount = todos.filter(t=>!t.completed).length;
+            const totalMins = focusRecords.reduce((sum, r) => sum + r.minutes, 0);
+            const promptText = `【データマクロ解析】総潜水時間: ${totalMins}分。アドバイスを一言で。`;
 
             try {
                 const res = await fetch('/api/review', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        minutes: todayMins,
-                        todosCount: uncompletedCount,
-                        diverName: diverProfile.name
-                    })
+                    body: JSON.stringify({ message: promptText })
                 });
-                if(!res.ok) throw new Error("通信途絶。");
                 const d = await res.json();
-                box.innerText = d.reply || "ログの解析に失敗しました。";
+                box.innerText = d.reply || "解析完了！";
             } catch(e) {
-                box.innerText = "通信解析エラー: " + e.message;
+                box.innerText = "通信エラーが発生しました。";
             }
         }
+
         function closeAiModal() { document.getElementById('ai-modal-overlay').classList.remove('open'); }
 
+        function saveFocusRecord(mins) {
+            if (mins <= 0) return;
+            const todayStr = new Date().toISOString().split('T')[0];
+            let existingRecord = focusRecords.find(r => r.date === todayStr);
+            if (existingRecord) existingRecord.minutes += mins;
+            else focusRecords.push({ id: Date.now(), date: todayStr, minutes: mins });
+            localStorage.setItem('ocean_focus_records', JSON.stringify(focusRecords));
+            renderWeeklyHomeChart();
+        }
+
+        function renderWeeklyHomeChart() {
+            const chartContainer = document.getElementById('home-weekly-chart');
+            if(!chartContainer) return;
+            chartContainer.innerHTML = '';
+            
+            const last7Days = [];
+            for(let i=6; i>=0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                last7Days.push(d.toISOString().split('T')[0]);
+            }
+            
+            last7Days.forEach((dateStr) => {
+                const mins = focusRecords.filter(r=>r.date===dateStr).reduce((sum,r)=>sum+r.minutes, 0);
+                const barContainer = document.createElement('div');
+                barContainer.className = 'bar-container';
+                const barFill = document.createElement('div');
+                barFill.className = 'bar-fill';
+                barFill.style.height = `${Math.max(mins * 2, 5)}px`;
+                const label = document.createElement('span');
+                label.className = 'bar-label'; label.innerText = dateStr.split('-')[2];
+                barContainer.appendChild(barFill); barContainer.appendChild(label);
+                chartContainer.appendChild(barContainer);
+            });
+        }
+
+        function openTodoModal() { document.getElementById('todo-modal-overlay').classList.add('open'); }
+        function closeTodoModal() { document.getElementById('todo-modal-overlay').classList.remove('open'); }
+        function addHomeTodo() {
+            const txt = document.getElementById('input-home-todo').value.trim();
+            if(!txt) return;
+            todos.unshift({ id: Date.now(), text: txt, completed: false });
+            localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
+            document.getElementById('input-home-todo').value = '';
+            closeTodoModal(); renderTodoList();
+        }
+
+        function renderTodoList() {
+            const container = document.getElementById('schedule-todo-list-container');
+            if(!container) return; container.innerHTML = '';
+            todos.forEach(t => {
+                const div = document.createElement('div');
+                div.style.padding = '8px 0'; div.style.fontSize = '0.85rem'; div.innerText = "・ " + t.text;
+                container.appendChild(div);
+            });
+        }
+
+        function renderTimetable() {
+            const body = document.getElementById('timetable-body');
+            if(!body) return; body.innerHTML = '';
+            for(let h=0; h<6; h++) {
+                const tr = document.createElement('tr');
+                for(let d=0; d<7; d++) {
+                    const td = document.createElement('td');
+                    td.className = 'timetable-cell'; td.innerText = timetableData[d][h];
+                    td.onclick = function() { openTimetableModal(d, h); };
+                    tr.appendChild(td);
+                }
+                body.appendChild(tr);
+            }
+        }
+
+        function openTimetableModal(day, hour) {
+            activeTimetableCellIndex = { day, hour };
+            document.getElementById('timetable-modal-overlay').classList.add('open');
+        }
+        function closeTimetableModal() { document.getElementById('timetable-modal-overlay').classList.remove('open'); }
+        function selectSubjectChip(sub) { document.getElementById('input-timetable-subject').value = sub; }
+        function saveTimetableModalValue() {
+            if(!activeTimetableCellIndex) return;
+            const { day, hour } = activeTimetableCellIndex;
+            timetableData[day][hour] = document.getElementById('input-timetable-subject').value || '-';
+            localStorage.setItem('ocean_timetable_data', JSON.stringify(timetableData));
+            renderTimetable(); closeTimetableModal();
+        }
+
+        // 🌟 単語リストの描画関数（チェック付き並び替え対応版）
+        function renderWordList() {
+            const container = document.getElementById('word-list-container');
+            if(!container) return; 
+            container.innerHTML = '';
+
+            // チェックが入っている単語を下に回すためにソート
+            const sortedWords = [...words].sort((w1, w2) => {
+                return (w1.checked === w2.checked) ? 0 : w1.checked ? 1 : -1;
+            });
+
+            sortedWords.forEach(w => {
+                const div = document.createElement('div');
+                div.className = 'card'; 
+                div.style.padding = '12px 18px';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.gap = '12px';
+                
+                // チェック済みの単語は少し薄くする
+                if (w.checked) {
+                    div.style.opacity = '0.5';
+                }
+                
+                let enSpan = `<span style="font-weight:bold; color:#ff9e00;">${w.en}</span>`;
+                let jaSpan = `<span style="color:#00b4d8; margin-left:10px;">${w.ja}</span>`;
+                
+                if(globalVisibilityMode === 'hide-en') enSpan = `<span class="blur-text" onclick="this.classList.toggle('reveal')">${w.en}</span>`;
+                if(globalVisibilityMode === 'hide-ja') jaSpan = `<span class="blur-text" onclick="this.classList.toggle('reveal')" style="margin-left:10px;">${w.ja}</span>`;
+                
+                // チェックボックスと単語レイアウトの挿入
+                div.innerHTML = `
+                    <input type="checkbox" 
+                           ${w.checked ? 'checked' : ''} 
+                           onchange="toggleWordCheck(${w.id})" 
+                           style="transform: scale(1.2); cursor: pointer; accent-color: #00b4d8;">
+                    <div style="flex: 1;">${enSpan} : ${jaSpan}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 🌟 単語の新規登録（checkedフラグの初期化対応）
+        function addNewWord() {
+            const en = document.getElementById('input-en');
+            const ja = document.getElementById('input-ja');
+            if(!en.value || !ja.value) return;
+            
+            words.unshift({ 
+                id: Date.now(), 
+                en: en.value.trim(), 
+                ja: ja.value.trim(),
+                checked: false // 初期状態は未チェック
+            });
+            
+            localStorage.setItem('ocean_words_list', JSON.stringify(words));
+            en.value = ''; ja.value = ''; 
+            renderWordList();
+        }
+
+        // 🌟 チェックのオンオフを切り替える関数
+        function toggleWordCheck(wordId) {
+            const word = words.find(w => w.id === wordId);
+            if (word) {
+                word.checked = !word.checked;
+                localStorage.setItem('ocean_words_list', JSON.stringify(words));
+                renderWordList(); // 再描画して自動で下に移動させる
+            }
+        }
+
+        function setGlobalVisibility(mode) { globalVisibilityMode = mode; renderWordList(); }
+        
         function createBubble() {
             const container = document.getElementById('bubble-container');
             if(!container || container.style.display === 'none') return;
             const b = document.createElement('div');
             b.className = 'bubble';
-            const size = Math.random() * 12 + 6;
-            b.style.width = size + 'px';
-            b.style.height = size + 'px';
+            const size = Math.random() * 14 + 6;
+            b.style.width = size + 'px'; b.style.height = size + 'px';
             b.style.left = Math.random() * 100 + '%';
+            b.style.animationDuration = (Math.random() * 3 + 3) + 's';
             container.appendChild(b);
-            setTimeout(() => b.remove(), 5000);
+            setTimeout(() => b.remove(), 6000);
+        }
+        
+        function clearAllSystemData() { 
+            if(confirm('全データを削除しますか？')) { localStorage.clear(); window.location.reload(); }
         }
     </script>
 </body>
 </html>
-
-
