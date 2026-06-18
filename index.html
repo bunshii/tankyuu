@@ -815,6 +815,67 @@
         function clearAllSystemData() { 
             if(confirm('全データを削除しますか？')) { localStorage.clear(); window.location.reload(); }
         }
+                // ==========================================
+        // ⚓️ Firebase通知アンテナ（ここを追加！）
+        // ==========================================
+        
+        // 1. Webブラウザ用のFirebase部品をネット上から直接読み込みます
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+
+        // 2. 開発者様のFirebase基地の住所（短縮版！）
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJtTQOLVM1pHKwBcGhQXrsxTlkvFkgG2o",
+            projectId: "oceancompass-58466",
+            messagingSenderId: "108644591634",
+            appId: "1:1086445991634:web:2c53f6b291a8504b021f0b"
+        };
+
+        // 3. 基地の起動
+        const app = initializeApp(firebaseConfig);
+        const messaging = getMessaging(app);
+
+        // 4. アプリが起動した瞬間に、スマホに「通知を許可しますか？」と聞く関数
+        async function requestNotificationPermission() {
+            try {
+                // 画面にポップアップを出す
+                const permission = await Notification.requestPermission();
+                if (permission === "granted") {
+                    console.log("通知が許可されました！");
+                    
+                    // このスマホ専用の「宛先（トークン）」を発行してもらう
+                    const token = await getToken(messaging, {
+                        vapidKey: "BJ93qL2gC-P1yqB-BwbE-r6swD4IKx-9cZACMbEI2_Z5GhlvP17jKhrLu697XP9QulPuIxckJONlzeIwFovXnVI	"
+                    });
+                    
+                    if (token) {
+                        console.log("🚨【最重要】これがあなたのスマホの宛先（トークン）です👇");
+                        console.log(token);
+                        // 画面が見づらくても確認できるように、アラート（警告）でも出しておきます
+                        alert("トークン取得成功！FCM登録トークン窓に貼ってください：\n\n" + token);
+                    } else {
+                        console.log("宛先（トークン）が空でした。");
+                    }
+                } else {
+                    console.log("通知がブロックされました。");
+                }
+            } catch (error) {
+                console.error("通知設定中にエラー発生:", error);
+            }
+        }
+
+        // 5. さあ、アプリが立ち上がったらスイッチON！
+        // window.onload の一番最後などで自動実行されるように仕込みます
+        const originalOnload = window.onload;
+        window.onload = function() {
+            if(originalOnload) originalOnload();
+            
+            // 潜水開始ボタンなどが準備できたら、通知の許可もついでに取る
+            setTimeout(() => {
+                requestNotificationPermission();
+            }, 2000); // 起動2秒後にポップアップを出す優しい設計
+        };
+
     </script>
 </body>
 </html>
