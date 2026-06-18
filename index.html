@@ -356,7 +356,6 @@
         import { initializeApp } from "firebase/app";
         import { getMessaging, getToken } from "firebase/messaging";
 
-        // Firebase設定項目
         const firebaseConfig = {
           apiKey: "AIzaSyBJtTQOLVM1pHKwBcGhQXrsxTlkvFkgG2o",
           projectId: "oceancompass-58466",
@@ -368,7 +367,7 @@
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === "granted") {
-                    console.log("通知権限: 許可状態を確認。");
+                    console.log("通知権限: 許可を確認。");
                     const app = initializeApp(firebaseConfig);
                     const messaging = getMessaging(app);
 
@@ -378,7 +377,7 @@
                     
                     if (token) {
                         console.log("FCMトークン取得成功:", token);
-                        // 初回接続のインジケータ色変更
+                        // 画面左上のステータス欄を同期済みに変更
                         const indicator = document.getElementById('system-status-indicator');
                         if (indicator) {
                             indicator.innerText = "● 通知レーダー同期済";
@@ -388,7 +387,7 @@
                     }
                 }
             } catch (error) {
-                console.error("通知の初期化エラー(安全ガード) :", error);
+                console.error("通知の初期化エラー（クラッシュ防止ガード）:", error);
             }
         });
     </script>
@@ -419,7 +418,7 @@
                 renderWordList();
                 setInterval(createBubble, 400);
             } catch (e) {
-                console.error("UIシステム初期化エラー防止ガード:", e);
+                console.error("UI初期化エラー防止ガード:", e);
             }
         };
 
@@ -484,14 +483,13 @@
             document.getElementById('home-timer-display').innerText = fmt;
             document.getElementById('fullscreen-time-display').innerText = fmt;
 
-            // 円形プログレスのアニメーション連動計算
             const progressCircle = document.getElementById('fullscreen-svg-progress');
             if(progressCircle && timerMode === 'countdown') {
                 const totalDash = 326.72;
                 const ratio = Math.max(0, Math.min(1, sec / totalSeconds));
                 progressCircle.style.strokeDashoffset = totalDash * (1 - ratio);
             } else if(progressCircle) {
-                progressCircle.style.strokeDashoffset = 0; // カウントアップ時は満タン固定
+                progressCircle.style.strokeDashoffset = 0;
             }
         }
 
@@ -503,7 +501,7 @@
                 if(nav) nav.classList.remove('hidden');
                 document.getElementById('bubble-container').style.display = 'none';
                 
-                if(elapsedSeconds >= 10) { // 10秒以上のダイブでログ登録可能
+                if(elapsedSeconds >= 10) {
                     focusRecords.push({ date: new Date().toISOString().split('T')[0], minutes: Math.max(1, Math.floor(elapsedSeconds/60)) });
                     localStorage.setItem('ocean_focus_records', JSON.stringify(focusRecords));
                     renderWeeklyChart();
@@ -526,28 +524,24 @@
             }
         }
 
-        /* 📊 高度なリッチ週次グラフ表示システム */
         function renderWeeklyChart() {
             const container = document.getElementById('home-weekly-chart'); if(!container) return; container.innerHTML = '';
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // 過去7日間の配列を生成
             const last7Days = [];
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(); d.setDate(d.getDate() - i);
                 last7Days.push(d.toISOString().split('T')[0]);
             }
 
-            // 各日付の記録をマッピング
             const dailyMins = last7Days.map(dateStr => {
                 return focusRecords.filter(r => r.date === dateStr).reduce((sum, r) => sum + r.minutes, 0);
             });
 
-            const maxMin = Math.max(...dailyMins, 30); // 最低基準を30分に
+            const maxMin = Math.max(...dailyMins, 30);
             document.getElementById('chart-max-label').innerText = `MAX: ${Math.max(...dailyMins)}分`;
 
             const dayLabels = ['月','火','水','木','金','土','日'];
-            const currentDayIdx = new Date().getDay(); // 0=日, 1=月...
             const adjustedLabels = [];
             for (let i = 6; i >= 0; i--) {
                 const targetDate = new Date(); targetDate.setDate(targetDate.getDate() - i);
@@ -555,12 +549,10 @@
                 adjustedLabels.push(dayLabels[dayNum === 0 ? 6 : dayNum - 1]);
             }
 
-            // 棒グラフのエレメント動的組み立て
             dailyMins.forEach((min, idx) => {
                 const barContainer = document.createElement('div');
                 barContainer.style.cssText = "display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end;";
                 
-                // 棒
                 const bar = document.createElement('div');
                 const heightPercent = (min / maxMin) * 90;
                 bar.style.cssText = `width: 14px; height: ${heightPercent}%; background: linear-gradient(0deg, #0077b6 0%, #00b4d8 100%); border-radius: 4px 4px 0 0; transition: height 0.5s ease-out; position:relative;`;
@@ -568,12 +560,10 @@
                     bar.style.background = "linear-gradient(0deg, #ff6d00 0%, #ff9e00 100%)";
                 }
 
-                // ホバー/数値ラベル
                 const valLabel = document.createElement('span');
                 valLabel.innerText = min > 0 ? min : '';
                 valLabel.style.cssText = "font-size: 0.65rem; color: #fff; margin-bottom: 2px; font-family: monospace;";
                 
-                // 曜日ラベル
                 const label = document.createElement('span');
                 label.innerText = adjustedLabels[idx];
                 label.style.cssText = "font-size: 0.65rem; color: #888; margin-top: 4px;";
@@ -585,7 +575,6 @@
                 container.appendChild(barContainer);
             });
 
-            // 本日の合計値表示
             const todayTotal = focusRecords.filter(r => r.date === todayStr).reduce((sum, r) => sum + r.minutes, 0);
             const absoluteTotal = focusRecords.reduce((sum, r) => sum + r.minutes, 0);
             document.getElementById('home-today-total-label').innerText = `今日: ${todayTotal}分`;
@@ -678,7 +667,6 @@
             en.value = ''; ja.value = ''; renderWordList();
         }
 
-        /* 📖 リッチな単語モザイク（隠す）機能付きレンダラー */
         function renderWordList() {
             const container = document.getElementById('word-list-container'); if(!container) return; container.innerHTML = '';
             if(words.length === 0) {
@@ -693,7 +681,6 @@
                 const left = document.createElement('div');
                 left.style.fontSize = "0.9rem";
                 
-                // 英語部分
                 const enSpan = document.createElement('span');
                 enSpan.innerText = w.en + " ";
                 enSpan.style.fontWeight = 'bold';
@@ -702,11 +689,9 @@
                     enSpan.onclick = () => enSpan.classList.toggle('reveal');
                 }
                 
-                // 矢印
                 const arrow = document.createElement('span');
                 arrow.innerText = " → "; arrow.style.color = "#00b4d8";
 
-                // 日本語部分
                 const jaSpan = document.createElement('span');
                 jaSpan.innerText = w.ja;
                 jaSpan.style.color = '#90e0ef';
@@ -796,4 +781,5 @@
     </script>
 </body>
 </html>
+
 
