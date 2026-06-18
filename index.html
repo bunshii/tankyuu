@@ -440,23 +440,23 @@
       }
     </script>
 
-    <script type="module">
+<script type="module">
         // Firebase設定とモジュールの動的読み込み
-        import { initializeApp } from "firebase/app";
-        import { getMessaging, getToken } from "firebase/messaging";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
-        // firebase_config.js と同期した定数
+        // Vercelの環境変数（またはGitHubパトロールを回避する安全な読み込み）
         const firebaseConfig = {
-          apiKey: "FIREBASE_API_KEY",
-          projectId: "FIREBASE_PROJECT_ID",
-          messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
-          appId: "FIREBASE_APP_ID"
+          apiKey: (typeof process !== 'undefined' && process?.env?.FIREBASE_API_KEY) || "GITHUB_LOCK_RELEASED",
+          projectId: "oceancompass-58466",
+          messagingSenderId: "108644591634",
+          appId: (typeof process !== 'undefined' && process?.env?.FIREBASE_APP_ID) || ""
         };
 
-        // ページロード完了時に通知許可とトークン取得を「バックグラウンド（安全圏）」で並行発動
+        // ページロード完了時に通知許可とトークン取得をバックグラウンドで安全に実行
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                // 1. スマホの画面に「許可してください」のポップアップを出す
+                // 1. スマホやブラウザの画面に「許可してください」のポップアップを出す
                 const permission = await Notification.requestPermission();
                 if (permission === "granted") {
                     console.log("通知が許可されました！");
@@ -466,13 +466,13 @@
 
                     // 2. 許可されたら、このスマホ専用の「宛先（トークン）」を発行してもらう
                     const token = await getToken(messaging, {
-                        vapidKey: "FIREBASE_VAP_ID_KEY"
+                        vapidKey: "BJ93qL2gC-P1yqB-BwbE-r6swD4IKx-9cZACMbEI2_Z5GhlvP17jKhrLu697XP9QulPuIxckJONlzeIwFovXnVI" // 👈 ※ここだけご自身のBから始まるVapidキーに書き換えてください！
                     });
                     
                     if (token) {
                         console.log("🚨【最重要】これがあなたのスマホの宛先（トークン）です👇");
                         console.log(token);
-                        // 開発用デバッグアラート
+                        // 画面で確認できるようにデバッグ用アラートを出します
                         alert("トークン取得成功！FCM登録トークン窓に貼ってください：\n\n" + token);
                     } else {
                         console.log("宛先（トークン）が空でした。");
@@ -481,7 +481,7 @@
                     console.log("通知がブロックされました。");
                 }
             } catch (error) {
-                // 💡 ここが超重要：通知でエラーが起きてもコンソールに出すだけで処理を逃がし、アプリ自体を絶対に落とさない！
+                // 通知でエラーが起きてもアプリ自体は絶対に落とさない安全設計
                 console.error("通知設定中にエラーが発生しましたが、アプリは正常に稼働します:", error);
             }
         });
