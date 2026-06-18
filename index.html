@@ -868,6 +868,245 @@
 
             try {
                 const res = await fetch('/api/review', {
+    <script type="importmap">
+      {
+        "imports": {
+          "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+          "firebase/messaging": "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getMessaging, getToken } from "firebase/messaging";
+
+        // ✅ あなたのプロジェクトの本物の値を直接埋め込み（これで確実に通信が成立します）
+        const firebaseConfig = {
+          apiKey: "AIzaSyBJtTQOLVM1pHKwBcGhQXrsxTlkvFkgG2o",
+          projectId: "oceancompass-58466",
+          messagingSenderId: "108644591634",
+          appId: "1:1086445991634:web:2c53f6b291a8504b021f0b"
+        };
+
+        // 画面の読み込みが終わったら、安全に通知の接続処理を開始
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // ブラウザの通知権限の状態を確認（すでに許可されていればポップアップはスキップされます）
+                const permission = await Notification.requestPermission();
+                
+                if (permission === "granted") {
+                    console.log("通知権限: 許可されています。");
+                    
+                    // Firebaseの起動
+                    const app = initializeApp(firebaseConfig);
+                    const messaging = getMessaging(app);
+
+                    // 端末専用の宛先（FCMトークン）を発行
+                    const token = await getToken(messaging, {
+                        vapidKey: "BJ93qL2gC-P1yqB-BwbE-r6swD4IKx-9cZACMbEI2_Z5GhlvP17jKhrLu697XP9QulPuIxckJONlzeIwFovXnVI"
+                    });
+                    
+                    if (token) {
+                        console.log("FCMトークンの取得に成功しました:", token);
+                        // 確実に通信がつながったことを知らせるアラート
+                        alert("通知の接続に成功しました！\nこのトークンをコピーしてFirebaseで使用してください：\n\n" + token);
+                    }
+                } else {
+                    console.log("通知権限が許可されていません（ブロックまたは未選択）。");
+                }
+            } catch (error) {
+                // 🛡️ 例外ガード：通知回りでエラーが起きてもアプリ本体（タイマー等）は絶対に殺さない
+                console.error("通知の初期化プロセスでエラーが発生しました:", error);
+            }
+        });
+    </script>
+
+    <script>
+        // --- アプリ基本ロジック群（既存のタイマーやワードログの処理） ---
+        let focusRecords = JSON.parse(localStorage.getItem('ocean_focus_records')) || [];
+        let todos = JSON.parse(localStorage.getItem('ocean_todo_list')) || [];
+        let timetableData = JSON.parse(localStorage.getItem('ocean_timetable_data')) || Array.from({ length: 7 }, () => Array(6).fill('-'));
+        let words = JSON.parse(localStorage.getItem('ocean_words_list')) || [];
+        let diverProfile = JSON.parse(localStorage.getItem('ocean_diver_profile')) || { name: 'DIVER_01', avatar: '🧑‍💻' };
+        
+        let timer = null;
+        let isTimerRunning = false;
+        let timerMode = 'countdown';
+        let totalSeconds = 25 * 60;
+        let elapsedSeconds = 0;
+        let activeTimetableCellIndex = null;
+        const avatars = ['🧑‍💻', '🤿', '🧜‍♂️', '🧜‍♀️', '🦈', '🐋', '🐙'];
+
+        window.onload = function() {
+            try {
+                updateDiverHeaderUI();
+                initAvatarGrid();
+                renderWeeklyChart();
+                renderTodoList();
+                renderTimetable();
+                renderWordList();
+                setInterval(createBubble, 400);
+            } catch (e) {
+                console.error("UI初期化エラー防止ガード:", e);
+            }
+        };
+
+        function updateDiverHeaderUI() {
+            document.getElementById('header-diver-name').innerText = diverProfile.name;
+            document.getElementById('header-avatar-box').innerText = diverProfile.avatar;
+            document.getElementById('input-diver-name').value = diverProfile.name;
+        }
+        function initAvatarGrid() {
+            const grid = document.getElementById('avatar-selector-grid');
+            if(!grid) return; grid.innerHTML = '';
+            avatars.forEach(av => {
+                const d = document.createElement('div');
+                d.className = 'avatar-option' + (diverProfile.avatar === av ? ' selected' : '');
+                d.innerText = av;
+                d.onclick = () => {
+                    document.querySelectorAll('.avatar-option').forEach(x=>x.classList.remove('selected'));
+                    d.classList.add('selected'); diverProfile.avatar = av;
+                };
+                grid.appendChild(d);
+            });
+        }
+        function saveDiverProfile() {
+            const nameInput = document.getElementById('input-diver-name').value.trim();
+            if(nameInput) diverProfile.name = nameInput;
+            localStorage.setItem('ocean_diver_profile', JSON.stringify(diverProfile));
+            updateDiverHeaderUI(); closeSettingsModal();
+        }
+        function openSettingsModal() { document.getElementById('settings-modal-overlay').classList.add('open'); }
+        function closeSettingsModal() { document.getElementById('settings-modal-overlay').classList.remove('open'); }
+        function clearAllSystemData() { if(confirm("初期化しますか？")) { localStorage.clear(); location.reload(); } }
+        function switchTab(tabId, btnEl) {
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(nb => nb.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            if(btnEl) btnEl.classList.add('active');
+        }
+        function switchToAnalyticsTab(view) { switchTab('analytics', null); changeAnalyticsView(view); }
+        function changeAnalyticsView(view) { renderWeeklyChart(); }
+        function changeTimerMode() {
+            timerMode = document.getElementById('timer-mode-select').value;
+            document.getElementById('countdown-input-wrapper').style.display = timerMode === 'countup' ? 'none' : 'flex';
+            if(timerMode === 'countup') updateTimerDisplay(0); else updateMinutes();
+        }
+        function updateMinutes() {
+            let m = parseInt(document.getElementById('timer-minutes-input').value);
+            totalSeconds = (isNaN(m) || m < 1) ? 60 : m * 60;
+            updateTimerDisplay(totalSeconds);
+        }
+        function updateTimerDisplay(sec) {
+            const mins = Math.floor(sec / 60); const secs = sec % 60;
+            const fmt = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = fmt;
+            document.getElementById('fullscreen-time-display').innerText = fmt;
+        }
+        function toggleTimer() {
+            const fs = document.getElementById('diving-fullscreen-mode');
+            if (isTimerRunning) {
+                clearInterval(timer); isTimerRunning = false; fs.style.display = 'none';
+                document.getElementById('bubble-container').style.display = 'none';
+                if(elapsedSeconds > 60) {
+                    focusRecords.push({ date: new Date().toISOString().split('T')[0], minutes: Math.floor(elapsedSeconds/60) });
+                    localStorage.setItem('ocean_focus_records', JSON.stringify(focusRecords));
+                }
+                updateMinutes();
+            } else {
+                isTimerRunning = true; elapsedSeconds = 0; fs.style.display = 'flex';
+                document.getElementById('bubble-container').style.display = 'block';
+                timer = setInterval(() => {
+                    elapsedSeconds++;
+                    if(timerMode === 'countdown') {
+                        let rem = totalSeconds - elapsedSeconds; updateTimerDisplay(rem);
+                        if(rem <= 0) toggleTimer();
+                    } else { updateTimerDisplay(elapsedSeconds); }
+                }, 1000);
+            }
+        }
+        function renderWeeklyChart() {
+            const chart = document.getElementById('home-weekly-chart'); if(!chart) return; chart.innerHTML = '';
+            const todayStr = new Date().toISOString().split('T')[0];
+            const mins = focusRecords.filter(r=>r.date===todayStr).reduce((sum,r)=>sum+r.minutes, 0);
+            document.getElementById('home-today-total-label').innerText = `今日: ${mins}分`;
+        }
+        function openTodoModal() { document.getElementById('todo-modal-overlay').classList.add('open'); }
+        function closeTodoModal() { document.getElementById('todo-modal-overlay').classList.remove('open'); }
+        function addHomeTodo() {
+            const txt = document.getElementById('input-home-todo').value.trim(); if(!txt) return;
+            todos.unshift({ id: Date.now(), text: txt, completed: false });
+            localStorage.setItem('ocean_todo_list', JSON.stringify(todos));
+            document.getElementById('input-home-todo').value = ''; closeTodoModal(); renderTodoList();
+        }
+        function renderTodoList() {
+            const c = document.getElementById('schedule-todo-list-container'); if(!c) return; c.innerHTML = '';
+            todos.forEach(t => { const d = document.createElement('div'); d.innerText = "・ " + t.text; c.appendChild(d); });
+        }
+        function renderTimetable() {
+            const b = document.getElementById('timetable-body'); if(!b) return; b.innerHTML = '';
+            for(let h=0; h<6; h++) {
+                const tr = document.createElement('tr');
+                for(let d=0; d<7; d++) {
+                    const td = document.createElement('td'); td.innerText = timetableData[d][h];
+                    td.onclick = () => { activeTimetableCellIndex = { d, h }; document.getElementById('timetable-modal-overlay').classList.add('open'); };
+                    tr.appendChild(td);
+                }
+                b.appendChild(tr);
+            }
+        }
+        function closeTimetableModal() { document.getElementById('timetable-modal-overlay').classList.remove('open'); }
+        function saveTimetableModalValue() {
+            if(!activeTimetableCellIndex) return;
+            timetableData[activeTimetableCellIndex.d][activeTimetableCellIndex.h] = document.getElementById('input-timetable-subject').value.trim() || '-';
+            localStorage.setItem('ocean_timetable_data', JSON.stringify(timetableData));
+            closeTimetableModal(); renderTimetable();
+        }
+        function addNewWord() {
+            const en = document.getElementById('input-en'); const ja = document.getElementById('input-ja');
+            if(!en.value || !ja.value) return;
+            words.unshift({ id: Date.now(), en: en.value.trim(), ja: ja.value.trim() });
+            localStorage.setItem('ocean_words_list', JSON.stringify(words));
+            en.value = ''; ja.value = ''; renderWordList();
+        }
+        function renderWordList() {
+            const c = document.getElementById('word-list-container'); if(!c) return; c.innerHTML = '';
+            words.forEach(w => { const d = document.createElement('div'); d.innerText = `${w.en} : ${w.ja}`; c.appendChild(d); });
+        }
+        async function askVercelCloudflareAiTranslate() {
+            const enInput = document.getElementById('input-en');
+            const jaInput = document.getElementById('input-ja');
+            const btn = document.getElementById('btn-ai-translate');
+            const word = enInput.value.trim();
+            if(!word) return;
+            
+            btn.innerText = "通信中..."; btn.disabled = true;
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: word })
+                });
+                if(!res.ok) throw new Error("応答なし");
+                const data = await res.json();
+                jaInput.value = data.reply || "";
+            } catch(e) {
+                alert("AI翻訳エラー: " + e.message);
+            } finally {
+                btn.innerText = "AI翻訳 🧠"; btn.disabled = false;
+            }
+        }
+        async function generateAiReview() {
+            const modal = document.getElementById('ai-modal-overlay');
+            const box = document.getElementById('ai-response-box');
+            modal.classList.add('open'); box.innerText = "ディープデータ解析中...";
+
+            const totalMins = focusRecords.reduce((sum, r) => sum + r.minutes, 0);
+            const uncompletedCount = todos.filter(t=>!t.completed).length;
+
+            try {
+                const res = await fetch('/api/review', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
