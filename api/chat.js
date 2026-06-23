@@ -17,6 +17,8 @@ export default async function handler(req, res) {
         
         // fish のときは超速で固定返却（キャッシュ処理）
         if (message && message.toLowerCase().trim() === "fish") {
+            // 固定返却の場合も、せっかくなのでSupabaseに保存する処理を裏で走らせます
+            await saveToSupabase("fish", "魚");
             return res.status(200).json({ reply: "魚" });
         }
 
@@ -58,17 +60,19 @@ export default async function handler(req, res) {
             }
         } catch (fetchError) {
             console.error("Cloudflare通信エラー:", fetchError);
-            return res.status(200).json({ reply: `${message}の訳` });
+            const fallbackReply = `${message}の訳`;
+            await saveToSupabase(message, fallbackReply);
+            return res.status(200).json({ reply: fallbackReply });
         }
 
         // Pythonコード暴走時の安全弁
         const lowerText = replyText.toLowerCase();
         if (lowerText.includes("import") || lowerText.includes("pd.") || lowerText.includes("python") || lowerText.includes("プログラム")) {
+            await saveToSupabase(message, "翻訳データ");
             return res.status(200).json({ reply: "翻訳データ" });
         }
 
         // 🌟【新設：お節介ワード徹底抹殺フィルター】
-        // AIが先頭につけがちな「答え」「答案」「意味」「翻訳」「和訳」などの文字と、その後に続く記号を根こそぎ消去します
         replyText = replyText.replace(/^(答え|答案|翻訳|和訳|意味|回答|単語|output|result|response|translation)[:：\s\-\=\[\]\(\)]+/i, '');
         
         // カッコやマークダウン記号などを排除
@@ -80,7 +84,6 @@ export default async function handler(req, res) {
 
         // 再び「答え」などのノイズだけが抽出されてしまっていた場合の最終微調整
         if (finalReply === "答え" || finalReply === "答案" || finalReply === "翻訳" || finalReply === "意味") {
-            // もしAIの返答がノイズだけになってしまった場合は、マッチした次の塊を探すか、クリーンアップ前のテキストからノイズを除去
             let alternativeText = replyText.replace(finalReply, "").trim();
             const secondMatch = alternativeText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/);
             if (secondMatch) {
@@ -93,9 +96,50 @@ export default async function handler(req, res) {
             finalReply = finalReply.slice(0, -2);
         }
 
-        return res.status(200).json({ reply: finalReply || "翻訳失敗" });
+        const resultReply = finalReply || "翻訳失敗";
+
+        // 🌟【新設：安全なSupabaseへの自動保存】
+        // 翻訳が成功した文字列を、裏側でSupabaseの倉庫へ自動転送します
+        await saveToSupabase(message, resultReply);
+
+        return res.status(200).json({ reply: resultReply });
 
     } catch (error) {
         return res.status(200).json({ reply: "システム調整中" });
+    }
+}
+
+// 🚢【支援関数：Supabaseにデータを横流しして保存する金庫番】
+async function saveToSupabase(englishWord, japaneseWord) {
+    // Vercelの環境変数（secret）から合言葉を呼び出す
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+    // 合言葉が両方とも入っているときだけ通信を試みる
+    if (supabaseUrl && supabaseKey) {
+        try {
+            // URLの末尾にスラッシュが重複しないよう綺麗に整えて、wordsテーブルの住所を作ります
+            const cleanUrl = supabaseUrl.endsWith('/') ? supabaseUrl : supabaseUrl + '/';
+            const targetUrl = `${cleanUrl}words`;
+
+            await fetch(targetUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({
+                    en: englishWord.trim(),   // 英語の列（en）に保存
+                    ja: japaneseWord.trim(),  // 日本語の列（ja）に保存
+                    checked: false            // 初期状態は未チェック（false）
+                })
+            });
+            console.log('Supabaseへの自動保存に成功！');
+        } catch (sbError) {
+            // もしSupabase側で何かが起きても、ユーザーへの翻訳表示を邪魔しないようログだけ残す
+            console.error('Supabase自動保存エラー:', sbError);
+        }
     }
 }
